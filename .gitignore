@@ -4,3 +4,9 @@
 *.~bpr
 *.dcu
 *.~pas
+*.opensdf
+*.suo
+*.sdf
+*.sln
+*.vcxproj
+*.filters
