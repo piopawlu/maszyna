@@ -32,7 +32,8 @@ enum TOrders
 
 enum TMovementStatus
 { // flagi bitowe ruchu (iDrivigFlags)
-    moveStopCloser = 1, // podjechaæ blisko W4 (nie podje¿d¿aæ na pocz¹tku ani po zmianie czo³a)
+    moveStopCloser = 1, // podjechaæ blisko W4 (nie podje¿d¿aæ na pocz¹tku ani po
+    // zmianie czo³a)
     moveStopPoint = 2, // stawaæ na W4 (wy³¹czone podczas zmiany czo³a)
     moveActive = 4, // pojazd jest za³¹czony i skanuje
     movePress = 8, // dociskanie przy od³¹czeniu (zamiast zmiennej Prepare2press)
@@ -50,11 +51,13 @@ enum TMovementStatus
     moveGuardSignal = 0x8000, // sygna³ od kierownika (min¹³ czas postoju)
     moveVisibility = 0x10000, // jazda na widocznoœæ po przejechaniu S1 na SBL
     moveDoorOpened = 0x20000, // drzwi zosta³y otwarte - doliczyæ czas na zamkniêcie
-    movePushPull = 0x40000 // zmiana czo³a przez zmianê kabiny - nie odczepiaæ przy zmianie kierunku
+    movePushPull = 0x40000 // zmiana czo³a przez zmianê kabiny - nie odczepiaæ
+    // przy zmianie kierunku
 };
 
 enum TStopReason
-{ // powód zatrzymania, dodawany do SetVelocity 0 - w zasadzie do usuniêcia
+{ // powód zatrzymania, dodawany do SetVelocity 0 - w zasadzie
+    // do usuniêcia
     stopNone, // nie ma powodu - powinien jechaæ
     stopSleep, // nie zosta³ odpalony, to nie pojedzie
     stopSem, // semafor zamkniêty
@@ -71,7 +74,8 @@ enum TStopReason
 };
 
 enum TAction
-{ // przechowanie aktualnego stanu AI od poprzedniego przeb³ysku œwiadomoœci
+{ // przechowanie aktualnego stanu AI od poprzedniego przeb³ysku
+    // œwiadomoœci
     actUnknown, // stan nieznany (domyœlny na pocz¹tku)
     actPantUp, // podnieœ pantograf (info dla u¿ytkownika)
     actConv, // za³¹cz przetwornicê (info dla u¿ytkownika)
@@ -101,7 +105,8 @@ class TSpeedPos
     int iFlags;
     // 1=istotny,2=tor,4=odwrotnie,8-zwrotnica (mo¿e siê zmieniæ),16-stan
     // zwrotnicy,32-miniêty,64=koniec,128=³uk
-    // 0x100=event,0x200=manewrowa,0x400=przystanek,0x800=SBL,0x1000=wys³ana komenda,0x2000=W5
+    // 0x100=event,0x200=manewrowa,0x400=przystanek,0x800=SBL,0x1000=wys³ana
+    // komenda,0x2000=W5
     // 0x10000=zatkanie
     vector3 vPos; // wspó³rzêdne XYZ do liczenia odleg³oœci
     struct
@@ -131,11 +136,13 @@ extern bool WriteLogFlag; // logowanie parametrów fizycznych
 
 class TController
 {
-  private: // obs³uga tabelki prêdkoœci (musi mieæ mo¿liwoœæ odhaczania stacji w rozk³adzie)
+  private: // obs³uga tabelki prêdkoœci (musi mieæ mo¿liwoœæ odhaczania stacji w
+    // rozk³adzie)
     TSpeedPos *sSpeedTable; // najbli¿sze zmiany prêdkoœci
     int iSpeedTableSize; // wielkoœæ tabelki
     int iFirst; // aktualna pozycja w tabeli (modulo iSpeedTableSize)
-    int iLast; // ostatnia wype³niona pozycja w tabeli <iFirst (modulo iSpeedTableSize)
+    int iLast; // ostatnia wype³niona pozycja w tabeli <iFirst (modulo
+    // iSpeedTableSize)
     int iTableDirection; // kierunek zape³nienia tabelki wzglêdem pojazdu z AI
     double fLastVel; // prêdkoœæ na poprzednio sprawdzonym torze
     TTrack *tLast; // ostatni analizowany tor
@@ -147,15 +154,19 @@ class TController
   public:
     TEvent *eSignNext; // sygna³ zmieniaj¹cy prêdkoœæ, do pokazania na [F2]
     AnsiString asNextStop; // nazwa nastêpnego punktu zatrzymania wg rozk³adu
-    int iStationStart; // numer pierwszej stacji pokazywanej na podgl¹dzie rozk³adu
+    int iStationStart; // numer pierwszej stacji pokazywanej na podgl¹dzie
+    // rozk³adu
   private: // parametry sterowania pojazdem (stan, hamowanie)
-    double fShuntVelocity; // maksymalna prêdkoœæ manewrowania, zale¿y m.in. od sk³adu
+    double fShuntVelocity; // maksymalna prêdkoœæ manewrowania, zale¿y m.in. od
+    // sk³adu
     int iVehicles; // iloœæ pojazdów w sk³adzie
-    int iEngineActive; // ABu: Czy silnik byl juz zalaczony; Ra: postêp w za³¹czaniu
+    int iEngineActive; // ABu: Czy silnik byl juz zalaczony; Ra: postêp w
+    // za³¹czaniu
     // vector3 vMechLoc; //pozycja pojazdu do liczenia odleg³oœci od semafora (?)
     bool Psyche;
     int iDrivigFlags; // flagi bitowe ruchu
-    double fDriverBraking; // po pomno¿eniu przez v^2 [km/h] daje ~drogê hamowania [m]
+    double fDriverBraking; // po pomno¿eniu przez v^2 [km/h] daje ~drogê hamowania
+    // [m]
     double fDriverDist; // dopuszczalna odleg³oœæ podjechania do przeszkody
     double fVelMax; // maksymalna prêdkoœæ sk³adu (sprawdzany ka¿dy pojazd)
     double fBrakeDist; // przybli¿ona droga hamowania
@@ -163,7 +174,8 @@ class TController
   public:
     double fLastStopExpDist; // odleg³oœæ wygasania ostateniego przystanku
     double ReactionTime; // czas reakcji Ra: czego i na co? œwiadomoœci AI
-    double fBrakeTime; // wpisana wartoœæ jest zmniejszana do 0, gdy ujemna nale¿y zmieniæ nastawê
+    double fBrakeTime; // wpisana wartoœæ jest zmniejszana do 0, gdy ujemna nale¿y
+    // zmieniæ nastawê
     // hamulca
   private:
     double fReady; // poziom odhamowania wagonów
@@ -176,13 +188,18 @@ class TController
     TAction eAction; // aktualny stan
     bool HelpMeFlag; // wystawiane True jesli cos niedobrego sie dzieje
   public:
+    TAction GetAction()
+    {
+        return eAction;
+    }
     bool AIControllFlag; // rzeczywisty/wirtualny maszynista
-    int iRouteWanted; // oczekiwany kierunek jazdy (0-stop,1-lewo,2-prawo,3-prosto) np. odpala
+    int iRouteWanted; // oczekiwany kierunek jazdy
+    // (0-stop,1-lewo,2-prawo,3-prosto) np. odpala
     // migacz lub czeka na stan zwrotnicy
   private:
     TDynamicObject *pVehicle; // pojazd w którym siedzi steruj¹cy
-    TDynamicObject
-        *pVehicles[2]; // skrajne pojazdy w sk³adzie (niekoniecznie bezpoœrednio sterowane)
+    TDynamicObject *pVehicles[2]; // skrajne pojazdy w sk³adzie (niekoniecznie
+    // bezpoœrednio sterowane)
     TMoverParameters *mvControlling; // jakim pojazdem steruje (mo¿e silnikowym w EZT)
     TMoverParameters *mvOccupied; // jakim pojazdem hamuje
     Mtable::TTrainParameters *TrainParams; // rozk³ad jazdy zawsze jest, nawet jeœli pusty
@@ -193,28 +210,36 @@ class TController
     TTextSound *tsGuardSignal; // komunikat od kierownika
     int iGuardRadio; // numer kana³u radiowego kierownika (0, gdy nie u¿ywa radia)
   public:
-    double AccPreferred; // preferowane przyspieszenie (wg psychiki kieruj¹cego, zmniejszana przy
+    double AccPreferred; // preferowane przyspieszenie (wg psychiki kieruj¹cego,
+    // zmniejszana przy
     // wykryciu kolizji)
-    double AccDesired; // przyspieszenie, jakie ma utrzymywaæ (<0:nie przyspieszaj,<-0.1:hamuj)
-    double VelDesired; // predkoœæ, z jak¹ ma jechaæ, wynikaj¹ca z analizy tableki; <=VelSignal
-    double fAccDesiredAv; // uœrednione przyspieszenie z kolejnych przeb³ysków œwiadomoœci, ¿eby
+    double AccDesired; // przyspieszenie, jakie ma utrzymywaæ (<0:nie
+    // przyspieszaj,<-0.1:hamuj)
+    double VelDesired; // predkoœæ, z jak¹ ma jechaæ, wynikaj¹ca z analizy
+    // tableki; <=VelSignal
+    double fAccDesiredAv; // uœrednione przyspieszenie z kolejnych przeb³ysków
+    // œwiadomoœci, ¿eby
     // ograniczyæ migotanie
   private:
-    double VelforDriver; // prêdkoœæ, u¿ywana przy zmianie kierunku (ograniczenie przy nieznajmoœci
+    double VelforDriver; // prêdkoœæ, u¿ywana przy zmianie kierunku (ograniczenie
+    // przy nieznajmoœci
     // szlaku?)
     double VelSignal; // predkoœæ zadawana przez semafor (funkcj¹ SetVelocity())
-    double VelLimit; // predkoœæ zadawana przez event jednokierunkowego ograniczenia prêdkoœci
+    double VelLimit; // predkoœæ zadawana przez event jednokierunkowego
+    // ograniczenia prêdkoœci
     // (PutValues albo komend¹)
   public:
     double VelNext; // prêdkoœæ, jaka ma byæ po przejechaniu d³ugoœci ProximityDist
   private:
-    // double fProximityDist; //odleglosc podawana w SetProximityVelocity(); >0:przeliczaæ do
+    // double fProximityDist; //odleglosc podawana w SetProximityVelocity();
+    // >0:przeliczaæ do
     // punktu, <0:podana wartoœæ
   public:
-    double
-        ActualProximityDist; // odleg³oœæ brana pod uwagê przy wyliczaniu prêdkoœci i przyspieszenia
+    double ActualProximityDist; // odleg³oœæ brana pod uwagê przy wyliczaniu
+    // prêdkoœci i przyspieszenia
   private:
-    vector3 vCommandLocation; // polozenie wskaznika, sygnalizatora lub innego obiektu do ktorego
+    vector3 vCommandLocation; // polozenie wskaznika, sygnalizatora lub innego
+    // obiektu do ktorego
     // odnosi sie komenda
     TOrders OrderList[maxorders]; // lista rozkazów
     int OrderPos, OrderTop; // rozkaz aktualny oraz wolne miejsce do wstawiania nowych
@@ -222,38 +247,49 @@ class TController
     std::ofstream AILogFile; // log AI
     bool MaxVelFlag;
     bool MinVelFlag;
-    int iDirection; // kierunek jazdy wzglêdem sprzêgów pojazdu, w którym siedzi AI (1=przód,-1=ty³)
+    int iDirection; // kierunek jazdy wzglêdem sprzêgów pojazdu, w którym siedzi
+    // AI (1=przód,-1=ty³)
     int iDirectionOrder; //¿adany kierunek jazdy (s³u¿y do zmiany kierunku)
-    int iVehicleCount; // iloœæ pojazdów do od³¹czenia albo zabrania ze sk³adu (-1=wszystkie)
-    int iCoupler; // maska sprzêgu, jak¹ nale¿y u¿yæ przy ³¹czeniu (po osi¹gniêciu trybu Connect), 0
+    int iVehicleCount; // iloœæ pojazdów do od³¹czenia albo zabrania ze sk³adu
+    // (-1=wszystkie)
+    int iCoupler; // maska sprzêgu, jak¹ nale¿y u¿yæ przy ³¹czeniu (po osi¹gniêciu
+    // trybu Connect), 0
     // gdy jazda bez ³¹czenia
     int iDriverFailCount; // licznik b³êdów AI
     bool Need_TryAgain; // true, jeœli druga pozycja w elektryku nie za³apa³a
     bool Need_BrakeRelease;
 
   public:
-    double fMinProximityDist; // minimalna oleg³oœæ do przeszkody, jak¹ nale¿y zachowaæ
-    double fOverhead1; // informacja o napiêciu w sieci trakcyjnej (0=brak drutu, zatrzymaj!)
-    double fOverhead2; // informacja o sposobie jazdy (-1=normalnie, 0=bez pr¹du, >0=z opuszczonym i
+    double fMinProximityDist; // minimalna oleg³oœæ do przeszkody, jak¹ nale¿y
+    // zachowaæ
+    double fOverhead1; // informacja o napiêciu w sieci trakcyjnej (0=brak drutu,
+    // zatrzymaj!)
+    double fOverhead2; // informacja o sposobie jazdy (-1=normalnie, 0=bez pr¹du,
+    // >0=z opuszczonym i
     // ograniczeniem prêdkoœci)
-    int iOverheadZero; // suma bitowa jezdy bezpr¹dowej, bity ustawiane przez pojazdy z
+    int iOverheadZero; // suma bitowa jezdy bezpr¹dowej, bity ustawiane przez
+    // pojazdy z
     // podniesionymi pantografami
-    int iOverheadDown; // suma bitowa opuszczenia pantografów, bity ustawiane przez pojazdy z
+    int iOverheadDown; // suma bitowa opuszczenia pantografów, bity ustawiane
+    // przez pojazdy z
     // podniesionymi pantografami
-    double fVoltage; // uœrednione napiêcie sieci: przy spadku poni¿ej wartoœci minimalnej opóŸniæ
+    double fVoltage; // uœrednione napiêcie sieci: przy spadku poni¿ej wartoœci
+    // minimalnej opóŸniæ
     // rozruch o losowy czas
   private:
     double fMaxProximityDist; // akceptowalna odleg³oœæ staniêcia przed przeszkod¹
     TStopReason eStopReason; // powód zatrzymania przy ustawieniu zerowej prêdkoœci
     AnsiString VehicleName;
-    double fVelPlus; // dopuszczalne przekroczenie prêdkoœci na ograniczeniu bez hamowania
+    double fVelPlus; // dopuszczalne przekroczenie prêdkoœci na ograniczeniu bez
+    // hamowania
     double fVelMinus; // margines obni¿enia prêdkoœci, powoduj¹cy za³¹czenie napêdu
     double fWarningDuration; // ile czasu jeszcze tr¹biæ
     double fStopTime; // czas postoju przed dalsz¹ jazd¹ (np. na przystanku)
     double WaitingTime; // zliczany czas oczekiwania do samoistnego ruszenia
     double WaitingExpireTime; // maksymlany czas oczekiwania do samoistnego ruszenia
     // TEvent* eSignLast; //ostatnio znaleziony sygna³, o ile nie miniêty
-  private: //---//---//---//---// koniec zmiennych, poni¿ej metody //---//---//---//---//
+  private: //---//---//---//---// koniec zmiennych, poni¿ej metody
+    ////---//---//---//---//
     void SetDriverPsyche();
     bool PrepareEngine();
     bool ReleaseEngine();
@@ -280,9 +316,9 @@ class TController
     // procedury dotyczace rozkazow dla maszynisty
     void SetVelocity(double NewVel, double NewVelNext,
                      TStopReason r = stopNone); // uaktualnia informacje o prêdkoœci
-    bool SetProximityVelocity(
-        double NewDist,
-        double NewVelNext); // uaktualnia informacje o prêdkoœci przy nastepnym semaforze
+    bool SetProximityVelocity(double NewDist, double NewVelNext); // uaktualnia informacje o
+    // prêdkoœci przy nastepnym
+    // semaforze
   public:
     void JumpToNextOrder();
     void JumpToFirstOrder();

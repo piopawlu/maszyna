@@ -58,7 +58,8 @@ void TRealSound::Init(char *SoundName, double DistanceAttenuation, double X, dou
     {
         if (freqmod)
             if (fFrequency != 22050.0)
-            { // dla modulowanych nie mo¿e byæ zmiany mno¿nika, bo czêstotliwoœæ w nag³ówku by³¹
+            { // dla modulowanych nie mo¿e byæ zmiany
+                // mno¿nika, bo czêstotliwoœæ w nag³ówku by³¹
                 // ignorowana, a mog³a byæ inna ni¿ 22050
                 fFrequency = 22050.0;
                 ErrorLog("Bad sound: " + AnsiString(SoundName) +
@@ -126,7 +127,8 @@ void TRealSound::Play(double Volume, int Looping, bool ListenerInside, vector3 N
             // if (FreeFlyModeFlag) //gdy swobodne latanie - nie sprawdza siê to
             fPreviousDistance = fDistance; // to efektu Dopplera nie bêdzie
         }
-        if (Looping) // dŸwiêk zapêtlony mo¿na wy³¹czyæ i zostanie w³¹czony w miarê potrzeby
+        if (Looping) // dŸwiêk zapêtlony mo¿na wy³¹czyæ i zostanie w³¹czony w miarê
+            // potrzeby
             bLoopPlay = true; // dŸwiêk wy³¹czony
         // McZapkie-010302 - babranie tylko z niezbyt odleglymi dŸwiêkami
         if ((dSoundAtt == -1) || (fDistance < 20.0 * dS))
@@ -153,16 +155,20 @@ void TRealSound::Play(double Volume, int Looping, bool ListenerInside, vector3 N
             /*
             // Ra: stara wersja, ale podobno lepsza
                pSound->GetStatus(&stat);
-               if (bLoopPlay) //jeœli zapêtlony, to zostanie ponownie w³¹czony, o ile znajdzie siê
+               if (bLoopPlay) //jeœli zapêtlony, to zostanie ponownie w³¹czony, o ile
+            znajdzie siê
             bli¿ej
                 if (stat&DSBSTATUS_PLAYING)
                  pSound->Stop();
             // Ra: wy³¹czy³em, bo podobno jest gorzej ni¿ wczeœniej
-               //ZiomalCl: dŸwiêk po wy³¹czeniu sam siê nie w³¹czy, gdy wrócimy w rejon odtwarzania
-               pSound->SetVolume(DSBVOLUME_MIN); //dlatego lepiej go wyciszyæ na czas oddalenia siê
+               //ZiomalCl: dŸwiêk po wy³¹czeniu sam siê nie w³¹czy, gdy wrócimy w
+            rejon odtwarzania
+               pSound->SetVolume(DSBVOLUME_MIN); //dlatego lepiej go wyciszyæ na czas
+            oddalenia siê
                pSound->GetStatus(&stat);
                if (!(stat&DSBSTATUS_PLAYING))
-                pSound->Play(0,0,Looping); //ZiomalCl: w³¹czenie odtwarzania rownie¿ i tu, gdy¿
+                pSound->Play(0,0,Looping); //ZiomalCl: w³¹czenie odtwarzania rownie¿ i
+            tu, gdy¿
             jesli uruchamiamy dŸwiêk poza promieniem, nie uruchomi siê on w ogóle
             */
         }
@@ -220,8 +226,8 @@ double TRealSound::GetWaveTime() // McZapkie: na razie tylko dla 22KHz/8bps
     caps.dwSize = sizeof(caps);
     pSound->GetCaps(&caps);
     WaveTime = caps.dwBufferBytes;
-    return WaveTime /
-           fFrequency; //(pSound->);  // wielkosc w bajtach przez czestotliwosc probkowania
+    return WaveTime / fFrequency; //(pSound->);  // wielkosc w bajtach przez
+    // czestotliwosc probkowania
 }
 
 void TRealSound::SetPan(int Pan)
@@ -279,7 +285,8 @@ void TTextSound::Play(double Volume, int Looping, bool ListenerInside, vector3 N
             int i;
             AnsiString t = asText;
             do
-            { // na razie zrobione jakkolwiek, docelowo przenieœæ teksty do tablicy nazw
+            { // na razie zrobione jakkolwiek, docelowo przenieœæ teksty do tablicy
+                // nazw
                 i = t.Pos("\r"); // znak nowej linii
                 if (!i)
                     Global::tranTexts.Add(t.c_str(), fTime, true);

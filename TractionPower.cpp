@@ -78,13 +78,15 @@ bool TTractionPowerSource::Load(cParser *parser)
     if (token.compare("recuperation") == 0)
         Recuperation = true;
     else if (token.compare("section") == 0) // od³¹cznik sekcyjny
-        bSection = true; // nie jest Ÿród³em zasilania, a jedynie informuje o pr¹dzie od³¹czenia
+        bSection = true; // nie jest Ÿród³em zasilania, a jedynie informuje o
+    // pr¹dzie od³¹czenia
     // sekcji z obwodu
     parser->getTokens();
     *parser >> token;
     if (token.compare("end") != 0)
         Error("tractionpowersource end statement missing");
-    // if (!bSection) //od³¹cznik sekcji zasadniczo nie ma impedancji (0.01 jest OK)
+    // if (!bSection) //od³¹cznik sekcji zasadniczo nie ma impedancji (0.01 jest
+    // OK)
     if (InternalRes < 0.1) // coœ ma³a ta rezystancja by³a...
         InternalRes = 0.2; // tak oko³o 0.2, wg
     // http://www.ikolej.pl/fileadmin/user_upload/Seminaria_IK/13_05_07_Prezentacja_Kruczek.pdf
@@ -98,6 +100,10 @@ bool TTractionPowerSource::Render()
 
 bool TTractionPowerSource::Update(double dt)
 { // powinno byæ wykonane raz na krok fizyki
+    //    if (NominalVoltage * TotalPreviousAdmitance >
+    //        MaxOutputCurrent * 0.00000005) // iloczyn napiêcia i admitancji daje pr¹d
+    //        ErrorLog("Power overload: \"" + gMyNode->asName + "\" with current " +
+    //        AnsiString(NominalVoltage * TotalPreviousAdmitance) + "A");
     if (NominalVoltage * TotalPreviousAdmitance >
         MaxOutputCurrent) // iloczyn napiêcia i admitancji daje pr¹d
     {
@@ -145,13 +151,15 @@ double TTractionPowerSource::CurrentGet(double res)
             FuseTimer = 0;
         return 0;
     }
-    if ((res > 0) || ((res < 0) && (Recuperation)))
-        TotalAdmitance +=
-            1.0 / res; // po³¹czenie równoleg³e rezystancji jest równowa¿ne sumie admitancji
+    if ((res > 0) || ((res < 0) && (Recuperation || true)))
+        TotalAdmitance += 1.0 / res; // po³¹czenie równoleg³e rezystancji jest
+    // równowa¿ne sumie admitancji
+    float NomVolt = (TotalPreviousAdmitance < 0 ? NominalVoltage * 1.083 : NominalVoltage);
     TotalCurrent = (TotalPreviousAdmitance != 0.0) ?
-                       NominalVoltage / (InternalRes + 1.0 / TotalPreviousAdmitance) :
-                       0.0; // napiêcie dzielone przez sumê rezystancji wewnêtrznej i obci¹¿enia
-    OutputVoltage = NominalVoltage - InternalRes * TotalCurrent; // napiêcie na obci¹¿eniu
+                       NomVolt / (InternalRes + 1.0 / TotalPreviousAdmitance) :
+                       0.0; // napiêcie dzielone przez sumê rezystancji wewnêtrznej i
+    // obci¹¿enia
+    OutputVoltage = NomVolt - InternalRes * TotalCurrent; // napiêcie na obci¹¿eniu
     return TotalCurrent / (res * TotalPreviousAdmitance); // pr¹d proporcjonalny do udzia³u (1/res)
     // w ca³kowitej admitancji
 };

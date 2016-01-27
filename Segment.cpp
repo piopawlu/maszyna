@@ -77,12 +77,16 @@ bool TSegment::Init(vector3 &NewPoint1, vector3 NewCPointOut, vector3 NewCPointI
     fRoll2 = DegToRad(fNewRoll2);
     if (Global::bRollFix)
     { // Ra: poprawianie przechy³ki
-        // Przechy³ka powinna byæ na œrodku wewnêtrznej szyny, a standardowo jest w osi
+        // Przechy³ka powinna byæ na œrodku wewnêtrznej szyny, a standardowo jest w
+        // osi
         // toru. Dlatego trzeba podnieœæ tor oraz odpowiednio podwy¿szyæ podsypkê.
-        // Nie wykonywaæ tej funkcji, jeœli podwy¿szenie zosta³o uwzglêdnione w edytorze.
-        // Problematyczne mog¹ byc rozjazdy na przechy³ce - lepiej je modelowaæ w edytorze.
+        // Nie wykonywaæ tej funkcji, jeœli podwy¿szenie zosta³o uwzglêdnione w
+        // edytorze.
+        // Problematyczne mog¹ byc rozjazdy na przechy³ce - lepiej je modelowaæ w
+        // edytorze.
         // Na razie wszystkie scenerie powinny byæ poprawiane.
-        // Jedynie problem bêdzie z podwójn¹ ramp¹ przechy³kow¹, która w œrodku bêdzie
+        // Jedynie problem bêdzie z podwójn¹ ramp¹ przechy³kow¹, która w œrodku
+        // bêdzie
         // mieæ moment wypoziomowania, ale musi on byæ równie¿ podniesiony.
         if (fRoll1 != 0.0)
         { // tylko jeœli jest przechy³ka
@@ -106,7 +110,8 @@ bool TSegment::Init(vector3 &NewPoint1, vector3 NewCPointOut, vector3 NewCPointI
                         Point2.z - Point1.z); // k¹t w planie, ¿eby nie liczyæ wielokrotnie
     bCurve = bIsCurve;
     if (bCurve)
-    { // przeliczenie wspó³czynników wielomianu, bêdzie mniej mno¿eñ i mo¿na policzyæ pochodne
+    { // przeliczenie wspó³czynników wielomianu, bêdzie mniej mno¿eñ i
+        // mo¿na policzyæ pochodne
         vC = 3.0 * (CPointOut - Point1); // t^1
         vB = 3.0 * (CPointIn - CPointOut) - vC; // t^2
         vA = Point2 - Point1 - vC - vB; // t^3
@@ -239,20 +244,27 @@ vector3 TSegment::RaInterpolate(double t)
 };
 
 vector3 TSegment::RaInterpolate0(double t)
-{ // wyliczenie XYZ na krzywej Beziera, na u¿ytek liczenia d³ugoœci nie jest dodawane Point1
+{ // wyliczenie XYZ na krzywej
+    // Beziera, na u¿ytek liczenia
+    // d³ugoœci nie jest dodawane
+    // Point1
     return t * (t * (t * vA + vB) + vC); // 9 mno¿eñ, 6 dodawañ
 };
 
 double TSegment::ComputeLength() // McZapkie-150503: dlugosc miedzy punktami krzywej
 { // obliczenie d³ugoœci krzywej Beziera za pomoc¹ interpolacji odcinkami
-    // Ra: zamieniæ na liczenie rekurencyjne œredniej z ciêciwy i ³amanej po kontrolnych
-    // Ra: koniec rekurencji jeœli po podziale suma d³ugoœci nie ró¿ni siê wiêcej ni¿ 0.5mm od
+    // Ra: zamieniæ na liczenie rekurencyjne œredniej z ciêciwy i ³amanej po
+    // kontrolnych
+    // Ra: koniec rekurencji jeœli po podziale suma d³ugoœci nie ró¿ni siê wiêcej
+    // ni¿ 0.5mm od
     // poprzedniej
-    // Ra: ewentualnie rozpoznaæ ³uk okrêgu p³askiego i liczyæ ze wzoru na d³ugoœæ ³uku
+    // Ra: ewentualnie rozpoznaæ ³uk okrêgu p³askiego i liczyæ ze wzoru na d³ugoœæ
+    // ³uku
     double t, l = 0;
     vector3 last = vector3(0, 0, 0); // d³ugoœæ liczona po przesuniêciu odcinka do pocz¹tku uk³adu
     vector3 tmp = Point2 - Point1;
-    int m = 20.0 * tmp.Length(); // by³o zawsze do 10000, teraz jest liczone odcinkami po oko³o 5cm
+    int m = 20.0 * tmp.Length(); // by³o zawsze do 10000, teraz jest liczone
+    // odcinkami po oko³o 5cm
     for (int i = 1; i <= m; i++)
     {
         t = double(i) / double(m); // wyznaczenie parametru na krzywej z przedzia³u (0,1>
@@ -268,7 +280,9 @@ double TSegment::ComputeLength() // McZapkie-150503: dlugosc miedzy punktami krz
 const double fDirectionOffset = 0.1; // d³ugoœæ wektora do wyliczenia kierunku
 
 vector3 TSegment::GetDirection(double fDistance)
-{ // takie toporne liczenie pochodnej dla podanego dystansu od Point1
+{ // takie toporne liczenie
+    // pochodnej dla podanego
+    // dystansu od Point1
     double t1 = GetTFromS(fDistance - fDirectionOffset);
     if (t1 <= 0.0)
         return (CPointOut - Point1); // na zewn¹trz jako prosta
@@ -290,7 +304,9 @@ vector3 TSegment::FastGetDirection(double fDistance, double fOffset)
 }
 
 vector3 TSegment::GetPoint(double fDistance)
-{ // wyliczenie wspó³rzêdnych XYZ na torze w odleg³oœci (fDistance) od Point1
+{ // wyliczenie wspó³rzêdnych XYZ
+    // na torze w odleg³oœci
+    // (fDistance) od Point1
     if (bCurve)
     { // mo¿na by wprowadziæ uproszczony wzór dla okrêgów p³askich
         double t = GetTFromS(fDistance); // aproksymacja dystansu na krzywej Beziera
@@ -305,7 +321,9 @@ vector3 TSegment::GetPoint(double fDistance)
 };
 
 void TSegment::RaPositionGet(double fDistance, vector3 &p, vector3 &a)
-{ // ustalenie pozycji osi na torze, przechy³ki, pochylenia i kierunku jazdy
+{ // ustalenie pozycji osi na torze,
+    // przechy³ki, pochylenia i kierunku
+    // jazdy
     if (bCurve)
     { // mo¿na by wprowadziæ uproszczony wzór dla okrêgów p³askich
         double t = GetTFromS(fDistance); // aproksymacja dystansu na krzywej Beziera na parametr (t)
@@ -328,7 +346,8 @@ void TSegment::RaPositionGet(double fDistance, vector3 &p, vector3 &a)
 
 vector3 TSegment::FastGetPoint(double t)
 {
-    // return (bCurve?Interpolate(t,Point1,CPointOut,CPointIn,Point2):((1.0-t)*Point1+(t)*Point2));
+    // return
+    // (bCurve?Interpolate(t,Point1,CPointOut,CPointIn,Point2):((1.0-t)*Point1+(t)*Point2));
     return (bCurve ? RaInterpolate(t) : ((1.0 - t) * Point1 + (t)*Point2));
 }
 
@@ -338,7 +357,8 @@ void TSegment::RenderLoft(const vector6 *ShapePoints, int iNumShapePoints, doubl
     // standardowo tworzy triangle_strip dla prostego albo ich zestaw dla ³uku
     // po modyfikacji - dla ujemnego (iNumShapePoints) w dodatkowych polach tabeli
     // podany jest przekrój koñcowy
-    // podsypka toru jest robiona za pomoc¹ 6 punktów, szyna 12, drogi i rzeki na 3+2+3
+    // podsypka toru jest robiona za pomoc¹ 6 punktów, szyna 12, drogi i rzeki na
+    // 3+2+3
     if (iQualityFactor < 1)
         iQualityFactor = 1; // co który segment ma byæ uwzglêdniony
     vector3 pos1, pos2, dir, parallel1, parallel2, pt, norm;
@@ -354,14 +374,17 @@ void TSegment::RenderLoft(const vector6 *ShapePoints, int iNumShapePoints, doubl
         s = fStep * iSkip; // iSkip - ile odcinków z pocz¹tku pomin¹æ
         i = iSkip; // domyœlnie 0
         if (!fTsBuffer)
-            return; // prowizoryczne zabezpieczenie przed wysypem - ustaliæ faktyczn¹ przyczynê
+            return; // prowizoryczne zabezpieczenie przed wysypem - ustaliæ faktyczn¹
+        // przyczynê
         if (i > iSegCount)
-            return; // prowizoryczne zabezpieczenie przed wysypem - ustaliæ faktyczn¹ przyczynê
+            return; // prowizoryczne zabezpieczenie przed wysypem - ustaliæ faktyczn¹
+        // przyczynê
         t = fTsBuffer[i]; // tabela watoœci t dla segmentów
         fOffset = 0.1 / fLength; // pierwsze 10cm
         pos1 = FastGetPoint(t); // wektor pocz¹tku segmentu
         dir = FastGetDirection(t, fOffset); // wektor kierunku
-        // parallel1=Normalize(CrossProduct(dir,vector3(0,1,0))); //wektor poprzeczny
+        // parallel1=Normalize(CrossProduct(dir,vector3(0,1,0))); //wektor
+        // poprzeczny
         parallel1 = Normalize(vector3(-dir.z, 0.0, dir.x)); // wektor poprzeczny
         m2 = s / fLength;
         jmm2 = 1.0 - m2;
@@ -402,7 +425,8 @@ void TSegment::RenderLoft(const vector6 *ShapePoints, int iNumShapePoints, doubl
                          pos1;
                     pt.y += jmm1 * ShapePoints[j].y + m1 * ShapePoints[j + iNumShapePoints].y;
                     if (bRender)
-                    { // skrzy¿owania podczas ³¹czenia siatek mog¹ nie renderowaæ poboczy, ale
+                    { // skrzy¿owania podczas ³¹czenia siatek mog¹ nie
+                        // renderowaæ poboczy, ale
                         // potrzebowaæ punktów
                         glNormal3f(norm.x, norm.y, norm.z);
                         glTexCoord2f(
@@ -425,7 +449,8 @@ void TSegment::RenderLoft(const vector6 *ShapePoints, int iNumShapePoints, doubl
                          pos2;
                     pt.y += jmm2 * ShapePoints[j].y + m2 * ShapePoints[j + iNumShapePoints].y;
                     if (bRender)
-                    { // skrzy¿owania podczas ³¹czenia siatek mog¹ nie renderowaæ poboczy, ale
+                    { // skrzy¿owania podczas ³¹czenia siatek mog¹ nie
+                        // renderowaæ poboczy, ale
                         // potrzebowaæ punktów
                         glNormal3f(norm.x, norm.y, norm.z);
                         glTexCoord2f(
@@ -704,7 +729,8 @@ void TSegment::RaRenderLoft(CVertNormTex *&Vert, const vector6 *ShapePoints, int
     // standardowo tworzy triangle_strip dla prostego albo ich zestaw dla ³uku
     // po modyfikacji - dla ujemnego (iNumShapePoints) w dodatkowych polach tabeli
     // podany jest przekrój koñcowy
-    // podsypka toru jest robiona za pomoc¹ 6 punktów, szyna 12, drogi i rzeki na 3+2+3
+    // podsypka toru jest robiona za pomoc¹ 6 punktów, szyna 12, drogi i rzeki na
+    // 3+2+3
     // na u¿ytek VBO strip dla ³uków jest tworzony wzd³u¿
     // dla skróconego odcinka (iEnd<iSegCount), ShapePoints dotyczy
     // koñców skróconych, a nie ca³oœci (to pod k¹tem iglic jest)
@@ -724,7 +750,8 @@ void TSegment::RaRenderLoft(CVertNormTex *&Vert, const vector6 *ShapePoints, int
         fOffset = 0.1 / fLength; // pierwsze 10cm
         pos1 = FastGetPoint(t); // wektor pocz¹tku segmentu
         dir = FastGetDirection(t, fOffset); // wektor kierunku
-        // parallel1=Normalize(CrossProduct(dir,vector3(0,1,0))); //wektor prostopad³y
+        // parallel1=Normalize(CrossProduct(dir,vector3(0,1,0))); //wektor
+        // prostopad³y
         parallel1 = Normalize(vector3(-dir.z, 0.0, dir.x)); // wektor poprzeczny
         if (iEnd == 0)
             iEnd = iSegCount;
@@ -899,7 +926,8 @@ void TSegment::RaRenderLoft(CVertNormTex *&Vert, const vector6 *ShapePoints, int
 
 void TSegment::RaAnimate(CVertNormTex *&Vert, const vector6 *ShapePoints, int iNumShapePoints,
                          double fTextureLength, int iSkip, int iEnd, double fOffsetX)
-{ // jak wy¿ej, tylko z pominiêciem mapowania i braku trapezowania
+{ // jak wy¿ej, tylko z pominiêciem
+    // mapowania i braku trapezowania
     vector3 pos1, pos2, dir, parallel1, parallel2, pt;
     double s, step, fOffset, t, fEnd;
     int i, j;
@@ -915,7 +943,8 @@ void TSegment::RaAnimate(CVertNormTex *&Vert, const vector6 *ShapePoints, int iN
         fOffset = 0.1 / fLength; // pierwsze 10cm
         pos1 = FastGetPoint(t); // wektor pocz¹tku segmentu
         dir = FastGetDirection(t, fOffset); // wektor kierunku
-        // parallel1=Normalize(CrossProduct(dir,vector3(0,1,0))); //wektor prostopad³y
+        // parallel1=Normalize(CrossProduct(dir,vector3(0,1,0))); //wektor
+        // prostopad³y
         parallel1 = Normalize(vector3(-dir.z, 0.0, dir.x)); // wektor poprzeczny
         if (iEnd == 0)
             iEnd = iSegCount;

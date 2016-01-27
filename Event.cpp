@@ -30,21 +30,24 @@ TEvent::TEvent(AnsiString m)
 {
     // asName=""; //czy nazwa eventu jest niezbêdna w tym przypadku? chyba nie
     evNext = evNext2 = NULL;
-    bEnabled = false; // false dla eventów u¿ywanych do skanowania sygna³ów (nie dodawane do
+    bEnabled = false; // false dla eventów u¿ywanych do skanowania sygna³ów (nie
+    // dodawane do
     // kolejki)
     asNodeName = m; // nazwa obiektu powi¹zanego
     iQueued = 0; // nie zosta³ dodany do kolejki
     // bIsHistory=false;
     fDelay = 0;
     fStartTime = 0; // 0 nie ma sensu
-    Type = m.IsEmpty() ? tp_Unknown :
-                         tp_GetValues; // utworzenie niejawnego odczytu komórki pamiêci w torze
+    Type = m.IsEmpty() ? tp_Unknown : tp_GetValues; // utworzenie niejawnego
+    // odczytu komórki pamiêci w
+    // torze
     for (int i = 0; i < 13; i++)
         Params[i].asPointer = NULL;
     evJoined = NULL; // nie ma kolejnego z t¹ sam¹ nazw¹, usuwane s¹ wg listy Next2
     Activator = NULL;
     iFlags = 0;
-    // event niejawny jest tworzony przed faz¹ InitEvents, która podmienia nazwê komórki pamiêci na
+    // event niejawny jest tworzony przed faz¹ InitEvents, która podmienia nazwê
+    // komórki pamiêci na
     // wskaŸnik
     // Current->Params[8].asGroundNode=m; //to siê ustawi w InitEvents
     // Current->Params[9].asMemCell=m->MemCell;
@@ -56,7 +59,8 @@ TEvent::~TEvent()
     switch (Type)
     { // sprz¹tanie
     case tp_Multiple:
-        // SafeDeleteArray(Params[9].asText); //nie usuwaæ - nazwa obiektu powi¹zanego zamieniana na
+        // SafeDeleteArray(Params[9].asText); //nie usuwaæ - nazwa obiektu
+        // powi¹zanego zamieniana na
         // wskaŸnik
         if (iFlags & conditional_memstring) // o ile jest ³añcuch do porównania w memcompare
             SafeDeleteArray(Params[10].asText);
@@ -68,7 +72,8 @@ TEvent::~TEvent()
             SafeDeleteArray(Params[10].asText);
         break;
     case tp_Animation: // nic
-        // SafeDeleteArray(Params[9].asText); //nie usuwaæ - nazwa jest zamieniana na wskaŸnik do
+        // SafeDeleteArray(Params[9].asText); //nie usuwaæ - nazwa jest zamieniana
+        // na wskaŸnik do
         // submodelu
         if (Params[0].asInt == 4) // jeœli z pliku VMD
             delete[] Params[8].asPointer; // zwolniæ obszar
@@ -83,7 +88,8 @@ void TEvent::Init(){
 };
 
 void TEvent::Conditions(cParser *parser, AnsiString s)
-{ // przetwarzanie warunków, wspólne dla Multiple i UpdateValues
+{ // przetwarzanie warunków, wspólne dla
+    // Multiple i UpdateValues
     if (s == "condition")
     { // jesli nie "endevent"
         std::string token;
@@ -316,7 +322,8 @@ void TEvent::Load(cParser *parser, vector3 *org)
         // X,Y,Z
         if (org)
         { // przesuniêcie
-            // tmp->pCenter.RotateY(aRotate.y/180.0*M_PI); //Ra 2014-11: uwzglêdnienie rotacji
+            // tmp->pCenter.RotateY(aRotate.y/180.0*M_PI); //Ra 2014-11: uwzglêdnienie
+            // rotacji
             Params[3].asdouble += org->x; // wspó³rzêdne w scenerii
             Params[4].asdouble += org->y;
             Params[5].asdouble += org->z;
@@ -426,7 +433,8 @@ void TEvent::Load(cParser *parser, vector3 *org)
         // McZapkie-070502: dzwiek przestrzenny (ale do poprawy)
         // Params[1].asdouble=Parser->GetNextSymbol().ToDouble();
         // Params[2].asdouble=Parser->GetNextSymbol().ToDouble();
-        // Params[3].asdouble=Parser->GetNextSymbol().ToDouble(); //polozenie X,Y,Z - do poprawy!
+        // Params[3].asdouble=Parser->GetNextSymbol().ToDouble(); //polozenie X,Y,Z
+        // - do poprawy!
         parser->getTokens();
         *parser >> Params[0].asInt; // 0: wylaczyc, 1: wlaczyc; -1: wlaczyc zapetlone
         parser->getTokens();
@@ -515,8 +523,8 @@ void TEvent::Load(cParser *parser, vector3 *org)
             Params[1].asdouble = -1.0; // u¿yæ domyœlnej
         if (str != "endevent")
         {
-            Params[2].asdouble =
-                str.ToDouble(); // dodatkowy ruch drugiej iglicy (zamkniêcie nastawnicze)
+            Params[2].asdouble = str.ToDouble(); // dodatkowy ruch drugiej iglicy
+            // (zamkniêcie nastawnicze)
             parser->getTokens();
             *parser >> token;
         }

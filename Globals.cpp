@@ -37,8 +37,8 @@ TGround *Global::pGround = NULL;
 AnsiString Global::asCurrentSceneryPath = "scenery/";
 AnsiString Global::asCurrentTexturePath = AnsiString(szTexturePath);
 AnsiString Global::asCurrentDynamicPath = "";
-int Global::iSlowMotion =
-    0; // info o malym FPS: 0-OK, 1-wy³¹czyæ multisampling, 3-promieñ 1.5km, 7-1km
+int Global::iSlowMotion = 0; // info o malym FPS: 0-OK, 1-wy³¹czyæ
+// multisampling, 3-promieñ 1.5km, 7-1km
 TDynamicObject *Global::changeDynObj = NULL; // info o zmianie pojazdu
 bool Global::detonatoryOK; // info o nowych detonatorach
 double Global::ABuDebug = 0;
@@ -85,6 +85,7 @@ vector3 Global::pFreeCameraInit[10];
 vector3 Global::pFreeCameraInitAngle[10];
 double Global::fFogStart = 1700;
 double Global::fFogEnd = 2000;
+float Global::Background[3] = {0.2, 0.4, 0.33};
 GLfloat Global::AtmoColor[] = {0.423f, 0.702f, 1.0f};
 GLfloat Global::FogColor[] = {0.6f, 0.7f, 0.8f};
 GLfloat Global::ambientDayLight[] = {0.40f, 0.40f, 0.45f, 1.0f}; // robocze
@@ -225,7 +226,8 @@ void Global::LoadIniFile(AnsiString asFileName)
 };
 
 void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
-{ // Ra: trzeba by przerobiæ na cParser, ¿eby to dzia³a³o w scenerii
+{ // Ra: trzeba by przerobiæ na cParser,
+    // ¿eby to dzia³a³o w scenerii
     pParser = cp;
     qParser = qp;
     AnsiString str;
@@ -269,7 +271,8 @@ void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
             // sie do debugowania oraz na komp. bez karty
             // dzw.
             bSoundEnabled = (GetNextSymbol().LowerCase() == AnsiString("yes"));
-        // else if (str==AnsiString("renderalpha")) //McZapkie-1312302 - dwuprzebiegowe renderowanie
+        // else if (str==AnsiString("renderalpha")) //McZapkie-1312302 -
+        // dwuprzebiegowe renderowanie
         // bRenderAlpha=(GetNextSymbol().LowerCase()==AnsiString("yes"));
         else if (str == AnsiString("physicslog")) // McZapkie-030402 - logowanie parametrow
             // fizycznych dla kazdego pojazdu z maszynista
@@ -287,19 +290,26 @@ void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
                 iWriteLogEnabled = str.ToIntDef(3);
         }
         else if (str == AnsiString("adjustscreenfreq"))
-        { // McZapkie-240403 - czestotliwosc odswiezania ekranu
+        { // McZapkie-240403 -
+            // czestotliwosc
+            // odswiezania ekranu
             str = GetNextSymbol();
             bAdjustScreenFreq = (str.LowerCase() == AnsiString("yes"));
         }
         else if (str == AnsiString("mousescale"))
-        { // McZapkie-060503 - czulosc ruchu myszy (krecenia glowa)
+        { // McZapkie-060503 - czulosc
+            // ruchu myszy (krecenia
+            // glowa)
             str = GetNextSymbol();
             fMouseXScale = str.ToDouble();
             str = GetNextSymbol();
             fMouseYScale = str.ToDouble();
         }
         else if (str == AnsiString("enabletraction"))
-        { // Winger 040204 - 'zywe' patyki dostosowujace sie do trakcji; Ra 2014-03: teraz ³amanie
+        { // Winger 040204 - 'zywe'
+            // patyki dostosowujace
+            // sie do trakcji; Ra
+            // 2014-03: teraz ³amanie
             bEnableTraction = (GetNextSymbol().LowerCase() == AnsiString("yes"));
         }
         else if (str == AnsiString("loadtraction"))
@@ -309,7 +319,10 @@ void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
         else if (str == AnsiString("friction")) // mno¿nik tarcia - KURS90
             fFriction = GetNextSymbol().ToDouble();
         else if (str == AnsiString("livetraction"))
-        { // Winger 160404 - zaleznosc napiecia loka od trakcji; Ra 2014-03: teraz pr¹d przy braku
+        { // Winger 160404 - zaleznosc
+            // napiecia loka od trakcji;
+            // Ra 2014-03: teraz pr¹d przy
+            // braku
             // sieci
             bLiveTraction = (GetNextSymbol().LowerCase() == AnsiString("yes"));
         }
@@ -392,7 +405,8 @@ void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
             if (fMoveLight > 0.0) // tu jest nadal zwiêkszone o 1
             { // obliczenie deklinacji wg:
                 // http://naturalfrequency.com/Tregenza_Sharples/Daylight_Algorithms/algorithm_1_11.htm
-                // Spencer J W Fourier series representation of the position of the sun Search 2 (5)
+                // Spencer J W Fourier series representation of the position of the sun
+                // Search 2 (5)
                 // 172 (1971)
                 fMoveLight = M_PI / 182.5 * (Global::fMoveLight - 1.0); // numer dnia w postaci k¹ta
                 fSunDeclination = 0.006918 - 0.3999120 * cos(fMoveLight) +
@@ -422,9 +436,8 @@ void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
             iModifyTGA = GetNextSymbol().ToIntDef(0); // domyœlnie 0
         else if (str == AnsiString("hideconsole")) // hunter-271211: ukrywanie konsoli
             bHideConsole = (GetNextSymbol().LowerCase() == AnsiString("yes"));
-        else if (str ==
-                 AnsiString(
-                     "rollfix")) // Ra: poprawianie przechy³ki, aby wewnêtrzna szyna by³a "pozioma"
+        else if (str == AnsiString("rollfix")) // Ra: poprawianie przechy³ki, aby
+            // wewnêtrzna szyna by³a "pozioma"
             bRollFix = (GetNextSymbol().LowerCase() == AnsiString("yes"));
         else if (str == AnsiString("fpsaverage")) // oczekiwana wartosæ FPS
             fFpsAverage = GetNextSymbol().ToDouble();
@@ -452,12 +465,14 @@ void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
             fCalibrateOut[i][2] = GetNextSymbol().ToDouble(); // mno¿nik dla kwadratu
             fCalibrateOut[i][3] = GetNextSymbol().ToDouble(); // mno¿nik dla szeœcianu
         }
-        else if (str == AnsiString("brakestep")) // krok zmiany hamulca dla klawiszy [Num3] i [Num9]
+        else if (str == AnsiString("brakestep")) // krok zmiany hamulca dla
+            // klawiszy [Num3] i [Num9]
             fBrakeStep = GetNextSymbol().ToDouble();
-        else if (str ==
-                 AnsiString("joinduplicatedevents")) // czy grupowaæ eventy o tych samych nazwach
+        else if (str == AnsiString("joinduplicatedevents")) // czy grupowaæ eventy o
+            // tych samych nazwach
             bJoinEvents = (GetNextSymbol().LowerCase() == AnsiString("yes"));
-        else if (str == AnsiString("hiddenevents")) // czy ³¹czyæ eventy z torami poprzez nazwê toru
+        else if (str == AnsiString("hiddenevents")) // czy ³¹czyæ eventy z torami
+            // poprzez nazwê toru
             iHiddenEvents = GetNextSymbol().ToIntDef(0);
         else if (str == AnsiString("pause")) // czy po wczytaniu ma byæ pauza?
             iPause |= (GetNextSymbol().LowerCase() == AnsiString("yes")) ? 1 : 0;
@@ -469,6 +484,12 @@ void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
             // renderer
             TPythonInterpreter::getInstance()->setScreenRendererPriority(
                 GetNextSymbol().LowerCase().c_str());
+        else if (str == AnsiString("background"))
+        {
+            Background[0] = GetNextSymbol().ToDouble(); // r
+            Background[1] = GetNextSymbol().ToDouble(); // g
+            Background[2] = GetNextSymbol().ToDouble(); // b
+        }
     } while (str != "endconfig"); //(!Parser->EndOfFile)
     // na koniec trochê zale¿noœci
     if (!bLoadTraction) // wczytywanie drutów i s³upów
@@ -477,7 +498,8 @@ void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
         bLiveTraction = false; // false = pantografy zawsze zbieraj¹ 95% MaxVoltage
     }
     // if (fMoveLight>0) bDoubleAmbient=false; //wtedy tylko jedno œwiat³o ruchome
-    // if (fOpenGL<1.3) iMultisampling=0; //mo¿na by z góry wy³¹czyæ, ale nie mamy jeszcze fOpenGL
+    // if (fOpenGL<1.3) iMultisampling=0; //mo¿na by z góry wy³¹czyæ, ale nie mamy
+    // jeszcze fOpenGL
     if (iMultisampling)
     { // antyaliasing ca³oekranowy wy³¹cza rozmywanie drutów
         bSmoothTraction = false;
@@ -485,13 +507,14 @@ void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
     if (iMultiplayer > 0)
     {
         bInactivePause = false; // okno "w tle" nie mo¿e pauzowaæ, jeœli w³¹czona komunikacja
-        // pauzowanie jest zablokowane dla (iMultiplayer&2)>0, wiêc iMultiplayer=1 da siê zapauzowaæ
+        // pauzowanie jest zablokowane dla (iMultiplayer&2)>0, wiêc iMultiplayer=1
+        // da siê zapauzowaæ
         // (tryb instruktora)
     }
-    fFpsMin = fFpsAverage -
-              fFpsDeviation; // dolna granica FPS, przy której promieñ scenerii bêdzie zmniejszany
-    fFpsMax = fFpsAverage +
-              fFpsDeviation; // górna granica FPS, przy której promieñ scenerii bêdzie zwiêkszany
+    fFpsMin = fFpsAverage - fFpsDeviation; // dolna granica FPS, przy której
+    // promieñ scenerii bêdzie zmniejszany
+    fFpsMax = fFpsAverage + fFpsDeviation; // górna granica FPS, przy której
+    // promieñ scenerii bêdzie zwiêkszany
     if (iPause)
         iTextMode = VK_F1; // jak pauza, to pokazaæ zegar
     if (qp)
@@ -503,12 +526,12 @@ void Global::ConfigParse(TQueryParserComp *qp, cParser *cp)
             iFpsRadiusMax = 400;
         if (fDistanceFactor > 1.0)
         { // dla 1.0 specjalny tryb bez przeliczania
-            fDistanceFactor =
-                iWindowHeight /
-                fDistanceFactor; // fDistanceFactor>1.0 dla rozdzielczoœci wiêkszych ni¿ bazowa
+            fDistanceFactor = iWindowHeight / fDistanceFactor; // fDistanceFactor>1.0
+            // dla rozdzielczoœci
+            // wiêkszych ni¿ bazowa
             fDistanceFactor *=
-                (iMultisampling + 1.0) *
-                fDistanceFactor; // do kwadratu, bo wiêkszoœæ odleg³oœci to ich kwadraty
+                (iMultisampling + 1.0) * fDistanceFactor; // do kwadratu, bo wiêkszoœæ
+            // odleg³oœci to ich kwadraty
         }
     }
 }
@@ -517,8 +540,10 @@ void Global::InitKeys(AnsiString asFileName)
 {
     //    if (FileExists(asFileName))
     //    {
-    //       Error("Chwilowo plik keys.ini nie jest obs³ugiwany. £adujê standardowe
-    //       ustawienia.\nKeys.ini file is temporarily not functional, loading default keymap...");
+    //       Error("Chwilowo plik keys.ini nie jest obs³ugiwany. £adujê
+    //       standardowe
+    //       ustawienia.\nKeys.ini file is temporarily not functional, loading
+    //       default keymap...");
     /*        TQueryParserComp *Parser;
             Parser=new TQueryParserComp(NULL);
             Parser->LoadStringToParse(asFileName);
@@ -650,7 +675,9 @@ void Global::SetCameraPosition(vector3 pNewCameraPosition)
 }
 
 void Global::SetCameraRotation(double Yaw)
-{ // ustawienie bezwzglêdnego kierunku kamery z korekcj¹ do przedzia³u <-M_PI,M_PI>
+{ // ustawienie bezwzglêdnego
+    // kierunku kamery z korekcj¹ do
+    // przedzia³u <-M_PI,M_PI>
     pCameraRotation = Yaw;
     while (pCameraRotation < -M_PI)
         pCameraRotation += 2 * M_PI;
@@ -674,12 +701,14 @@ void Global::TrainDelete(TDynamicObject *d)
 };
 
 TDynamicObject *__fastcall Global::DynamicNearest()
-{ // ustalenie pojazdu najbli¿szego kamerze
+{ // ustalenie pojazdu
+    // najbli¿szego kamerze
     return pGround->DynamicNearest(pCamera->Pos);
 };
 
 TDynamicObject *__fastcall Global::CouplerNearest()
-{ // ustalenie pojazdu najbli¿szego kamerze
+{ // ustalenie pojazdu
+    // najbli¿szego kamerze
     return pGround->CouplerNearest(pCamera->Pos);
 };
 
@@ -690,7 +719,8 @@ bool Global::AddToQuery(TEvent *event, TDynamicObject *who)
 //---------------------------------------------------------------------------
 
 bool Global::DoEvents()
-{ // wywo³ywaæ czasem, ¿eby nie robi³ wra¿enia zawieszonego
+{ // wywo³ywaæ czasem, ¿eby nie robi³ wra¿enia
+    // zawieszonego
     MSG msg;
     while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
     {
@@ -716,7 +746,8 @@ TTranscripts::TTranscripts()
 };
 TTranscripts::~TTranscripts(){};
 void TTranscripts::AddLine(char *txt, float show, float hide, bool it)
-{ // dodanie linii do tabeli, (show) i (hide) w [s] od aktualnego czasu
+{ // dodanie linii do tabeli, (show) i
+    // (hide) w [s] od aktualnego czasu
     if (show == hide)
         return; // komentarz jest ignorowany
     show = Global::fTimeAngleDeg + show / 240.0; // jeœli doba to 360, to 1s bêdzie równe 1/240
@@ -732,7 +763,8 @@ void TTranscripts::AddLine(char *txt, float show, float hide, bool it)
             { // znaleziony pierwszy wolny
                 aLines[j].iNext = aLines[i].iNext; // dotychczasowy nastêpny bêdzie za nowym
                 if (aLines[iStart].fHide < 0.0) // jeœli tablica jest pusta
-                    iStart = j; // fHide trzeba sprawdziæ przed ewentualnym nadpisaniem, gdy i=j=0
+                    iStart = j; // fHide trzeba sprawdziæ przed ewentualnym nadpisaniem,
+                // gdy i=j=0
                 else
                     aLines[i].iNext = j; // a nowy bêdzie za tamtym wczeœniejszym
                 aLines[j].fShow = show; // wyœwietlaæ od
@@ -775,7 +807,8 @@ void TTranscripts::Add(char *txt, float len, bool backgorund)
     AddLine(txt, 0.1 * i, 0.1 * j, false);
 };
 void TTranscripts::Update()
-{ // usuwanie niepotrzebnych (nie czêœciej ni¿ 10 razy na sekundê)
+{ // usuwanie niepotrzebnych (nie czêœciej ni¿ 10
+    // razy na sekundê)
     if (fRefreshTime > Global::fTimeAngleDeg)
         return; // nie czas jeszcze na zmiany
     // czas odœwie¿enia mo¿na ustaliæ wg tabelki, kiedy coœ siê w niej zmienia

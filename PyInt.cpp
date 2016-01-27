@@ -272,34 +272,43 @@ void TPythonScreenRenderer::updateTexture()
             switch (status)
             {
             case GL_INVALID_ENUM:
-                WriteLog("An unacceptable value is specified for an enumerated argument. The "
-                         "offending function is ignored, having no side effect other than to set "
+                WriteLog("An unacceptable value is specified for an enumerated "
+                         "argument. The "
+                         "offending function is ignored, having no side effect other "
+                         "than to set "
                          "the error flag.");
                 break;
             case GL_INVALID_VALUE:
-                WriteLog("A numeric argument is out of range. The offending function is ignored, "
+                WriteLog("A numeric argument is out of range. The offending function "
+                         "is ignored, "
                          "having no side effect other than to set the error flag.");
                 break;
             case GL_INVALID_OPERATION:
                 WriteLog("The specified operation is not allowed in the current state. The "
-                         "offending function is ignored, having no side effect other than to set "
+                         "offending function is ignored, having no side effect other than "
+                         "to set "
                          "the error flag.");
                 break;
             case GL_NO_ERROR:
-                WriteLog("No error has been recorded. The value of this symbolic constant is "
+                WriteLog("No error has been recorded. The value of this symbolic "
+                         "constant is "
                          "guaranteed to be zero.");
                 break;
             case GL_STACK_OVERFLOW:
-                WriteLog("This function would cause a stack overflow. The offending function is "
+                WriteLog("This function would cause a stack overflow. The offending "
+                         "function is "
                          "ignored, having no side effect other than to set the error flag.");
                 break;
             case GL_STACK_UNDERFLOW:
-                WriteLog("This function would cause a stack underflow. The offending function is "
+                WriteLog("This function would cause a stack underflow. The offending "
+                         "function is "
                          "ignored, having no side effect other than to set the error flag.");
                 break;
             case GL_OUT_OF_MEMORY:
-                WriteLog("There is not enough memory left to execute the function. The state of "
-                         "OpenGL is undefined, except for the state of the error flags, after this "
+                WriteLog("There is not enough memory left to execute the function. The "
+                         "state of "
+                         "OpenGL is undefined, except for the state of the error "
+                         "flags, after this "
                          "error is recorded.");
                 break;
             };
@@ -425,7 +434,8 @@ void TPythonScreens::init(TQueryParserComp *parser, TModel3d *model, AnsiString 
         WriteLog(buff);
         free(subModelName);
         free(pyClassName);
-        return; // sub model nie posiada tekstury lub tekstura wymienna - nie obslugiwana
+        return; // sub model nie posiada tekstury lub tekstura wymienna - nie
+        // obslugiwana
     }
     TPythonInterpreter *python = TPythonInterpreter::getInstance();
     python->loadClassFile(_lookupPath, pyClassName);

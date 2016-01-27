@@ -49,7 +49,8 @@ void CMesh::BuildVBOs(bool del)
 };
 
 void CMesh::Clear()
-{ // niewirtualne zwolnienie zasobów przez sprz¹tacz albo destruktor
+{ // niewirtualne zwolnienie zasobów przez sprz¹tacz albo
+    // destruktor
     // inna nazwa, ¿eby nie miesza³o siê z funkcj¹ wirtualn¹ sprz¹tacza
     if (m_nVBOVertices) // jeœli by³o coœ rezerwowane
     {
@@ -88,7 +89,8 @@ bool CMesh::StartColorVBO()
     {
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_nVBOVertices);
         glVertexPointer(3, GL_FLOAT, sizeof(CVertNormTex), ((char *)NULL)); // pozycje
-        // glColorPointer(3,GL_UNSIGNED_BYTE,sizeof(CVertNormTex),((char*)NULL)+12); //kolory
+        // glColorPointer(3,GL_UNSIGNED_BYTE,sizeof(CVertNormTex),((char*)NULL)+12);
+        // //kolory
         glColorPointer(3, GL_FLOAT, sizeof(CVertNormTex), ((char *)NULL) + 12); // kolory
     }
     return true; // mo¿na rysowaæ z VBO

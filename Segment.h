@@ -49,7 +49,8 @@ class vector6 : public vector3
 };
 
 class TSegment
-{ // aproksymacja toru (zwrotnica ma dwa takie, jeden z nich jest aktywny)
+{ // aproksymacja toru (zwrotnica ma dwa takie, jeden z nich jest
+    // aktywny)
   private:
     vector3 Point1, CPointOut, CPointIn, Point2;
     double fRoll1, fRoll2; // przechy³ka na koñcach
@@ -60,7 +61,8 @@ class TSegment
     double fDirection; // Ra: k¹t prostego w planie; dla ³uku k¹t od Point1
     double fStoop; // Ra: k¹t wzniesienia; dla ³uku od Point1
     vector3 vA, vB, vC; // wspó³czynniki wielomianów trzeciego stopnia vD==Point1
-    // TSegment *pPrev; //odcinek od strony punktu 1 - w segmencie, ¿eby nie skakaæ na zwrotnicach
+    // TSegment *pPrev; //odcinek od strony punktu 1 - w segmencie, ¿eby nie
+    // skakaæ na zwrotnicach
     // TSegment *pNext; //odcinek od strony punktu 2
     TTrack *pOwner; // wskaŸnik na w³aœciciela
     double fAngle[2]; // k¹ty zakoñczenia drogi na przejazdach
@@ -69,7 +71,8 @@ class TSegment
     double GetTFromS(double s);
     vector3 RaInterpolate(double t);
     vector3 RaInterpolate0(double t);
-    // TSegment *segNeightbour[2]; //s¹siednie odcinki - musi byæ przeniesione z Track
+    // TSegment *segNeightbour[2]; //s¹siednie odcinki - musi byæ przeniesione z
+    // Track
     // int iNeightbour[2]; //do którego koñca doczepiony
   public:
     bool bCurve;

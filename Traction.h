@@ -32,7 +32,8 @@ class TTraction
     TTractionPowerSource *psPowered; // ustawione tylko dla bezpoœrednio zasilanego przês³a
     TTraction *hvNext[2]; //³¹czenie drutów w sieæ
     int iNext[2]; // do którego koñca siê ³¹czy
-    int iLast; // ustawiony bit 0, jeœli jest ostatnim drutem w sekcji; bit1 - przedostatni
+    int iLast; // ustawiony bit 0, jeœli jest ostatnim drutem w sekcji; bit1 -
+    // przedostatni
   public:
     GLuint uiDisplayList;
     vector3 pPoint1, pPoint2, pPoint3, pPoint4;
@@ -51,11 +52,13 @@ class TTraction
     int Wires;
     float WireOffset;
     AnsiString asPowerSupplyName; // McZapkie: nazwa podstacji trakcyjnej
-    TTractionPowerSource
-        *psSection; // zasilacz (opcjonalnie mo¿e to byæ pulpit steruj¹cy EL2 w hali!)
+    TTractionPowerSource *psSection; // zasilacz (opcjonalnie mo¿e to byæ pulpit
+    // steruj¹cy EL2 w hali!)
     AnsiString asParallel; // nazwa przês³a, z którym mo¿e byæ bie¿nia wspólna
-    TTraction *hvParallel; // jednokierunkowa i zapêtlona lista przêse³ ewentualnej bie¿ni wspólnej
-    float fResistance[2]; // rezystancja zastêpcza do punktu zasilania (0: przês³o zasilane, <0: do
+    TTraction *hvParallel; // jednokierunkowa i zapêtlona lista przêse³
+    // ewentualnej bie¿ni wspólnej
+    float fResistance[2]; // rezystancja zastêpcza do punktu zasilania (0: przês³o
+    // zasilane, <0: do
     // policzenia)
     int iTries;
     // bool bVisible;
@@ -67,7 +70,8 @@ class TTraction
     ~TTraction();
 
     //    virtual void InitCenter(vector3 Angles, vector3 pOrigin);
-    //    virtual bool Hit(double x, double z, vector3 &hitPoint, vector3 &hitDirection)
+    //    virtual bool Hit(double x, double z, vector3 &hitPoint, vector3
+    //    &hitDirection)
     //    { return TNode::Hit(x,z,hitPoint,hitDirection); };
     //  virtual bool Move(double dx, double dy, double dz) { return false; };
     //    virtual void SelectedRender();

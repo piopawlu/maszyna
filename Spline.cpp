@@ -366,9 +366,11 @@ int TSpline::LoadFromFile(AnsiString FileName, TKnot *FirstKnot)
                 }
                 else
                 {
-                    CurrentKnot->CPointOut= 2*CurrentKnot->Point-CurrentKnot->CPointIn;
+                    CurrentKnot->CPointOut=
+    2*CurrentKnot->Point-CurrentKnot->CPointIn;
                     CurrentKnot->Next->CPointIn= CurrentKnot->Point;
-                    CurrentKnot->Length= (CurrentKnot->Point-CurrentKnot->Next->Point).Length();
+                    CurrentKnot->Length=
+    (CurrentKnot->Point-CurrentKnot->Next->Point).Length();
                 }
                 CurrentKnot= CurrentKnot->Next;
             }
@@ -499,7 +501,8 @@ bool TSpline::Render()
         glBegin(GL_LINE_STRIP);
         int i = 0;
         for (LastKnot = RootKnot; LastKnot != NULL && i < iNumKnots; LastKnot = LastKnot->Next, i++)
-            //        for (LastKnot= RootKnot; LastKnot!=NULL; LastKnot= LastKnot->Next)
+            //        for (LastKnot= RootKnot; LastKnot!=NULL; LastKnot=
+            //        LastKnot->Next)
             glVertex3f(LastKnot->Point.x, LastKnot->Point.y, LastKnot->Point.z);
         glEnd();
         /*

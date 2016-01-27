@@ -144,7 +144,8 @@ class TTranscripts
 { // klasa obs³uguj¹ca napisy do dŸwiêków
     TTranscript aLines[MAX_TRANSCRIPTS]; // pozycje na napisy do wyœwietlenia
     int iCount; // liczba zajêtych pozycji
-    int iStart; // pierwsza istotna pozycja w tabeli, ¿eby sortowaæ przestawiaj¹c numerki
+    int iStart; // pierwsza istotna pozycja w tabeli, ¿eby sortowaæ przestawiaj¹c
+    // numerki
     float fRefreshTime;
 
   public:
@@ -164,8 +165,8 @@ class Global
     // double Global::tSinceStart;
     static int Keys[MaxKeys];
     static vector3 pCameraPosition; // pozycja kamery w œwiecie
-    static double
-        pCameraRotation; // kierunek bezwzglêdny kamery w œwiecie: 0=pó³noc, 90°=zachód (-azymut)
+    static double pCameraRotation; // kierunek bezwzglêdny kamery w œwiecie:
+    // 0=pó³noc, 90°=zachód (-azymut)
     static double pCameraRotationDeg; // w stopniach, dla animacji billboard
     static vector3 pFreeCameraInit[10]; // pozycje kamery
     static vector3 pFreeCameraInitAngle[10];
@@ -215,6 +216,7 @@ class Global
     static void SetCameraRotation(double Yaw);
     static int iWriteLogEnabled; // maska bitowa: 1-zapis do pliku, 2-okienko
     // McZapkie-221002: definicja swiatla dziennego
+    static float Background[3];
     static GLfloat AtmoColor[];
     static GLfloat FogColor[];
     // static bool bTimeChange;
@@ -251,8 +253,8 @@ class Global
     static int iCameraLast;
     static AnsiString asRelease; // numer
     static AnsiString asVersion; // z opisem
-    static int
-        iViewMode; // co aktualnie widaæ: 0-kabina, 1-latanie, 2-sprzêgi, 3-dokumenty, 4-obwody
+    static int iViewMode; // co aktualnie widaæ: 0-kabina, 1-latanie, 2-sprzêgi,
+    // 3-dokumenty, 4-obwody
     static GLint iMaxTextureSize; // maksymalny rozmiar tekstury
     static int iTextMode; // tryb pracy wyœwietlacza tekstowego
     static int iScreenMode[12]; // numer ekranu wyœwietlacza tekstowego
@@ -269,7 +271,8 @@ class Global
     static int iMultisampling; // tryb antyaliasingu: 0=brak,1=2px,2=4px,3=8px,4=16px
     static bool bGlutFont; // tekst generowany przez GLUT
     static int iKeyLast; // ostatnio naciœniêty klawisz w celu logowania
-    static int iPause; // globalna pauza ruchu: b0=start,b1=klawisz,b2=t³o,b3=lagi,b4=wczytywanie
+    static int iPause; // globalna pauza ruchu:
+    // b0=start,b1=klawisz,b2=t³o,b3=lagi,b4=wczytywanie
     static bool bActive; // czy jest aktywnym oknem
     static void BindTexture(GLuint t);
     static int iConvertModels; // tworzenie plików binarnych
@@ -288,10 +291,13 @@ class Global
     static int iSegmentsRendered; // iloœæ segmentów do regulacji wydajnoœci
     static double fFpsAverage; // oczekiwana wartosæ FPS
     static double fFpsDeviation; // odchylenie standardowe FPS
-    static double fFpsMin; // dolna granica FPS, przy której promieñ scenerii bêdzie zmniejszany
-    static double fFpsMax; // górna granica FPS, przy której promieñ scenerii bêdzie zwiêkszany
+    static double fFpsMin; // dolna granica FPS, przy której promieñ scenerii
+    // bêdzie zmniejszany
+    static double fFpsMax; // górna granica FPS, przy której promieñ scenerii
+    // bêdzie zwiêkszany
     static double fFpsRadiusMax; // maksymalny promieñ renderowania
-    static int iFpsRadiusMax; // maksymalny promieñ renderowania w rozmiarze tabeli sektorów
+    static int iFpsRadiusMax; // maksymalny promieñ renderowania w rozmiarze
+    // tabeli sektorów
     static double fRadiusFactor; // wspó³czynnik zmiany promienia
     static TCamera *pCamera; // parametry kamery
     static TDynamicObject *pUserDynamic; // pojazd u¿ytkownika, renderowany bez trzêsienia
@@ -304,7 +310,8 @@ class Global
     static TTranscripts tranTexts; // obiekt obs³uguj¹cy stenogramy dŸwiêków na ekranie
     static AnsiString asLang; // domyœlny jêzyk - http://tools.ietf.org/html/bcp47
     static int iHiddenEvents; // czy ³¹czyæ eventy z torami poprzez nazwê toru
-    static TTextSound *tsRadioBusy[10]; // zajêtoœæ kana³ów radiowych (wskaŸnik na odgrywany dŸwiêk)
+    static TTextSound *tsRadioBusy[10]; // zajêtoœæ kana³ów radiowych (wskaŸnik na
+    // odgrywany dŸwiêk)
     // metody
     static void TrainDelete(TDynamicObject *d);
     static void ConfigParse(Queryparsercomp::TQueryParserComp *qp, cParser *cp = NULL);

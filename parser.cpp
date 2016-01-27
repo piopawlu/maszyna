@@ -28,7 +28,8 @@ cParser::cParser(std::string Stream, buffertype Type, std::string Path, bool tr)
     // build comments map
     mComments.insert(commentmap::value_type("/*", "*/"));
     mComments.insert(commentmap::value_type("//", "\n"));
-    // mComments.insert(commentmap::value_type("--","\n")); //Ra: to chyba nie u¿ywane
+    // mComments.insert(commentmap::value_type("--","\n")); //Ra: to chyba nie
+    // u¿ywane
     // store to calculate sub-sequent includes from relative path
     mPath = Path;
     // reset pointers and attach proper type of buffer
@@ -108,7 +109,8 @@ std::string cParser::readToken(bool ToLower, const char *Break)
         if (!token.empty())
         {
             pos = token.find("(p");
-            // check if the token is a parameter which should be replaced with stored true value
+            // check if the token is a parameter which should be replaced with stored
+            // true value
             if (pos != std::string::npos) //!=npos to znalezione
             {
                 std::string parameter =
@@ -155,7 +157,8 @@ std::string cParser::readToken(bool ToLower, const char *Break)
         if (LoadTraction ? true : ((includefile.find("tr/") == std::string::npos) &&
                                    (includefile.find("tra/") == std::string::npos)))
         {
-            // std::string trtest2="niemaproblema"; //nazwa odporna na znalezienie "tr/"
+            // std::string trtest2="niemaproblema"; //nazwa odporna na znalezienie
+            // "tr/"
             // if (trtest=="x") //jeœli nie wczytywaæ drutów
             // trtest2=includefile; //kopiowanie œcie¿ki do pliku
             std::string parameter = readToken(false); // w parametrach nie zmniejszamy

@@ -78,6 +78,7 @@ USEUNIT("Console.cpp");
 USEUNIT("Mover.cpp");
 USEUNIT("McZapkie\_mover.pas");
 USEUNIT("McZapkie\hamulce.pas");
+USEUNIT("McZapkie\Oerlikon_ESt.pas");
 USEUNIT("Console\PoKeys55.cpp");
 USEUNIT("Forth.cpp");
 USEUNIT("Console\LPT.cpp");
@@ -179,12 +180,17 @@ GLvoid KillGLWindow(GLvoid) // properly kill the window
     //    KillFont();
 }
 
-/*	This code creates our OpenGL Window.  Parameters are:			*
- *	title			- title to appear at the top of the window	*
- *	width			- width of the GL Window or fullscreen mode	*
- *	height			- height of the GL Window or fullscreen mode	*
- *	bits			- number of bits to use for color (8/16/24/32)	*
- *	fullscreenflag	- use fullscreen mode (TRUE) or windowed mode (FALSE)	*/
+/*	This code creates our OpenGL Window.  Parameters are: *
+ *	title			- title to appear at the top of the window
+ **
+ *	width			- width of the GL Window or fullscreen mode
+ **
+ *	height			- height of the GL Window or fullscreen mode
+ **
+ *	bits			- number of bits to use for color (8/16/24/32)
+ **
+ *	fullscreenflag	- use fullscreen mode (TRUE) or windowed mode
+ *(FALSE)	*/
 
 BOOL CreateGLWindow(char *title, int width, int height, int bits, bool fullscreenflag)
 {
@@ -262,7 +268,8 @@ BOOL CreateGLWindow(char *title, int width, int height, int bits, bool fullscree
         dmScreenSettings.dmFields =
             dmScreenSettings.dmFields | DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
-        // Try to set selected mode and get results.  NOTE: CDS_FULLSCREEN gets rid of start bar.
+        // Try to set selected mode and get results.  NOTE: CDS_FULLSCREEN gets rid
+        // of start bar.
         if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
         {
             // If the mode fails, offer two options.  Quit or use windowed mode.
@@ -352,7 +359,8 @@ BOOL CreateGLWindow(char *title, int width, int height, int bits, bool fullscree
     }
 
     /*
-     Our first pass, Multisampling hasn't been created yet, so we create a window normally
+     Our first pass, Multisampling hasn't been created yet, so we create a window
+     normally
      If it is supported, then we're on our second pass
      that means we want to use our pixel format for sampling
      so set PixelFormat to arbMultiSampleformat instead
@@ -531,11 +539,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, // handle for this window
                     Global::iPause &= ~1; // odpauzowanie, gdy po wczytaniu mia³o nie startowaæ
                 else if (!(Global::iMultiplayer & 2)) // w multiplayerze pauza nie ma sensu
                     if (!Console::Pressed(VK_CONTROL)) // z [Ctrl] to radiostop jest
-                        // Ra: poni¿sze nie ma sensu, bo brak komunikacji natychmiast zapauzuje
+                        // Ra: poni¿sze nie ma sensu, bo brak komunikacji natychmiast
+                        // zapauzuje
                         // ponownie
-                        // if (Global::iPause&8) //jeœli pauza zwi¹zana z brakiem komunikacji z
+                        // if (Global::iPause&8) //jeœli pauza zwi¹zana z brakiem
+                        // komunikacji z
                         // PoKeys
-                        // Global::iPause&=~10; //odpauzowanie pauzy PoKeys (chyba nic nie da) i
+                        // Global::iPause&=~10; //odpauzowanie pauzy PoKeys (chyba nic nie
+                        // da) i
                         // ewentualnie klawiszowej równie¿
                         // else
                         Global::iPause ^= 2; // zmiana stanu zapauzowania
@@ -590,7 +601,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, // handle for this window
     { // odrysowanie okna
         break;
     }
-    // case WM_ERASEBKGND: //Process this message to keep Windows from erasing background.
+    // case WM_ERASEBKGND: //Process this message to keep Windows from erasing
+    // background.
     case MM_JOY1BUTTONDOWN:
     {
         // WriteLog("Joystick button "+AnsiString(wParam));
@@ -603,7 +615,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, // handle for this window
         if (joySetCapture(hWnd, JOYSTICKID1, 0, FALSE))
         {
             // MessageBeep(MB_ICONEXCLAMATION);
-            // MessageBox(hWnd,"Couldn't capture the joystick",NULL,MB_OK|MB_ICONEXCLAMATION);
+            // MessageBox(hWnd,"Couldn't capture the
+            // joystick",NULL,MB_OK|MB_ICONEXCLAMATION);
             // return -1;
         }
         break;
@@ -625,7 +638,8 @@ int WINAPI WinMain(HINSTANCE hInstance, // instance
      //najpierw ustalmy wersjê OpenGL
      AnsiString glver=((char*)glGetString(GL_VERSION));
      while (glver.LastDelimiter(".")>glver.Pos("."))
-      glver=glver.SubString(1,glver.LastDelimiter(".")-1); //obciêcie od drugiej kropki
+      glver=glver.SubString(1,glver.LastDelimiter(".")-1); //obciêcie od drugiej
+     kropki
      try {Global::fOpenGL=glver.ToDouble();} catch (...) {Global::fOpenGL=0.0;}
      Global::bOpenGL_1_5=(Global::fOpenGL>=1.5);
     */
@@ -660,7 +674,8 @@ int WINAPI WinMain(HINSTANCE hInstance, // instance
                 Global::asHumanCtrlVehicle = str;
             }
             else if (str == AnsiString("-modifytga"))
-            { // wykonanie modyfikacji wszystkich plików TGA
+            { // wykonanie modyfikacji
+                // wszystkich plików TGA
                 Global::iModifyTGA = -1; // specjalny tryb wykonania totalnej modyfikacji
             }
             else if (str == AnsiString("-e3d"))
@@ -671,9 +686,9 @@ int WINAPI WinMain(HINSTANCE hInstance, // instance
                     Global::iConvertModels = -7; // z optymalizacj¹, bananami i prawid³owym Opacity
             }
             else
-                Error(
-                    "Program usage: EU07 [-s sceneryfilepath] [-v vehiclename] [-modifytga] [-e3d]",
-                    !Global::iWriteLogEnabled);
+                Error("Program usage: EU07 [-s sceneryfilepath] [-v vehiclename] "
+                      "[-modifytga] [-e3d]",
+                      !Global::iWriteLogEnabled);
         }
         delete Parser; // ABu 050205: tego wczesniej nie bylo
     }
@@ -695,9 +710,11 @@ int WINAPI WinMain(HINSTANCE hInstance, // instance
         return 0; // quit if window was not created
     SetForegroundWindow(hWnd);
     // McZapkie: proba przeplukania klawiatury
-    Console *pConsole = new Console(); // Ra: nie wiem, czy ma to sens, ale jakoœ zainicjowac trzeba
+    Console *pConsole = new Console(); // Ra: nie wiem, czy ma to sens, ale jakoœ
+    // zainicjowac trzeba
     while (Console::Pressed(VK_F10))
-        Error("Keyboard buffer problem - press F10"); // na Windows 98 lubi siê to pojawiaæ
+        Error("Keyboard buffer problem - press F10"); // na Windows 98 lubi siê to
+    // pojawiaæ
     int iOldSpeed, iOldDelay;
     SystemParametersInfo(SPI_GETKEYBOARDSPEED, 0, &iOldSpeed, 0);
     SystemParametersInfo(SPI_GETKEYBOARDDELAY, 0, &iOldDelay, 0);
@@ -740,7 +757,8 @@ int WINAPI WinMain(HINSTANCE hInstance, // instance
                 // draw the scene, watch for quit messages
                 // DrawGLScene()
                 // if (!pause)
-                // if (Global::bInactivePause?Global::bActive:true) //tak nie, bo spada z góry
+                // if (Global::bInactivePause?Global::bActive:true) //tak nie, bo spada
+                // z góry
                 if (World.Update()) // Was There A Quit Received?
                     SwapBuffers(hDC); // Swap Buffers (Double Buffering)
                 else

@@ -79,7 +79,8 @@ struct TMaterial
 {
     int ID;
     AnsiString Name;
-//McZapkie-240702: lepiej uzywac wartosci float do opisu koloru bo funkcje opengl chyba tego na ogol
+//McZapkie-240702: lepiej uzywac wartosci float do opisu koloru bo funkcje
+opengl chyba tego na ogol
 uzywaja
     float Ambient[4];
     float Diffuse[4];
@@ -148,9 +149,12 @@ enum TAnimType // rodzaj animacji
     at_Wind, // ruch pod wp³ywem wiatru
     at_Sky, // animacja nieba
     at_IK = 0x100, // odwrotna kinematyka - submodel steruj¹cy (np. staw skokowy)
-    at_IK11 = 0x101, // odwrotna kinematyka - submodel nadrzêdny do sterowango (np. stopa)
-    at_IK21 = 0x102, // odwrotna kinematyka - submodel nadrzêdny do sterowango (np. podudzie)
-    at_IK22 = 0x103, // odwrotna kinematyka - submodel nadrzêdny do nadrzêdnego sterowango (np. udo)
+    at_IK11 = 0x101, // odwrotna kinematyka - submodel nadrzêdny do sterowango
+    // (np. stopa)
+    at_IK21 = 0x102, // odwrotna kinematyka - submodel nadrzêdny do sterowango
+    // (np. podudzie)
+    at_IK22 = 0x103, // odwrotna kinematyka - submodel nadrzêdny do nadrzêdnego
+    // sterowango (np. udo)
     at_Digital = 0x200, // dziesiêciocyfrowy licznik mechaniczny (z cylindrami)
     at_DigiClk = 0x201, // zegar cyfrowy jako licznik na dziesiêcioœcianach
     at_Undefined = 0x800000FF // animacja chwilowo nieokreœlona
@@ -160,13 +164,16 @@ class TModel3d;
 class TSubModelInfo;
 
 class TSubModel
-{ // klasa submodelu - pojedyncza siatka, punkt œwietlny albo grupa punktów
-    // Ra: ta klasa ma mieæ wielkoœæ 256 bajtów, aby pokry³a siê z formatem binarnym
+{ // klasa submodelu - pojedyncza siatka, punkt œwietlny albo
+    // grupa punktów
+    // Ra: ta klasa ma mieæ wielkoœæ 256 bajtów, aby pokry³a siê z formatem
+    // binarnym
     // Ra: nie przestawiaæ zmiennych, bo wczytuj¹ siê z pliku binarnego!
   private:
     TSubModel *Next;
     TSubModel *Child;
-    int eType; // Ra: modele binarne daj¹ wiêcej mo¿liwoœci ni¿ mesh z³o¿ony z trójk¹tów
+    int eType; // Ra: modele binarne daj¹ wiêcej mo¿liwoœci ni¿ mesh z³o¿ony z
+    // trójk¹tów
     int iName; // numer ³añcucha z nazw¹ submodelu, albo -1 gdy anonimowy
   public: // chwilowo
     TAnimType b_Anim;
@@ -206,14 +213,18 @@ class TSubModel
     // McZapkie-050702: parametry dla swiatla:
     float fNearAttenStart;
     float fNearAttenEnd;
-    int bUseNearAtten; // te 3 zmienne okreslaja rysowanie aureoli wokol zrodla swiatla
-    int iFarAttenDecay; // ta zmienna okresla typ zaniku natezenia swiatla (0:brak, 1,2: potega 1/R)
+    int bUseNearAtten; // te 3 zmienne okreslaja rysowanie aureoli wokol zrodla
+    // swiatla
+    int iFarAttenDecay; // ta zmienna okresla typ zaniku natezenia swiatla
+    // (0:brak, 1,2: potega 1/R)
     float fFarDecayRadius; // normalizacja j.w.
     float fCosFalloffAngle; // cosinus k¹ta sto¿ka pod którym widaæ œwiat³o
-    float fCosHotspotAngle; // cosinus k¹ta sto¿ka pod którym widaæ aureolê i zwiêkszone natê¿enie
+    float fCosHotspotAngle; // cosinus k¹ta sto¿ka pod którym widaæ aureolê i
+    // zwiêkszone natê¿enie
     // œwiat³a
     float fCosViewAngle; // cos kata pod jakim sie teraz patrzy
-    // Ra: dalej s¹ zmienne robocze, mo¿na je przestawiaæ z zachowaniem rozmiaru klasy
+    // Ra: dalej s¹ zmienne robocze, mo¿na je przestawiaæ z zachowaniem rozmiaru
+    // klasy
     int TextureID; // numer tekstury, -1 wymienna, 0 brak
     int bWire; // nie u¿ywane, ale wczytywane
     // short TexAlpha;  //Ra: nie u¿ywane ju¿
@@ -232,14 +243,17 @@ class TSubModel
     int iAnimOwner; // roboczy numer egzemplarza, który ustawi³ animacjê
     TAnimType b_aAnim; // kody animacji oddzielnie, bo zerowane
   public:
-    float4x4 *mAnimMatrix; // macierz do animacji kwaternionowych (nale¿y do AnimContainer)
-    char space[8]; // wolne miejsce na przysz³e zmienne (zmniejszyæ w miarê potrzeby)
+    float4x4 *mAnimMatrix; // macierz do animacji kwaternionowych (nale¿y do
+    // AnimContainer)
+    char space[8]; // wolne miejsce na przysz³e zmienne (zmniejszyæ w miarê
+    // potrzeby)
   public:
-    TSubModel *
-        *smLetter; // wskaŸnik na tablicê submdeli do generoania tekstu (docelowo zapisaæ do E3D)
+    TSubModel **smLetter; // wskaŸnik na tablicê submdeli do generoania tekstu
+    // (docelowo zapisaæ do E3D)
     TSubModel *Parent; // nadrzêdny, np. do wymna¿ania macierzy
     int iVisible; // roboczy stan widocznoœci
-    // AnsiString asTexture; //robocza nazwa tekstury do zapisania w pliku binarnym
+    // AnsiString asTexture; //robocza nazwa tekstury do zapisania w pliku
+    // binarnym
     // AnsiString asName; //robocza nazwa
     char *pTexture; // robocza nazwa tekstury do zapisania w pliku binarnym
     char *pName; // robocza nazwa
@@ -345,7 +359,8 @@ class TSubModel
 };
 
 class TSubModelInfo
-{ // klasa z informacjami o submodelach, do tworzenia pliku binarnego
+{ // klasa z informacjami o submodelach, do tworzenia pliku
+    // binarnego
   public:
     TSubModel *pSubModel; // wskaŸnik na submodel
     int iTransform; // numer transformu (-1 gdy brak)

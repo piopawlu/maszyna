@@ -77,7 +77,8 @@ TSoundContainer::TSoundContainer(LPDIRECTSOUND pDS, char *Directory, char *strFi
     fSamplingRate = pWaveSoundRead->m_pwfx->nSamplesPerSec;
     iBitsPerSample = pWaveSoundRead->m_pwfx->wBitsPerSample;
 
-    //    pDSBuffer= (LPDIRECTSOUNDBUFFER*) malloc(Concurrent*sizeof(LPDIRECTSOUNDBUFFER));
+    //    pDSBuffer= (LPDIRECTSOUNDBUFFER*)
+    //    malloc(Concurrent*sizeof(LPDIRECTSOUNDBUFFER));
     //    for (int i=0; i<Concurrent; i++)
     //      pDSBuffer[i]= NULL;
 
@@ -116,7 +117,8 @@ TSoundContainer::TSoundContainer(LPDIRECTSOUND pDS, char *Directory, char *strFi
     pWaveSoundRead->Reset();
 
     // Lock the buffer down
-    // if (FAILED(hr=DSBuffer->Lock(0,dwBufferBytes,&pbData,&dwLength,&pbData2,&dwLength2,0)))
+    // if
+    // (FAILED(hr=DSBuffer->Lock(0,dwBufferBytes,&pbData,&dwLength,&pbData2,&dwLength2,0)))
     if (FAILED(hr = DSBuffer->Lock(0, dwBufferBytes, &pbData, &dwLength, &pbData2, &dwLength2, 0L)))
         return;
 
@@ -137,7 +139,8 @@ TSoundContainer::TSoundContainer(LPDIRECTSOUND pDS, char *Directory, char *strFi
     /*
         for (int i=1; i<Concurrent; i++)
         {
-            if( FAILED( hr= pDS->DuplicateSoundBuffer(pDSBuffer[0],&(pDSBuffer[i]))))
+            if( FAILED( hr=
+       pDS->DuplicateSoundBuffer(pDSBuffer[0],&(pDSBuffer[i]))))
             {
                 Concurrent= i;
                 break;

@@ -71,7 +71,8 @@ void TAdvancedSound::Load(TQueryParserComp *Parser, vector3 pPosition)
 
 void TAdvancedSound::TurnOn(bool ListenerInside, vector3 NewPosition)
 {
-    // hunter-311211: nie trzeba czekac na ponowne odtworzenie dzwieku, az sie wylaczy
+    // hunter-311211: nie trzeba czekac na ponowne odtworzenie dzwieku, az sie
+    // wylaczy
     if ((State == ss_Off || State == ss_ShuttingDown) && (SoundStart.AM > 0))
     {
         SoundStart.ResetPosition();

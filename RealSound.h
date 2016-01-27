@@ -20,7 +20,8 @@ class TRealSound
     char *Nazwa; // dla celow odwszawiania
     double fDistance, fPreviousDistance; // dla liczenia Dopplera
     float fFrequency; // czêstotliwoœæ samplowania pliku
-    int iDoppler; // Ra 2014-07: mo¿liwoœæ wy³¹czenia efektu Dopplera np. dla œpiewu ptaków
+    int iDoppler; // Ra 2014-07: mo¿liwoœæ wy³¹czenia efektu Dopplera np. dla
+    // œpiewu ptaków
   public:
     vector3 vSoundPosition; // polozenie zrodla dzwieku
     double dSoundAtt; // odleglosc polowicznego zaniku dzwieku
@@ -57,8 +58,10 @@ class TTextSound : public TRealSound
 };
 
 class TSynthSound
-{ // klasa generuj¹ca sygna³ odjazdu (Rp12, Rp13), potem rozbudowaæ o pracê manewrowego...
-    int iIndex[44]; // indeksy pocz¹tkowe, gdy mamy kilka wariantów dŸwiêków sk³adowych
+{ // klasa generuj¹ca sygna³ odjazdu (Rp12, Rp13), potem
+    // rozbudowaæ o pracê manewrowego...
+    int iIndex[44]; // indeksy pocz¹tkowe, gdy mamy kilka wariantów dŸwiêków
+    // sk³adowych
     // 0..9 - cyfry 0..9
     // 10..19 - liczby 10..19
     // 21..29 - dziesi¹tki (*21==*10?)
@@ -67,8 +70,10 @@ class TSynthSound
     // 41 - "tysi¹ce"
     // 42 - indeksy pocz¹tkowe dla "odjazd"
     // 43 - indeksy pocz¹tkowe dla "gotów"
-    PSound *sSound; // posortowana tablica dŸwiêków, rozmiar zale¿ny od liczby znalezionych plików
-    // a mo¿e zamiast wielu plików/dŸwiêków zrobiæ jeden po³¹czony plik i pos³ugiwaæ siê czasem
+    PSound *sSound; // posortowana tablica dŸwiêków, rozmiar zale¿ny od liczby
+    // znalezionych plików
+    // a mo¿e zamiast wielu plików/dŸwiêków zrobiæ jeden po³¹czony plik i
+    // pos³ugiwaæ siê czasem
     // od..do?
 };
 

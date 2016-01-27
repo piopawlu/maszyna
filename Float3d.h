@@ -143,7 +143,8 @@ inline float4 &operator*=(float4 &v1, double d)
     return v1;
 };
 inline float4 Slerp(const float4 &q0, const float4 &q1, float t)
-// void Slerp(QUATERNION *Out, const QUATERNION &q0, const QUATERNION &q1, float t)
+// void Slerp(QUATERNION *Out, const QUATERNION &q0, const QUATERNION &q1, float
+// t)
 { // interpolacja sweryczna
     float cosOmega = Dot(q0, q1);
     float4 new_q1(q1);
@@ -157,7 +158,8 @@ inline float4 Slerp(const float4 &q0, const float4 &q1, float t)
     }
     double k0, k1;
     if (cosOmega > 0.9999f)
-    { // jeœli jesteœmy z (t) na maksimum kosinusa, to tam prawie liniowo jest
+    { // jeœli jesteœmy z (t) na maksimum kosinusa, to tam
+        // prawie liniowo jest
         k0 = 1.0f - t;
         k1 = t;
     }
@@ -174,7 +176,8 @@ inline float4 Slerp(const float4 &q0, const float4 &q1, float t)
 }
 
 struct float8
-{ // wiercho³ek 3D z wektorem normalnym i mapowaniem, pojedyncza precyzja
+{ // wiercho³ek 3D z wektorem normalnym i mapowaniem, pojedyncza
+    // precyzja
   public:
     float3 Point;
     float3 Normal;

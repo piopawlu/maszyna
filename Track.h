@@ -38,7 +38,8 @@ typedef enum
     e_bridge,
     e_bank
 } TEnvironmentType;
-// Ra: opracowaæ alternatywny system cieni/œwiate³ z definiowaniem koloru oœwietlenia w halach
+// Ra: opracowaæ alternatywny system cieni/œwiate³ z definiowaniem koloru
+// oœwietlenia w halach
 
 class TTrack;
 class TGroundNode;
@@ -50,7 +51,8 @@ class TSwitchExtension
   public:
     TSwitchExtension(TTrack *owner, int what);
     ~TSwitchExtension();
-    TSegment *Segments[6]; // dwa tory od punktu 1, pozosta³e dwa od 2? Ra 140101: 6 po³¹czeñ dla
+    TSegment *Segments[6]; // dwa tory od punktu 1, pozosta³e dwa od 2? Ra 140101:
+    // 6 po³¹czeñ dla
     // skrzy¿owañ
     // TTrack *trNear[4]; //tory do³¹czone do punktów 1, 2, 3 i 4
     // dotychczasowe [2]+[2] wskaŸniki zamieniæ na nowe [4]
@@ -104,7 +106,8 @@ class TIsolated
     AnsiString asName; // nazwa obiektu, baza do nazw eventów
     TEvent *evBusy; // zdarzenie wyzwalane po zajêciu grupy
     TEvent *evFree; // zdarzenie wyzwalane po ca³kowitym zwolnieniu zajêtoœci grupy
-    TMemCell *pMemCell; // automatyczna komórka pamiêci, która wspó³pracuje z odcinkiem izolowanym
+    TMemCell *pMemCell; // automatyczna komórka pamiêci, która wspó³pracuje z
+    // odcinkiem izolowanym
     TIsolated();
     TIsolated(const AnsiString &n, TIsolated *i);
     ~TIsolated();
@@ -145,8 +148,8 @@ class TTrack : public Resource
     int iTrapezoid; // 0-standard, 1-przechy³ka, 2-trapez, 3-oba
     GLuint DisplayListID;
     TIsolated *pIsolated; // obwód izolowany obs³uguj¹cy zajêcia/zwolnienia grupy torów
-    TGroundNode
-        *pMyNode; // Ra: proteza, ¿eby tor zna³ swoj¹ nazwê TODO: odziedziczyæ TTrack z TGroundNode
+    TGroundNode *pMyNode; // Ra: proteza, ¿eby tor zna³ swoj¹ nazwê TODO:
+    // odziedziczyæ TTrack z TGroundNode
   public:
     int iNumDynamics;
     TDynamicObject *Dynamics[iMaxNumDynamics];
@@ -176,18 +179,22 @@ class TTrack : public Resource
     TEnvironmentType eEnvironment; // dŸwiêk i oœwietlenie
     bool bVisible; // czy rysowany
     int iAction; // czy modyfikowany eventami (specjalna obs³uga przy skanowaniu)
-    float fOverhead; // informacja o stanie sieci: 0-jazda bezpr¹dowa, >0-z opuszczonym i
+    float fOverhead; // informacja o stanie sieci: 0-jazda bezpr¹dowa, >0-z
+    // opuszczonym i
     // ograniczeniem prêdkoœci
   private:
-    double fVelocity; // prêdkoœæ dla AI (powy¿ej roœnie prawdopowobieñstwo wykolejenia)
+    double fVelocity; // prêdkoœæ dla AI (powy¿ej roœnie prawdopowobieñstwo
+    // wykolejenia)
   public:
     // McZapkie-100502:
     double fTrackLength; // d³ugoœæ z wpisu, nigdzie nie u¿ywana
     double fRadius; // promieñ, dla zwrotnicy kopiowany z tabeli
-    bool ScannedFlag; // McZapkie: do zaznaczania kolorem torów skanowanych przez AI
+    bool ScannedFlag; // McZapkie: do zaznaczania kolorem torów skanowanych przez
+    // AI
     TTraction *hvOverhead; // drut zasilaj¹cy do szybkiego znalezienia (nie u¿ywany)
     TGroundNode *nFouling[2]; // wspó³rzêdne ukresu albo oporu koz³a
-    TTrack *trColides; // tor kolizyjny, na którym trzeba sprawdzaæ pojazdy pod k¹tem zderzenia
+    TTrack *trColides; // tor kolizyjny, na którym trzeba sprawdzaæ pojazdy pod
+    // k¹tem zderzenia
 
     TTrack(TGroundNode *g);
     ~TTrack();

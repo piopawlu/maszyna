@@ -20,7 +20,8 @@ http://mozilla.org/MPL/2.0/.
 #include <ctype.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-// cParser -- generic class for parsing text data, either from file or provided string
+// cParser -- generic class for parsing text data, either from file or provided
+// string
 
 class cParser : public std::stringstream
 {
