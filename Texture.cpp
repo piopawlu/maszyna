@@ -190,11 +190,11 @@ GLuint TTexturesManager::GetTextureID(char *dir, char *where, std::string fileNa
       iter=LoadFromFile(fileName,filter); //doda siê do magazynu i zwróci swoj¹ pozycjê
      }
     */
-    size_t pos = fileName.find(':');        // szukamy dwukropka
-    if (pos != std::string::npos)           // po dwukropku mog¹ byæ podane dodatkowe informacje
+    size_t pos = fileName.find(':'); // szukamy dwukropka
+    if (pos != std::string::npos) // po dwukropku mog¹ byæ podane dodatkowe informacje
         fileName = fileName.substr(0, pos); // niebêd¹ce nazw¹ tekstury
-    pos = fileName.find('|');               // szukamy separatora tekstur
-    if (pos != std::string::npos)           // po | mo¿e byæ nazwa kolejnej tekstury
+    pos = fileName.find('|'); // szukamy separatora tekstur
+    if (pos != std::string::npos) // po | mo¿e byæ nazwa kolejnej tekstury
         fileName = fileName.substr(0, pos); // i trzeba to obci¹æ
     std::transform(fileName.begin(), fileName.end(), fileName.begin(), ReplaceSlash());
     // jeœli bie¿aca œcie¿ka do tekstur nie zosta³a dodana to dodajemy domyœln¹
@@ -202,18 +202,18 @@ GLuint TTexturesManager::GetTextureID(char *dir, char *where, std::string fileNa
         fileName.insert(0, szTexturePath);
     Names::iterator iter;
     if (fileName.find('.') == std::string::npos)
-    {                         // Ra: wypróbowanie rozszerzeñ po kolei, zaczynaj¹c od domyœlnego
+    { // Ra: wypróbowanie rozszerzeñ po kolei, zaczynaj¹c od domyœlnego
         fileName.append("."); // kropka bêdze na pewno, resztê trzeba próbowaæ
-        std::string test;     // zmienna robocza
+        std::string test; // zmienna robocza
         for (int i = 0; i < 4; ++i)
         { // najpierw szukamy w magazynie
             test = fileName;
             test.append(Global::szDefaultExt[i]);
             iter = _names.find(fileName); // czy mamy ju¿ w magazynie?
             if (iter != _names.end())
-                return iter->second;       // znalezione!
+                return iter->second; // znalezione!
             test.insert(0, szTexturePath); // jeszcze próba z dodatkow¹ œcie¿k¹
-            iter = _names.find(fileName);  // czy mamy ju¿ w magazynie?
+            iter = _names.find(fileName); // czy mamy ju¿ w magazynie?
             if (iter != _names.end())
                 return iter->second; // znalezione!
         }
@@ -325,7 +325,7 @@ TTexturesManager::AlphaValue TTexturesManager::LoadTGA(std::string fileName, int
     AlphaValue fail(0, false);
     int writeback = -1; //-1 plik jest OK, >=0 - od którego bajtu zapisaæ poprawiony plik
     GLubyte TGACompheader[] = {0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // uncompressed TGA header
-    GLubyte TGAcompare[12];                                          // used to compare TGA header
+    GLubyte TGAcompare[12]; // used to compare TGA header
     GLubyte header[6]; // first 6 useful bytes from the header
     std::fstream file(fileName.c_str(), std::ios::binary | std::ios::in);
     file.read((char *)TGAcompare, sizeof(TGAcompare));
@@ -337,7 +337,7 @@ TTexturesManager::AlphaValue TTexturesManager::LoadTGA(std::string fileName, int
         return fail;
     };
     bool compressed = (memcmp(TGACompheader, TGAcompare, sizeof(TGACompheader)) == 0);
-    GLint width = header[1] * 256 + header[0];  // determine the TGA width (highbyte*256+lowbyte)
+    GLint width = header[1] * 256 + header[0]; // determine the TGA width (highbyte*256+lowbyte)
     GLint height = header[3] * 256 + header[2]; // determine the TGA height (highbyte*256+lowbyte)
     // check if width, height and bpp is correct
     if (!width || !height || (header[4] != 24 && header[4] != 32))
@@ -360,10 +360,10 @@ TTexturesManager::AlphaValue TTexturesManager::LoadTGA(std::string fileName, int
             WriteLog("Bad texture: " + AnsiString(fileName.c_str()) + " is " + AnsiString(width) +
                      "×" + AnsiString(height));
     }
-    GLuint bpp = header[4];         // grab the TGA's bits per pixel (24 or 32)
+    GLuint bpp = header[4]; // grab the TGA's bits per pixel (24 or 32)
     GLuint bytesPerPixel = bpp / 8; // divide by 8 to get the bytes per pixel
     GLuint imageSize =
-        width * height * bytesPerPixel;          // calculate the memory required for the TGA data
+        width * height * bytesPerPixel; // calculate the memory required for the TGA data
     GLubyte *imageData = new GLubyte[imageSize]; // reserve memory to hold the TGA data
     if (!compressed)
     { // WriteLog("Not compressed.");
@@ -376,31 +376,31 @@ TTexturesManager::AlphaValue TTexturesManager::LoadTGA(std::string fileName, int
         };
     }
     else
-    {                                                         // skompresowany plik TGA
-        GLuint filesize;                                      // current byte
-        GLuint colorbuffer[1];                                // Storage for 1 pixel
-        file.seekg(0, ios::end);                              // na koniec
-        filesize = (int)file.tellg() - 18;                    // rozmiar bez nag³ówka
-        file.seekg(18, ios::beg);                             // ponownie za nag³ówkiem
-        GLubyte *copyto = imageData;                          // gdzie wstawiaæ w buforze
-        GLubyte *copyend = imageData + imageSize;             // za ostatnim bajtem bufora
+    { // skompresowany plik TGA
+        GLuint filesize; // current byte
+        GLuint colorbuffer[1]; // Storage for 1 pixel
+        file.seekg(0, ios::end); // na koniec
+        filesize = (int)file.tellg() - 18; // rozmiar bez nag³ówka
+        file.seekg(18, ios::beg); // ponownie za nag³ówkiem
+        GLubyte *copyto = imageData; // gdzie wstawiaæ w buforze
+        GLubyte *copyend = imageData + imageSize; // za ostatnim bajtem bufora
         GLubyte *copyfrom = imageData + imageSize - filesize; // gdzie jest pocz¹tek
-        int chunkheader = 0;      // Ra: bêdziemy wczytywaæ najm³odszy bajt
+        int chunkheader = 0; // Ra: bêdziemy wczytywaæ najm³odszy bajt
         if (filesize < imageSize) // jeœli po kompresji jest mniejszy ni¿ przed
         { // Ra: nowe wczytywanie skompresowanych: czytamy ca³e od razu, dekompresja w pamiêci
             GLuint copybytes;
             file.read(copyfrom, filesize); // wczytanie reszty po nag³ówku
             // najpierw trzeba ustaliæ, ile skopiowanych pikseli jest na samym koñcu
             copyto = copyfrom; // roboczo przelatujemy wczytane dane
-            copybytes = 0;     // licznik bajtów obrazka
+            copybytes = 0; // licznik bajtów obrazka
             while (copybytes < imageSize)
             {
                 chunkheader = (unsigned char)*copyto; // jeden bajt, pozosta³e zawsze zerowe
-                copyto += 1 + bytesPerPixel;          // bajt licznika oraz jeden piksel jest zawsze
+                copyto += 1 + bytesPerPixel; // bajt licznika oraz jeden piksel jest zawsze
                 copybytes += (1 + (chunkheader & 127)) * bytesPerPixel; // iloœæ pikseli
-                if (chunkheader < 128)                     // jeœli kopiowanie, pikseli jest wiêcej
+                if (chunkheader < 128) // jeœli kopiowanie, pikseli jest wiêcej
                     copyto += (chunkheader)*bytesPerPixel; // rozmiar kopiowanego obszaru (bez
-                                                           // jednego piksela)
+                // jednego piksela)
             }
             if (copybytes > imageSize)
             { // nie ma prawa byæ wiêksze
@@ -417,7 +417,7 @@ TTexturesManager::AlphaValue TTexturesManager::LoadTGA(std::string fileName, int
                 memmove(copyfrom + extraend, copyfrom, filesize - extraend);
                 copyfrom += extraend;
                 file.close();
-                filesize -= extraend;       // to chyba nie ma znaczenia
+                filesize -= extraend; // to chyba nie ma znaczenia
                 if (Global::iModifyTGA & 2) // flaga obcinania œmieci
                 { // najlepiej by by³o obci¹æ plik, ale fstream tego nie potrafi
                     int handle;
@@ -437,7 +437,7 @@ TTexturesManager::AlphaValue TTexturesManager::LoadTGA(std::string fileName, int
                            bytesPerPixel; // bajty kopiowane na koñcu nie podlegaj¹ce dekompresji
             else
                 copyend -= bytesPerPixel; // ostatni piksel i tak siê nie zmieni
-            copyto = imageData;           // teraz bêdzie wype³nianie od pocz¹tku obszaru
+            copyto = imageData; // teraz bêdzie wype³nianie od pocz¹tku obszaru
             while (copyto < copyend)
             {
                 chunkheader = (unsigned char)*copyfrom; // jeden bajt, pozosta³e zawsze zerowe
@@ -452,19 +452,19 @@ TTexturesManager::AlphaValue TTexturesManager::LoadTGA(std::string fileName, int
                     // metod¹
                     // zapisaæ od niej dane od (copyto), poprzedzone bajtem o wartoœci (filesize-1)
                     writeback = imageData + imageSize + extraend -
-                                copyfrom;             // ile bajtów skompresowanych zosta³o do koñca
-                    copyfrom = copyto;                // adres piksela do zapisania
+                                copyfrom; // ile bajtów skompresowanych zosta³o do koñca
+                    copyfrom = copyto; // adres piksela do zapisania
                     file.seekg(-writeback, ios::end); // odleg³oœæ od koñca (ujemna)
                     if ((filesize > 128) ||
                         !(Global::iModifyTGA & 4)) // gdy za du¿o pikseli albo wy³¹czone
                         writeback = -1; // zapis mo¿liwe jeœli iloœæ problematycznych pikseli nie
-                                        // przekaracza 128
-                    break;              // bufor siê zatka³, dalej w ten sposób siê nie da
+                    // przekaracza 128
+                    break; // bufor siê zatka³, dalej w ten sposób siê nie da
                 }
                 if (chunkheader < 128)
                 { // dla nag³ówka < 128 mamy podane ile pikseli przekopiowaæ minus 1
                     copybytes = (++chunkheader) * bytesPerPixel; // rozmiar kopiowanego obszaru
-                    memcpy(copyto, ++copyfrom, copybytes);       // skopiowanie tylu bajtów
+                    memcpy(copyto, ++copyfrom, copybytes); // skopiowanie tylu bajtów
                     copyto += copybytes;
                     copyfrom += copybytes;
                 }
@@ -474,7 +474,7 @@ TTexturesManager::AlphaValue TTexturesManager::LoadTGA(std::string fileName, int
                     // copy the color into the image data as many times as dictated
                     if (bytesPerPixel == 4)
                     { // przy czterech bajtach powinno byæ szybsze u¿ywanie int
-                        __int32 *ptr = (__int32 *)(copyto);      // wskaŸnik na int
+                        __int32 *ptr = (__int32 *)(copyto); // wskaŸnik na int
                         __int32 bgra = *((__int32 *)++copyfrom); // kolor wype³niaj¹cy (4 bajty)
                         for (int counter = 0; counter < chunkheader; counter++)
                             *ptr++ = bgra;
@@ -540,15 +540,15 @@ TTexturesManager::AlphaValue TTexturesManager::LoadTGA(std::string fileName, int
             }
         } // while (copyto<copyend)
         if (writeback >= 0)
-        {                 // zapisanie pliku
+        { // zapisanie pliku
             file.close(); // tamten zamykamy, bo by³ tylko do odczytu
             if (writeback)
             { // zapisanie samej koñcówki pliku, która utrudnia dekompresjê w buforze
                 WriteLog("Rewriting end of file...");
                 chunkheader = filesize - 1; // licznik jest o 1 mniejszy
                 file.open(fileName.c_str(), std::ios::binary | std::ios::out | std::ios::in);
-                file.seekg(-writeback, ios::end);               // odleg³oœæ od koñca (ujemna)
-                file.write((char *)&chunkheader, 1);            // zapisanie licznika
+                file.seekg(-writeback, ios::end); // odleg³oœæ od koñca (ujemna)
+                file.write((char *)&chunkheader, 1); // zapisanie licznika
                 file.write(copyfrom, filesize * bytesPerPixel); // piksele bez kompresji
             }
             else
@@ -564,9 +564,9 @@ TTexturesManager::AlphaValue TTexturesManager::LoadTGA(std::string fileName, int
     };
     file.close(); // plik zamykamy dopiero na samym koñcu
     bool alpha = (bpp == 32);
-    bool hash = (fileName.find('#') != std::string::npos);   // true gdy w nazwie jest "#"
+    bool hash = (fileName.find('#') != std::string::npos); // true gdy w nazwie jest "#"
     bool dollar = (fileName.find('$') == std::string::npos); // true gdy w nazwie nie ma "$"
-    size_t pos = fileName.rfind('%');                        // ostatni % w nazwie
+    size_t pos = fileName.rfind('%'); // ostatni % w nazwie
     if (pos != std::string::npos)
         if (pos < fileName.size())
         {
@@ -785,7 +785,7 @@ TTexturesManager::AlphaValue TTexturesManager::LoadDDS(std::string fileName, int
 void TTexturesManager::SetFiltering(int filter)
 {
     if (filter < 4) // rozmycie przy powiêkszeniu
-    {               // brak rozmycia z bliska - tych jest 4: 0..3, aby nie by³o przeskoku
+    { // brak rozmycia z bliska - tych jest 4: 0..3, aby nie by³o przeskoku
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         filter += 4;
     }

@@ -20,10 +20,10 @@ http://mozilla.org/MPL/2.0/.
 #include "dumb3d.h"
 using namespace Math3D;
 
-enum TProblem               // lista problemów taboru, które uniemo¿liwiaj¹ jazdê
-{                           // flagi bitowe
-    pr_Hamuje = 1,          // pojazd ma za³¹czony hamulec lub zatarte osie
-    pr_Pantografy = 2,      // pojazd wymaga napompowania pantografów
+enum TProblem // lista problemów taboru, które uniemo¿liwiaj¹ jazdê
+{ // flagi bitowe
+    pr_Hamuje = 1, // pojazd ma za³¹czony hamulec lub zatarte osie
+    pr_Pantografy = 2, // pojazd wymaga napompowania pantografów
     pr_Ostatni = 0x80000000 // ostatnia flaga bitowa
 };
 
@@ -31,14 +31,14 @@ class TMoverParameters : public T_MoverParameters
 { // Ra: wrapper na kod pascalowy, przejmuj¹cy jego funkcje
   public:
     vector3 vCoulpler[2]; // powtórzenie wspó³rzêdnych sprzêgów z DynObj :/
-    vector3 DimHalf;      // po³owy rozmiarów do obliczeñ geometrycznych
+    vector3 DimHalf; // po³owy rozmiarów do obliczeñ geometrycznych
     // int WarningSignal; //0: nie trabi, 1,2: trabi syren¹ o podanym numerze
     unsigned char WarningSignal; // tymczasowo 8bit, ze wzglêdu na funkcje w MTools
-    double fBrakeCtrlPos;        // p³ynna nastawa hamulca zespolonego
+    double fBrakeCtrlPos; // p³ynna nastawa hamulca zespolonego
     bool bPantKurek3; // kurek trójdrogowy (pantografu): true=po³¹czenie z ZG, false=po³¹czenie z
-                      // ma³¹ sprê¿ark¹
-    int iProblem;     // flagi problemów z taborem, aby AI nie musia³o porównywaæ; 0=mo¿e jechaæ
-    int iLights[2];   // bity zapalonych œwiate³ tutaj, ¿eby da³o siê liczyæ pobór pr¹du
+    // ma³¹ sprê¿ark¹
+    int iProblem; // flagi problemów z taborem, aby AI nie musia³o porównywaæ; 0=mo¿e jechaæ
+    int iLights[2]; // bity zapalonych œwiate³ tutaj, ¿eby da³o siê liczyæ pobór pr¹du
   private:
     double CouplerDist(Byte Coupler);
 

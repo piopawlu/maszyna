@@ -11,16 +11,16 @@ http://mozilla.org/MPL/2.0/.
 #define NamesH
 //---------------------------------------------------------------------------
 class ItemRecord
-{   // rekord opisuj¹cy obiekt; raz utworzony nie przemieszcza siê
+{ // rekord opisuj¹cy obiekt; raz utworzony nie przemieszcza siê
     // rozmiar rekordu mo¿na zmieniæ w razie potrzeby
   public:
-    char *cName;               // wskaŸnik do nazwy umieszczonej w buforze
-    int iFlags;                // flagi bitowe
+    char *cName; // wskaŸnik do nazwy umieszczonej w buforze
+    int iFlags; // flagi bitowe
     ItemRecord *rPrev, *rNext; // posortowane drzewo (przebudowywane w razie potrzeby)
     union
     {
         void *pData; // wskaŸnik do obiektu
-        int iData;   // albo numer obiektu (tekstury)
+        int iData; // albo numer obiektu (tekstury)
         unsigned int uData;
     };
     // typedef
@@ -41,21 +41,21 @@ class ItemRecord
 class TNames
 {
   public:
-    int iSize;              // rozmiar bufora
-    char *cBuffer;          // bufor dla rekordów (na pocz¹tku) i nazw (na koñcu)
-    ItemRecord *rRecords;   // rekordy na pocz¹tku bufora
-    char *cLast;            // ostatni u¿yty bajt na nazwy
+    int iSize; // rozmiar bufora
+    char *cBuffer; // bufor dla rekordów (na pocz¹tku) i nazw (na koñcu)
+    ItemRecord *rRecords; // rekordy na pocz¹tku bufora
+    char *cLast; // ostatni u¿yty bajt na nazwy
     ItemRecord *rTypes[20]; // ro¿ne typy obiektów (pocz¹tek drzewa)
-    int iLast;              // ostatnio u¿yty rekord
+    int iLast; // ostatnio u¿yty rekord
   public:
     TNames();
-    int Add(int t, const char *n);              // dodanie obiektu typu (t)
-    int Add(int t, const char *n, void *d);     // dodanie obiektu z wskaŸnikiem
-    int Add(int t, const char *n, int d);       // dodanie obiektu z numerem
+    int Add(int t, const char *n); // dodanie obiektu typu (t)
+    int Add(int t, const char *n, void *d); // dodanie obiektu z wskaŸnikiem
+    int Add(int t, const char *n, int d); // dodanie obiektu z numerem
     bool Update(int t, const char *n, void *d); // dodanie jeœli nie ma, wymiana (d), gdy jest
     void TreeSet();
     ItemRecord *__fastcall TreeSet(int *n, int d, int u);
-    void Sort(int t);                   // przebudowa drzewa typu (t)
+    void Sort(int t); // przebudowa drzewa typu (t)
     ItemRecord *__fastcall Item(int n); // rekord o numerze (n)
     inline void *Find(const int t, const char *n)
     {

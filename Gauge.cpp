@@ -71,7 +71,7 @@ void TGauge::Init(TSubModel *NewSubModel, TGaugeType eNewType, double fNewScale,
                 sm = sm->NextGet();
             } while (sm);
         }
-        else                               // a banan mo¿e byæ z optymalizacj¹?
+        else // a banan mo¿e byæ z optymalizacj¹?
             NewSubModel->WillBeAnimated(); // wy³¹czenie ignowania jedynkowego transformu
     }
 };
@@ -84,9 +84,9 @@ bool TGauge::Load(TQueryParserComp *Parser, TModel3d *md1, TModel3d *md2, double
     double val4 = Parser->GetNextSymbol().ToDouble();
     double val5 = Parser->GetNextSymbol().ToDouble();
     TSubModel *sm = md1->GetFromName(str1.c_str());
-    if (sm)                                  // jeœli nie znaleziony
-        md2 = NULL;                          // informacja, ¿e znaleziony
-    else if (md2)                            // a jest podany drugi model (np. zewnêtrzny)
+    if (sm) // jeœli nie znaleziony
+        md2 = NULL; // informacja, ¿e znaleziony
+    else if (md2) // a jest podany drugi model (np. zewnêtrzny)
         sm = md2->GetFromName(str1.c_str()); // to mo¿e tam bêdzie, co za ró¿nica gdzie
     if (str2 == "mov")
         Init(sm, gt_Move, val3, val4, val5);
@@ -168,7 +168,7 @@ void TGauge::Update()
         case gt_Digital: // Ra 2014-07: licznik cyfrowy
             sm = SubModel->ChildGet();
             AnsiString n = FormatFloat("0000000000", floor(fValue)); // na razie tak trochê bez
-                                                                     // sensu
+            // sensu
             do
             { // pêtla po submodelach potomnych i obracanie ich o k¹t zale¿y od cyfry w (fValue)
                 if (sm->pName)

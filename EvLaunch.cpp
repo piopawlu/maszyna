@@ -60,7 +60,7 @@ bool TEventLauncher::Load(cParser *parser)
     *parser >> dRadius; // promieñ dzia³ania
     if (dRadius > 0.0)
         dRadius *= dRadius; // do kwadratu, pod warunkiem, ¿e nie jest ujemne
-    parser->getTokens();    // klawisz steruj¹cy
+    parser->getTokens(); // klawisz steruj¹cy
     *parser >> token;
     str = AnsiString(token.c_str());
     if (str != "none")
@@ -75,10 +75,10 @@ bool TEventLauncher::Load(cParser *parser)
     if (DeltaTime < 0)
         DeltaTime = -DeltaTime; // dla ujemnego zmieniamy na dodatni
     else if (DeltaTime > 0)
-    {                                   // wartoœæ dodatnia oznacza wyzwalanie o okreœlonej godzinie
+    { // wartoœæ dodatnia oznacza wyzwalanie o okreœlonej godzinie
         iMinute = int(DeltaTime) % 100; // minuty s¹ najm³odszymi cyframi dziesietnymi
         iHour = int(DeltaTime - iMinute) / 100; // godzina to setki
-        DeltaTime = 0;                          // bez powtórzeñ
+        DeltaTime = 0; // bez powtórzeñ
         WriteLog("EventLauncher at " + IntToStr(iHour) + ":" +
                  IntToStr(iMinute)); // wyœwietlenie czasu
     }
@@ -89,8 +89,8 @@ bool TEventLauncher::Load(cParser *parser)
     *parser >> token;
     asEvent2Name = AnsiString(token.c_str()); // drugi event
     if ((asEvent2Name == "end") || (asEvent2Name == "condition"))
-    {                          // drugiego eventu mo¿e nie byæ, bo s¹ z tym problemy, ale ciii...
-        str = asEvent2Name;    // rozpoznane s³owo idzie do dalszego przetwarzania
+    { // drugiego eventu mo¿e nie byæ, bo s¹ z tym problemy, ale ciii...
+        str = asEvent2Name; // rozpoznane s³owo idzie do dalszego przetwarzania
         asEvent2Name = "none"; // a drugiego eventu nie ma
     }
     else
@@ -142,7 +142,7 @@ bool TEventLauncher::Render()
     bool bCond = false;
     if (iKey != 0)
     {
-        if (Global::bActive)                  // tylko jeœli okno jest aktywne
+        if (Global::bActive) // tylko jeœli okno jest aktywne
             bCond = (Console::Pressed(iKey)); // czy klawisz wciœniêty
     }
     if (DeltaTime > 0)

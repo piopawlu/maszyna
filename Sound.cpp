@@ -70,7 +70,7 @@ TSoundContainer::TSoundContainer(LPDIRECTSOUND pDS, char *Directory, char *strFi
     ZeroMemory(&dsbd, sizeof(DSBUFFERDESC));
     dsbd.dwSize = sizeof(DSBUFFERDESC);
     dsbd.dwFlags = DSBCAPS_STATIC | DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY;
-    if (!Global::bInactivePause)             // jeœli prze³¹czony w t³o ma nadal dzia³aæ
+    if (!Global::bInactivePause) // jeœli prze³¹czony w t³o ma nadal dzia³aæ
         dsbd.dwFlags |= DSBCAPS_GLOBALFOCUS; // to dŸwiêki maj¹ byæ równie¿ s³yszalne
     dsbd.dwBufferBytes = pWaveSoundRead->m_ckIn.cksize;
     dsbd.lpwfxFormat = pWaveSoundRead->m_pwfx;
@@ -94,7 +94,7 @@ TSoundContainer::TSoundContainer(LPDIRECTSOUND pDS, char *Directory, char *strFi
     //----------------------------------------------------------
 
     BYTE *pbWavData; // Pointer to actual wav data
-    UINT cbWavSize;  // Size of data
+    UINT cbWavSize; // Size of data
     VOID *pbData = NULL;
     VOID *pbData2 = NULL;
     DWORD dwLength;
@@ -349,7 +349,7 @@ void TSoundsManager::Init(HWND hWnd)
     ZeroMemory(&dsbd, sizeof(DSBUFFERDESC));
     dsbd.dwSize = sizeof(DSBUFFERDESC);
     dsbd.dwFlags = DSBCAPS_PRIMARYBUFFER;
-    if (!Global::bInactivePause)             // jeœli prze³¹czony w t³o ma nadal dzia³aæ
+    if (!Global::bInactivePause) // jeœli prze³¹czony w t³o ma nadal dzia³aæ
         dsbd.dwFlags |= DSBCAPS_GLOBALFOCUS; // to dŸwiêki maj¹ byæ równie¿ s³yszalne
     dsbd.dwBufferBytes = 0;
     dsbd.lpwfxFormat = NULL;

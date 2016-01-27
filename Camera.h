@@ -15,9 +15,9 @@ using namespace Math3D;
 
 //---------------------------------------------------------------------------
 enum TCameraType
-{               // tryby pracy kamery
-    tp_Follow,  // jazda z pojazdem
-    tp_Free,    // stoi na scenerii
+{ // tryby pracy kamery
+    tp_Follow, // jazda z pojazdem
+    tp_Free, // stoi na scenerii
     tp_Satelite // widok z góry (nie u¿ywany)
 };
 
@@ -25,12 +25,12 @@ class TCamera
 {
   private:
     vector3 pOffset; // nie u¿ywane (zerowe)
-  public:            // McZapkie: potrzebuje do kiwania na boki
+  public: // McZapkie: potrzebuje do kiwania na boki
     double Pitch;
     double Yaw; // w œrodku: 0=do przodu; na zewn¹trz: 0=na po³udnie
     double Roll;
     TCameraType Type;
-    vector3 Pos;    // wspó³rzêdne obserwatora
+    vector3 Pos; // wspó³rzêdne obserwatora
     vector3 LookAt; // wspó³rzêdne punktu, na który ma patrzeæ
     vector3 vUp;
     vector3 Velocity;

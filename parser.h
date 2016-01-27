@@ -76,11 +76,11 @@ class cParser : public std::stringstream
     bool trimComments(std::string &String);
     // members:
     std::istream *mStream; // relevant kind of buffer is attached on creation.
-    std::string mPath;     // path to open stream, for relative path lookups.
-    int mSize;             // size of open stream, for progress report.
+    std::string mPath; // path to open stream, for relative path lookups.
+    int mSize; // size of open stream, for progress report.
     typedef std::map<std::string, std::string> commentmap;
     commentmap mComments;
-    cParser *mIncludeParser;             // child class to handle include directives.
+    cParser *mIncludeParser; // child class to handle include directives.
     std::vector<std::string> parameters; // parameter list for included file.
 };
 

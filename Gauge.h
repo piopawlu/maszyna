@@ -17,26 +17,26 @@ class TSubModel;
 class TModel3d;
 
 typedef enum
-{               // typ ruchu
+{ // typ ruchu
     gt_Unknown, // na razie nie znany
-    gt_Rotate,  // obrót
-    gt_Move,    // przesuniêcie równoleg³e
-    gt_Wiper,   // obrót trzech kolejnych submodeli o ten sam k¹t (np. wycieraczka, drzwi
-                // harmonijkowe)
-    gt_Digital  // licznik cyfrowy, np. kilometrów
+    gt_Rotate, // obrót
+    gt_Move, // przesuniêcie równoleg³e
+    gt_Wiper, // obrót trzech kolejnych submodeli o ten sam k¹t (np. wycieraczka, drzwi
+    // harmonijkowe)
+    gt_Digital // licznik cyfrowy, np. kilometrów
 } TGaugeType;
 
 class TGauge // zmienne "gg"
-{            // animowany wskaŸnik, mog¹cy przyjmowaæ wiele stanów poœrednich
+{ // animowany wskaŸnik, mog¹cy przyjmowaæ wiele stanów poœrednich
   private:
-    TGaugeType eType;     // typ ruchu
-    double fFriction;     // hamowanie przy zli¿aniu siê do zadanej wartoœci
+    TGaugeType eType; // typ ruchu
+    double fFriction; // hamowanie przy zli¿aniu siê do zadanej wartoœci
     double fDesiredValue; // wartoœæ docelowa
-    double fValue;        // wartoœæ obecna
-    double fOffset;       // wartoœæ pocz¹tkowa ("0")
-    double fScale;        // wartoœæ koñcowa ("1")
-    double fStepSize;     // nie u¿ywane
-    char cDataType;       // typ zmiennej parametru: f-float, d-double, i-int
+    double fValue; // wartoœæ obecna
+    double fOffset; // wartoœæ pocz¹tkowa ("0")
+    double fScale; // wartoœæ koñcowa ("1")
+    double fStepSize; // nie u¿ywane
+    char cDataType; // typ zmiennej parametru: f-float, d-double, i-int
     union
     { // wskaŸnik na parametr pokazywany przez animacjê
         float *fData;

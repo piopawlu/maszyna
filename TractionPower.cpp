@@ -39,7 +39,7 @@ TTractionPowerSource::TTractionPowerSource()
     SlowFuseTimeOut = 60;
     Recuperation = false;
 
-    TotalAdmitance = 1e-10;         // 10Mom - jakaœ tam up³ywnoœæ
+    TotalAdmitance = 1e-10; // 10Mom - jakaœ tam up³ywnoœæ
     TotalPreviousAdmitance = 1e-10; // zero jest szkodliwe
     OutputVoltage = 0;
     FastFuse = false;
@@ -79,7 +79,7 @@ bool TTractionPowerSource::Load(cParser *parser)
         Recuperation = true;
     else if (token.compare("section") == 0) // od³¹cznik sekcyjny
         bSection = true; // nie jest Ÿród³em zasilania, a jedynie informuje o pr¹dzie od³¹czenia
-                         // sekcji z obwodu
+    // sekcji z obwodu
     parser->getTokens();
     *parser >> token;
     if (token.compare("end") != 0)
@@ -132,7 +132,7 @@ bool TTractionPowerSource::Update(double dt)
     TotalPreviousAdmitance = TotalAdmitance; // u¿ywamy admitancji z poprzedniego kroku
     if (TotalPreviousAdmitance == 0.0)
         TotalPreviousAdmitance = 1e-10; // przynajmniej minimalna up³ywnoœæ
-    TotalAdmitance = 1e-10;             // a w aktualnym kroku sumujemy admitancjê
+    TotalAdmitance = 1e-10; // a w aktualnym kroku sumujemy admitancjê
     return true;
 };
 
@@ -140,7 +140,7 @@ double TTractionPowerSource::CurrentGet(double res)
 { // pobranie wartoœci pr¹du przypadaj¹cego na rezystancjê (res)
     // niech pamiêta poprzedni¹ admitancjê i wg niej przydziela pr¹d
     if (SlowFuse || FastFuse)
-    {                    // czekanie na zanik obci¹¿enia sekcji
+    { // czekanie na zanik obci¹¿enia sekcji
         if (res < 100.0) // liczenie czasu dopiero, gdy obci¹¿enie zniknie
             FuseTimer = 0;
         return 0;
@@ -153,7 +153,7 @@ double TTractionPowerSource::CurrentGet(double res)
                        0.0; // napiêcie dzielone przez sumê rezystancji wewnêtrznej i obci¹¿enia
     OutputVoltage = NominalVoltage - InternalRes * TotalCurrent; // napiêcie na obci¹¿eniu
     return TotalCurrent / (res * TotalPreviousAdmitance); // pr¹d proporcjonalny do udzia³u (1/res)
-                                                          // w ca³kowitej admitancji
+    // w ca³kowitej admitancji
 };
 
 void TTractionPowerSource::PowerSet(TTractionPowerSource *ps)

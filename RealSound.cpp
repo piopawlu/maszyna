@@ -36,8 +36,8 @@ TRealSound::TRealSound()
     vSoundPosition.z = 0;
     fDistance = fPreviousDistance = 0.0;
     fFrequency = 22050.0; // czêstotliwoœæ samplowania pliku
-    iDoppler = 0;         // normlanie jest za³¹czony; !=0 - modyfikacje
-    bLoopPlay = false;    // dŸwiêk wy³¹czony
+    iDoppler = 0; // normlanie jest za³¹czony; !=0 - modyfikacje
+    bLoopPlay = false; // dŸwiêk wy³¹czony
 }
 
 TRealSound::~TRealSound()
@@ -58,7 +58,7 @@ void TRealSound::Init(char *SoundName, double DistanceAttenuation, double X, dou
     {
         if (freqmod)
             if (fFrequency != 22050.0)
-            {   // dla modulowanych nie mo¿e byæ zmiany mno¿nika, bo czêstotliwoœæ w nag³ówku by³¹
+            { // dla modulowanych nie mo¿e byæ zmiany mno¿nika, bo czêstotliwoœæ w nag³ówku by³¹
                 // ignorowana, a mog³a byæ inna ni¿ 22050
                 fFrequency = 22050.0;
                 ErrorLog("Bad sound: " + AnsiString(SoundName) +
@@ -122,7 +122,7 @@ void TRealSound::Play(double Volume, int Looping, bool ListenerInside, vector3 N
                 Volume = Volume * dS / (dS + 2 * fDistance); // podwójne dla ListenerInside=false
         }
         if (iDoppler) //
-        {             // Ra 2014-07: efekt Dopplera nie zawsze jest wskazany
+        { // Ra 2014-07: efekt Dopplera nie zawsze jest wskazany
             // if (FreeFlyModeFlag) //gdy swobodne latanie - nie sprawdza siê to
             fPreviousDistance = fDistance; // to efektu Dopplera nie bêdzie
         }
@@ -143,13 +143,13 @@ void TRealSound::Play(double Volume, int Looping, bool ListenerInside, vector3 N
             if (vol >= 0)
                 vol = -1;
             if (Timer::GetSoundTimer() || !Looping) // Ra: po co to jest?
-                pSound->SetVolume(vol);             // Attenuation, in hundredths of a decibel (dB).
+                pSound->SetVolume(vol); // Attenuation, in hundredths of a decibel (dB).
             pSound->GetStatus(&stat);
             if (!(stat & DSBSTATUS_PLAYING))
                 pSound->Play(0, 0, Looping);
         }
         else // wylacz dzwiek bo daleko
-        {    // Ra 2014-09: oddalanie siê nie mo¿e byæ powodem do wy³¹czenie dŸwiêku
+        { // Ra 2014-09: oddalanie siê nie mo¿e byæ powodem do wy³¹czenie dŸwiêku
             /*
             // Ra: stara wersja, ale podobno lepsza
                pSound->GetStatus(&stat);
@@ -212,7 +212,7 @@ void TRealSound::AdjFreq(double Freq, double dt) // McZapkie TODO: dorobic tu ef
 }
 
 double TRealSound::GetWaveTime() // McZapkie: na razie tylko dla 22KHz/8bps
-{                                // u¿ywana do pomiaru czasu dla dŸwiêków z pocz¹tkiem i koñcem
+{ // u¿ywana do pomiaru czasu dla dŸwiêków z pocz¹tkiem i koñcem
     if (!pSound)
         return 0.0;
     double WaveTime;
@@ -256,7 +256,7 @@ void TTextSound::Init(char *SoundName, double SoundAttenuation, double X, double
     txt.Delete(txt.Length() - 3, 4); // obciêcie rozszerzenia
     for (int i = txt.Length(); i > 0; --i)
         if (txt[i] == '/')
-            txt[i] = '\\';                // bo nie rozumi
+            txt[i] = '\\'; // bo nie rozumi
     txt += "-" + Global::asLang + ".txt"; // ju¿ mo¿e byæ w ró¿nych jêzykach
     if (!FileExists(txt))
         txt = "sounds\\" + txt; //œcie¿ka mo¿e nie byæ podana

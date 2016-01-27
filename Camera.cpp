@@ -136,7 +136,7 @@ void TCamera::Update()
         vector3 Vec = Velocity;
         Vec.RotateY(Yaw);
         Pos = Pos + Vec * Timer::GetDeltaRenderTime(); // czas bez pauzy
-        Velocity = Velocity / 2;                       // p³ynne hamowanie ruchu
+        Velocity = Velocity / 2; // p³ynne hamowanie ruchu
         //    double tmp= 10*DeltaTime;
         //        Velocity+= -Velocity*10 * Timer::GetDeltaTime();//( tmp<1 ? tmp : 1 );
         //        Type= tp_Free;
@@ -157,7 +157,7 @@ vector3 TCamera::GetDirection()
 bool TCamera::SetMatrix()
 {
     glRotated(-Roll * 180.0f / M_PI, 0, 0, 1); // po wy³¹czeniu tego krêci siê pojazd, a sceneria
-                                               // nie
+    // nie
     glRotated(-Pitch * 180.0f / M_PI, 1, 0, 0);
     glRotated(-Yaw * 180.0f / M_PI, 0, 1, 0); // w zewnêtrznym widoku: kierunek patrzenia
 
@@ -196,7 +196,7 @@ void TCamera::SetCabMatrix(vector3 &p)
 }
 
 void TCamera::RaLook()
-{                                                    // zmiana kierunku patrzenia - przelicza Yaw
+{ // zmiana kierunku patrzenia - przelicza Yaw
     vector3 where = LookAt - Pos + vector3(0, 3, 0); // trochê w górê od szyn
     if ((where.x != 0.0) || (where.z != 0.0))
         Yaw = atan2(-where.x, -where.z); // k¹t horyzontalny

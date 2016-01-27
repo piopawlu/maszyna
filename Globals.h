@@ -20,11 +20,11 @@ http://mozilla.org/MPL/2.0/.
 using namespace Math3D;
 
 // definicje klawiszy
-const int k_IncMainCtrl = 0;     //[Num+]
+const int k_IncMainCtrl = 0; //[Num+]
 const int k_IncMainCtrlFAST = 1; //[Num+] [Shift]
-const int k_DecMainCtrl = 2;     //[Num-]
+const int k_DecMainCtrl = 2; //[Num-]
 const int k_DecMainCtrlFAST = 3; //[Num-] [Shift]
-const int k_IncScndCtrl = 4;     //[Num/]
+const int k_IncScndCtrl = 4; //[Num/]
 const int k_IncScndCtrlFAST = 5;
 const int k_DecScndCtrl = 6;
 const int k_DecScndCtrlFAST = 7;
@@ -132,18 +132,18 @@ class TTextSound;
 class TTranscript
 { // klasa obs³uguj¹ca linijkê napisu do dŸwiêku
   public:
-    float fShow;       // czas pokazania
-    float fHide;       // czas ukrycia/usuniêcia
+    float fShow; // czas pokazania
+    float fHide; // czas ukrycia/usuniêcia
     AnsiString asText; // tekst gotowy do wyœwietlenia (usuniête znaczniki czasu)
-    bool bItalic;      // czy kursywa (dŸwiêk nieistotny dla prowadz¹cego)
-    int iNext;         // nastêpna u¿ywana linijka, ¿eby nie przestawiaæ fizycznie tabeli
+    bool bItalic; // czy kursywa (dŸwiêk nieistotny dla prowadz¹cego)
+    int iNext; // nastêpna u¿ywana linijka, ¿eby nie przestawiaæ fizycznie tabeli
 };
 
 #define MAX_TRANSCRIPTS 30
 class TTranscripts
-{                                        // klasa obs³uguj¹ca napisy do dŸwiêków
+{ // klasa obs³uguj¹ca napisy do dŸwiêków
     TTranscript aLines[MAX_TRANSCRIPTS]; // pozycje na napisy do wyœwietlenia
-    int iCount;                          // liczba zajêtych pozycji
+    int iCount; // liczba zajêtych pozycji
     int iStart; // pierwsza istotna pozycja w tabeli, ¿eby sortowaæ przestawiaj¹c numerki
     float fRefreshTime;
 
@@ -153,7 +153,7 @@ class TTranscripts
     void AddLine(char *txt, float show, float hide, bool it);
     void Add(char *txt, float len,
              bool backgorund = false); // dodanie tekstów, d³ugoœæ dŸwiêku, czy istotne
-    void Update();                     // usuwanie niepotrzebnych (ok. 10 razy na sekundê)
+    void Update(); // usuwanie niepotrzebnych (ok. 10 razy na sekundê)
 };
 
 class Global
@@ -166,7 +166,7 @@ class Global
     static vector3 pCameraPosition; // pozycja kamery w œwiecie
     static double
         pCameraRotation; // kierunek bezwzglêdny kamery w œwiecie: 0=pó³noc, 90°=zachód (-azymut)
-    static double pCameraRotationDeg;   // w stopniach, dla animacji billboard
+    static double pCameraRotationDeg; // w stopniach, dla animacji billboard
     static vector3 pFreeCameraInit[10]; // pozycje kamery
     static vector3 pFreeCameraInitAngle[10];
     static int iWindowWidth;
@@ -239,71 +239,71 @@ class Global
     static int iBallastFiltering; // domyœlne rozmywanie tekstury podsypki
     static int iRailProFiltering; // domyœlne rozmywanie tekstury szyn
     static int iDynamicFiltering; // domyœlne rozmywanie tekstur pojazdów
-    static int iReCompile;        // zwiêkszany, gdy trzeba odœwie¿yæ siatki
-    static bool bUseVBO;          // czy jest VBO w karcie graficznej
-    static int iFeedbackMode;     // tryb pracy informacji zwrotnej
-    static int iFeedbackPort;     // dodatkowy adres dla informacji zwrotnych
-    static double fOpenGL;        // wersja OpenGL - przyda siê
-    static bool bOpenGL_1_5;      // czy s¹ dostêpne funkcje OpenGL 1.5
-    static double fLuminance;     // jasnoœæ œwiat³a do automatycznego zapalania
-    static int iMultiplayer;      // blokada dzia³ania niektórych eventów na rzecz kominikacji
-    static HWND hWnd;             // uchwyt okna
+    static int iReCompile; // zwiêkszany, gdy trzeba odœwie¿yæ siatki
+    static bool bUseVBO; // czy jest VBO w karcie graficznej
+    static int iFeedbackMode; // tryb pracy informacji zwrotnej
+    static int iFeedbackPort; // dodatkowy adres dla informacji zwrotnych
+    static double fOpenGL; // wersja OpenGL - przyda siê
+    static bool bOpenGL_1_5; // czy s¹ dostêpne funkcje OpenGL 1.5
+    static double fLuminance; // jasnoœæ œwiat³a do automatycznego zapalania
+    static int iMultiplayer; // blokada dzia³ania niektórych eventów na rzecz kominikacji
+    static HWND hWnd; // uchwyt okna
     static int iCameraLast;
     static AnsiString asRelease; // numer
     static AnsiString asVersion; // z opisem
     static int
         iViewMode; // co aktualnie widaæ: 0-kabina, 1-latanie, 2-sprzêgi, 3-dokumenty, 4-obwody
-    static GLint iMaxTextureSize;   // maksymalny rozmiar tekstury
-    static int iTextMode;           // tryb pracy wyœwietlacza tekstowego
-    static int iScreenMode[12];     // numer ekranu wyœwietlacza tekstowego
-    static bool bDoubleAmbient;     // podwójna jasnoœæ ambient
-    static double fMoveLight;       // numer dnia w roku albo -1
-    static bool bSmoothTraction;    // wyg³adzanie drutów
-    static double fSunDeclination;  // deklinacja S³oñca
-    static double fTimeSpeed;       // przyspieszenie czasu, zmienna do testów
-    static double fTimeAngleDeg;    // godzina w postaci k¹ta
+    static GLint iMaxTextureSize; // maksymalny rozmiar tekstury
+    static int iTextMode; // tryb pracy wyœwietlacza tekstowego
+    static int iScreenMode[12]; // numer ekranu wyœwietlacza tekstowego
+    static bool bDoubleAmbient; // podwójna jasnoœæ ambient
+    static double fMoveLight; // numer dnia w roku albo -1
+    static bool bSmoothTraction; // wyg³adzanie drutów
+    static double fSunDeclination; // deklinacja S³oñca
+    static double fTimeSpeed; // przyspieszenie czasu, zmienna do testów
+    static double fTimeAngleDeg; // godzina w postaci k¹ta
     static float fClockAngleDeg[6]; // k¹ty obrotu cylindrów dla zegara cyfrowego
-    static double fLatitudeDeg;     // szerokoœæ geograficzna
-    static char *szTexturesTGA[4];  // lista tekstur od TGA
-    static char *szTexturesDDS[4];  // lista tekstur od DDS
-    static int iMultisampling;      // tryb antyaliasingu: 0=brak,1=2px,2=4px,3=8px,4=16px
-    static bool bGlutFont;          // tekst generowany przez GLUT
-    static int iKeyLast;            // ostatnio naciœniêty klawisz w celu logowania
-    static int iPause;   // globalna pauza ruchu: b0=start,b1=klawisz,b2=t³o,b3=lagi,b4=wczytywanie
+    static double fLatitudeDeg; // szerokoœæ geograficzna
+    static char *szTexturesTGA[4]; // lista tekstur od TGA
+    static char *szTexturesDDS[4]; // lista tekstur od DDS
+    static int iMultisampling; // tryb antyaliasingu: 0=brak,1=2px,2=4px,3=8px,4=16px
+    static bool bGlutFont; // tekst generowany przez GLUT
+    static int iKeyLast; // ostatnio naciœniêty klawisz w celu logowania
+    static int iPause; // globalna pauza ruchu: b0=start,b1=klawisz,b2=t³o,b3=lagi,b4=wczytywanie
     static bool bActive; // czy jest aktywnym oknem
     static void BindTexture(GLuint t);
-    static int iConvertModels;          // tworzenie plików binarnych
-    static int iErorrCounter;           // licznik sprawdzañ do œledzenia b³êdów OpenGL
-    static bool bInactivePause;         // automatyczna pauza, gdy okno nieaktywne
-    static int iTextures;               // licznik u¿ytych tekstur
-    static int iSlowMotionMask;         // maska wy³¹czanych w³aœciwoœci
-    static int iModifyTGA;              // czy korygowaæ pliki TGA dla szybszego wczytywania
-    static bool bHideConsole;           // hunter-271211: ukrywanie konsoli
-    static TWorld *pWorld;              // wskaŸnik na œwiat do usuwania pojazdów
+    static int iConvertModels; // tworzenie plików binarnych
+    static int iErorrCounter; // licznik sprawdzañ do œledzenia b³êdów OpenGL
+    static bool bInactivePause; // automatyczna pauza, gdy okno nieaktywne
+    static int iTextures; // licznik u¿ytych tekstur
+    static int iSlowMotionMask; // maska wy³¹czanych w³aœciwoœci
+    static int iModifyTGA; // czy korygowaæ pliki TGA dla szybszego wczytywania
+    static bool bHideConsole; // hunter-271211: ukrywanie konsoli
+    static TWorld *pWorld; // wskaŸnik na œwiat do usuwania pojazdów
     static TAnimModel *pTerrainCompact; // obiekt terenu do ewentualnego zapisania w pliku
-    static AnsiString asTerrainModel;   // nazwa obiektu terenu do zapisania w pliku
-    static bool bRollFix;               // czy wykonaæ przeliczanie przechy³ki
+    static AnsiString asTerrainModel; // nazwa obiektu terenu do zapisania w pliku
+    static bool bRollFix; // czy wykonaæ przeliczanie przechy³ki
     static Queryparsercomp::TQueryParserComp *qParser;
     static cParser *pParser;
     static int iSegmentsRendered; // iloœæ segmentów do regulacji wydajnoœci
-    static double fFpsAverage;    // oczekiwana wartosæ FPS
-    static double fFpsDeviation;  // odchylenie standardowe FPS
+    static double fFpsAverage; // oczekiwana wartosæ FPS
+    static double fFpsDeviation; // odchylenie standardowe FPS
     static double fFpsMin; // dolna granica FPS, przy której promieñ scenerii bêdzie zmniejszany
     static double fFpsMax; // górna granica FPS, przy której promieñ scenerii bêdzie zwiêkszany
     static double fFpsRadiusMax; // maksymalny promieñ renderowania
-    static int iFpsRadiusMax;    // maksymalny promieñ renderowania w rozmiarze tabeli sektorów
+    static int iFpsRadiusMax; // maksymalny promieñ renderowania w rozmiarze tabeli sektorów
     static double fRadiusFactor; // wspó³czynnik zmiany promienia
-    static TCamera *pCamera;     // parametry kamery
+    static TCamera *pCamera; // parametry kamery
     static TDynamicObject *pUserDynamic; // pojazd u¿ytkownika, renderowany bez trzêsienia
-    static double fCalibrateIn[6][4];    // parametry kalibracyjne wejœæ z pulpitu
-    static double fCalibrateOut[7][4];   // parametry kalibracyjne wyjœæ dla pulpitu
-    static double fBrakeStep;            // krok zmiany hamulca dla klawiszy [Num3] i [Num9]
-    static bool bJoinEvents;             // czy grupowaæ eventy o tych samych nazwach
-    static bool bSmudge;                 // czy wyœwietlaæ smugê, a pojazd u¿ytkownika na koñcu
-    static AnsiString asTranscript[5];   // napisy na ekranie (widoczne)
-    static TTranscripts tranTexts;       // obiekt obs³uguj¹cy stenogramy dŸwiêków na ekranie
-    static AnsiString asLang;            // domyœlny jêzyk - http://tools.ietf.org/html/bcp47
-    static int iHiddenEvents;            // czy ³¹czyæ eventy z torami poprzez nazwê toru
+    static double fCalibrateIn[6][4]; // parametry kalibracyjne wejœæ z pulpitu
+    static double fCalibrateOut[7][4]; // parametry kalibracyjne wyjœæ dla pulpitu
+    static double fBrakeStep; // krok zmiany hamulca dla klawiszy [Num3] i [Num9]
+    static bool bJoinEvents; // czy grupowaæ eventy o tych samych nazwach
+    static bool bSmudge; // czy wyœwietlaæ smugê, a pojazd u¿ytkownika na koñcu
+    static AnsiString asTranscript[5]; // napisy na ekranie (widoczne)
+    static TTranscripts tranTexts; // obiekt obs³uguj¹cy stenogramy dŸwiêków na ekranie
+    static AnsiString asLang; // domyœlny jêzyk - http://tools.ietf.org/html/bcp47
+    static int iHiddenEvents; // czy ³¹czyæ eventy z torami poprzez nazwê toru
     static TTextSound *tsRadioBusy[10]; // zajêtoœæ kana³ów radiowych (wskaŸnik na odgrywany dŸwiêk)
     // metody
     static void TrainDelete(TDynamicObject *d);

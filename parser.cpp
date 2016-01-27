@@ -150,7 +150,7 @@ std::string cParser::readToken(bool ToLower, const char *Break)
     // launch child parser if include directive found.
     // NOTE: parameter collecting uses default set of token separators.
     if (token.compare("include") == 0)
-    {                                                 // obs³uga include
+    { // obs³uga include
         std::string includefile = readToken(ToLower); // nazwa pliku
         if (LoadTraction ? true : ((includefile.find("tr/") == std::string::npos) &&
                                    (includefile.find("tra/") == std::string::npos)))
@@ -195,8 +195,8 @@ std::string cParser::readComment(const std::string Break)
 { // pobieranie znaków a¿ do znalezienia znacznika koñca
     std::string token = "";
     while (mStream->peek() != EOF)
-    {                                               // o ile nie koniec pliku
-        token += mStream->get();                    // pobranie znaku
+    { // o ile nie koniec pliku
+        token += mStream->get(); // pobranie znaku
         if (token.find(Break) != std::string::npos) // szukanie znacznika koñca
             break;
     }

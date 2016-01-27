@@ -112,12 +112,12 @@ TTraction::TTraction()
     //    mdPole= NULL;
     //    ReplacableSkinID= 0;
     hvNext[0] = hvNext[1] = NULL;
-    iLast = 1;                                  //¿e niby ostatni drut
+    iLast = 1; //¿e niby ostatni drut
     psPowered = psPower[0] = psPower[1] = NULL; // na pocz¹tku zasilanie nie pod³¹czone
-    psSection = NULL;                           // na pocz¹tku nie pod³¹czone
-    hvParallel = NULL;                          // normalnie brak bie¿ni wspólnej
-    fResistance[0] = fResistance[1] = -1.0;     // trzeba dopiero policzyæ
-    iTries = 0;                                 // ile razy próbowaæ pod³¹czyæ, ustawiane póŸniej
+    psSection = NULL; // na pocz¹tku nie pod³¹czone
+    hvParallel = NULL; // normalnie brak bie¿ni wspólnej
+    fResistance[0] = fResistance[1] = -1.0; // trzeba dopiero policzyæ
+    iTries = 0; // ile razy próbowaæ pod³¹czyæ, ustawiane póŸniej
 }
 
 TTraction::~TTraction()
@@ -477,12 +477,12 @@ void TTraction::RaArrayFill(CVertNormTex *Vert)
 };
 
 void TTraction::RenderVBO(float mgn, int iPtr)
-{                                                 // renderowanie z u¿yciem VBO
+{ // renderowanie z u¿yciem VBO
     if (Wires != 0 && !TestFlag(DamageFlag, 128)) // rysuj jesli sa druty i nie zerwana
     {
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_LIGHTING); // aby nie u¿ywa³o wektorów normalnych do kolorowania
-        glColor4f(0, 0, 0, 1);  // jak nieznany kolor to czarne nieprzezroczyste
+        glColor4f(0, 0, 0, 1); // jak nieznany kolor to czarne nieprzezroczyste
         if (!Global::bSmoothTraction)
             glDisable(GL_LINE_SMOOTH); // na liniach kiepsko wygl¹da - robi gradient
         float linealpha = 5000 * WireThickness / (mgn + 1.0); //*WireThickness
@@ -592,7 +592,7 @@ void TTraction::Connect(int my, TTraction *with, int to)
     }
     if (hvNext[0]) // jeœli z obu stron pod³¹czony
         if (hvNext[1])
-            iLast = 0;   // to nie jest ostatnim
+            iLast = 0; // to nie jest ostatnim
     if (with->hvNext[0]) // temu te¿, bo drugi raz ³¹czenie siê nie nie wykona
         if (with->hvNext[1])
             with->iLast = 0; // to nie jest ostatnim
@@ -601,16 +601,16 @@ void TTraction::Connect(int my, TTraction *with, int to)
 bool TTraction::WhereIs()
 { // ustalenie przedostatnich przêse³
     if (iLast)
-        return (iLast == 1);                            // ma ju¿ ustalon¹ informacjê o po³o¿eniu
-    if (hvNext[0] ? hvNext[0]->iLast == 1 : false)      // jeœli poprzedni jest ostatnim
-        iLast = 2;                                      // jest przedostatnim
+        return (iLast == 1); // ma ju¿ ustalon¹ informacjê o po³o¿eniu
+    if (hvNext[0] ? hvNext[0]->iLast == 1 : false) // jeœli poprzedni jest ostatnim
+        iLast = 2; // jest przedostatnim
     else if (hvNext[1] ? hvNext[1]->iLast == 1 : false) // jeœli nastêpny jest ostatnim
-        iLast = 2;                                      // jest przedostatnim
-    return (iLast == 1);                                // ostatnie bêd¹ dostawaæ zasilanie
+        iLast = 2; // jest przedostatnim
+    return (iLast == 1); // ostatnie bêd¹ dostawaæ zasilanie
 };
 
 void TTraction::Init()
-{                                    // przeliczenie parametrów
+{ // przeliczenie parametrów
     vParametric = pPoint2 - pPoint1; // wektor mno¿ników parametru dla równania parametrycznego
 };
 
@@ -623,24 +623,24 @@ void TTraction::ResistanceCalc(int d, double r, TTractionPowerSource *ps)
             psPower[d ^ 1] = ps; // pod³¹czenie podanego
         else
             ps = psPower[d ^ 1]; // zasilacz od przeciwnej strony ni¿ idzie analiza
-        d = iNext[d];            // kierunek
+        d = iNext[d]; // kierunek
         // double r; //sumaryczna rezystancja
-        if (DebugModeFlag)                 // tylko podczas testów
-            Material = 4;                  // pokazanie, ¿e to przês³o ma pod³¹czone zasilanie
+        if (DebugModeFlag) // tylko podczas testów
+            Material = 4; // pokazanie, ¿e to przês³o ma pod³¹czone zasilanie
         while (t ? !t->psPower[d] : false) // jeœli jest jakiœ kolejny i nie ma ustalonego zasilacza
-        {                             // ustawienie zasilacza i policzenie rezystancji zastêpczej
-            if (DebugModeFlag)        // tylko podczas testów
+        { // ustawienie zasilacza i policzenie rezystancji zastêpczej
+            if (DebugModeFlag) // tylko podczas testów
                 if (t->Material != 4) // przês³a zasilaj¹cego nie modyfikowaæ
                 {
                     if (t->Material < 4)
-                        t->Material = 4;      // tymczasowo, aby zmieni³a kolor
+                        t->Material = 4; // tymczasowo, aby zmieni³a kolor
                     t->Material |= d ? 2 : 1; // kolor zale¿ny od strony, z której jest zasilanie
                 }
-            t->psPower[d] = ps;    // skopiowanie wskaŸnika zasilacza od danej strony
+            t->psPower[d] = ps; // skopiowanie wskaŸnika zasilacza od danej strony
             t->fResistance[d] = r; // wpisanie rezystancji w kierunku tego zasilacza
             r += t->fResistivity * Length3(t->vParametric); // doliczenie oporu kolejnego odcinka
-            p = t;                                          // zapamiêtanie dotychczasowego
-            t = p->hvNext[d ^ 1];                           // pod¹¿anie w tê sam¹ stronê
+            p = t; // zapamiêtanie dotychczasowego
+            t = p->hvNext[d ^ 1]; // pod¹¿anie w tê sam¹ stronê
             d = p->iNext[d ^ 1];
             // w przypadku zapêtlenia sieci mo¿e siê zawiesiæ?
         }
@@ -661,10 +661,10 @@ void TTraction::PowerSet(TTractionPowerSource *ps)
     if (ps->bSection)
         psSection = ps; // ustalenie sekcji zasilania
     else
-    {                   // ustalenie punktu zasilania (nie ma jeszcze po³¹czeñ miêdzy przês³ami)
+    { // ustalenie punktu zasilania (nie ma jeszcze po³¹czeñ miêdzy przês³ami)
         psPowered = ps; // ustawienie bezpoœredniego zasilania dla przês³a
         psPower[0] = psPower[1] = ps; // a to chyba nie jest dobry pomys³, bo nawet zasilane przês³o
-                                      // powinno mieæ wskazania na inne
+        // powinno mieæ wskazania na inne
         fResistance[0] = fResistance[1] = 0.0; // a liczy siê tylko rezystancja zasilacza
     }
 };
@@ -697,7 +697,7 @@ double TTraction::VoltageGet(double u, double i)
         // yB: potencja³ masy na sieci) od braku zasilania (czyli od³¹czenie Ÿród³a od sieci i brak
         // jego wp³ywu na napiêcie).
         if ((r0t > 0.0) && (r1t > 0.0))
-        {                                        // rezystancje w mianowniku nie mog¹ byæ zerowe
+        { // rezystancje w mianowniku nie mog¹ byæ zerowe
             r0g = res + r0t + (res * r0t) / r1t; // przeliczenie z trójk¹ta na gwiazdê
             r1g = res + r1t + (res * r1t) / r0t;
             // pobierane s¹ pr¹dy dla ka¿dej rezystancji, a suma jest mno¿ona przez rezystancjê

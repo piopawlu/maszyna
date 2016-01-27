@@ -17,20 +17,20 @@ class TDynamicObject;
 class TTrackFollower
 { // oœ poruszaj¹ca siê po torze
   private:
-    TTrack *pCurrentTrack;     // na którym torze siê znajduje
+    TTrack *pCurrentTrack; // na którym torze siê znajduje
     TSegment *pCurrentSegment; // zwrotnice mog¹ mieæ dwa segmenty
-    double fCurrentDistance;   // przesuniêcie wzglêdem Point1 w stronê Point2
-    double fDirection;         // ustawienie wzglêdem toru: -1.0 albo 1.0, mno¿one przez dystans
-    bool ComputatePosition();  // przeliczenie pozycji na torze
-    TDynamicObject *Owner;     // pojazd posiadaj¹cy
-    int iEventFlag;            // McZapkie-020602: informacja o tym czy wyzwalac zdarzenie: 0,1,2,3
+    double fCurrentDistance; // przesuniêcie wzglêdem Point1 w stronê Point2
+    double fDirection; // ustawienie wzglêdem toru: -1.0 albo 1.0, mno¿one przez dystans
+    bool ComputatePosition(); // przeliczenie pozycji na torze
+    TDynamicObject *Owner; // pojazd posiadaj¹cy
+    int iEventFlag; // McZapkie-020602: informacja o tym czy wyzwalac zdarzenie: 0,1,2,3
     int iEventallFlag;
     int iSegment; // który segment toru jest u¿ywany (¿eby nie przeskakiwa³o po przestawieniu
-                  // zwrotnicy pod taborem)
+    // zwrotnicy pod taborem)
   public:
     double fOffsetH; // Ra: odleg³oœæ œrodka osi od osi toru (dla samochodów) - u¿yæ do wê¿ykowania
     vector3 pPosition; // wspó³rzêdne XYZ w uk³adzie scenerii
-    vector3 vAngles;   // x:przechy³ka, y:pochylenie, z:kierunek w planie (w radianach)
+    vector3 vAngles; // x:przechy³ka, y:pochylenie, z:kierunek w planie (w radianach)
     TTrackFollower();
     ~TTrackFollower();
     TTrack *__fastcall SetCurrentTrack(TTrack *pTrack, int end);

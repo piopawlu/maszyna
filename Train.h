@@ -51,18 +51,18 @@ class TCab
     vector3 CabPos2;
     bool bEnabled;
     bool bOccupied;
-    double dimm_r, dimm_g, dimm_b;       // McZapkie-120503: tlumienie swiatla
+    double dimm_r, dimm_g, dimm_b; // McZapkie-120503: tlumienie swiatla
     double intlit_r, intlit_g, intlit_b; // McZapkie-120503: oswietlenie kabiny
     double intlitlow_r, intlitlow_g,
         intlitlow_b; // McZapkie-120503: przyciemnione oswietlenie kabiny
   private:
     // bool bChangePossible;
-    TGauge *ggList;            // Ra 2014-08: lista animacji macierzowych (ga³ek) w kabinie
-    int iGaugesMax, iGauges;   // ile miejsca w tablicy i ile jest w u¿yciu
-    TButton *btList;           // Ra 2014-08: lista animacji dwustanowych (lampek) w kabinie
+    TGauge *ggList; // Ra 2014-08: lista animacji macierzowych (ga³ek) w kabinie
+    int iGaugesMax, iGauges; // ile miejsca w tablicy i ile jest w u¿yciu
+    TButton *btList; // Ra 2014-08: lista animacji dwustanowych (lampek) w kabinie
     int iButtonsMax, iButtons; // ile miejsca w tablicy i ile jest w u¿yciu
   public:
-    TGauge *__fastcall Gauge(int n = -1);   // pobranie adresu obiektu
+    TGauge *__fastcall Gauge(int n = -1); // pobranie adresu obiektu
     TButton *__fastcall Button(int n = -1); // pobranie adresu obiektu
     void Update();
 };
@@ -100,14 +100,14 @@ class TTrain
     bool LoadMMediaFile(AnsiString asFileName);
     PyObject *GetTrainState();
 
-  private:                          //¿eby go nic z zewn¹trz nie przestawia³o
-    TDynamicObject *DynamicObject;  // przestawia zmiana pojazdu [F5]
-  private:                          //¿eby go nic z zewn¹trz nie przestawia³o
+  private: //¿eby go nic z zewn¹trz nie przestawia³o
+    TDynamicObject *DynamicObject; // przestawia zmiana pojazdu [F5]
+  private: //¿eby go nic z zewn¹trz nie przestawia³o
     TMoverParameters *mvControlled; // cz³on, w którym sterujemy silnikiem
-    TMoverParameters *mvOccupied;   // cz³on, w którym sterujemy hamulcem
-    TMoverParameters *mvSecond;     // drugi cz³on (ET40, ET41, ET42, ukrotnienia)
-    TMoverParameters *mvThird;      // trzeci cz³on (SN61)
-  public:                           // reszta mo¿e by?publiczna
+    TMoverParameters *mvOccupied; // cz³on, w którym sterujemy hamulcem
+    TMoverParameters *mvSecond; // drugi cz³on (ET40, ET41, ET42, ukrotnienia)
+    TMoverParameters *mvThird; // trzeci cz³on (SN61)
+  public: // reszta mo¿e by?publiczna
     // AnsiString asMessage;
 
     // McZapkie: definicje wskaŸników
@@ -140,8 +140,8 @@ class TTrain
     TGauge ggLocalBrake;
     TGauge ggManualBrake;
     TGauge ggBrakeProfileCtrl; // nastawiacz GPR - przelacznik obrotowy
-    TGauge ggBrakeProfileG;    // nastawiacz GP - hebelek towarowy
-    TGauge ggBrakeProfileR;    // nastawiacz PR - hamowanie dwustopniowe
+    TGauge ggBrakeProfileG; // nastawiacz GP - hebelek towarowy
+    TGauge ggBrakeProfileR; // nastawiacz PR - hamowanie dwustopniowe
 
     TGauge ggMaxCurrentCtrl;
 
@@ -153,7 +153,7 @@ class TTrain
     TGauge ggAntiSlipButton;
     TGauge ggFuseButton;
     TGauge ggConverterFuseButton; // hunter-261211: przycisk odblokowania nadmiarowego przetwornic i
-                                  // ogrzewania
+    // ogrzewania
     TGauge ggStLinOffButton;
     TGauge ggRadioButton;
     TGauge ggUpperLightButton;
@@ -184,7 +184,7 @@ class TTrain
     TGauge ggUniversal3Button;
     TGauge ggUniversal4Button;
 
-    TGauge ggCabLightButton;    // hunter-091012: przelacznik oswietlania kabiny
+    TGauge ggCabLightButton; // hunter-091012: przelacznik oswietlania kabiny
     TGauge ggCabLightDimButton; // hunter-091012: przelacznik przyciemnienia oswietlenia kabiny
 
     // NBMX wrzesien 2003 - obsluga drzwi
@@ -267,7 +267,7 @@ class TTrain
 
     TButton btCabLight; // hunter-171012: lampa oswietlajaca kabine
     // Ra 2013-12: wirtualne "lampki" do odbijania na haslerze w PoKeys
-    TButton btHaslerBrakes;  // ciœnienie w cylindrach
+    TButton btHaslerBrakes; // ciœnienie w cylindrach
     TButton btHaslerCurrent; // pr¹d na silnikach
 
     vector3 pPosition;
@@ -303,7 +303,7 @@ class TTrain
     PSound dsbDieselIgnition; // Ra: w kabinie???
 
     PSound dsbDoorClose; // Ra: w kabinie???
-    PSound dsbDoorOpen;  // Ra: w kabinie???
+    PSound dsbDoorOpen; // Ra: w kabinie???
 
     // Winger 010304
     PSound dsbPantUp;
@@ -318,7 +318,7 @@ class TTrain
     // McZapkie-280302
     TRealSound rsBrake;
     TRealSound rsSlippery;
-    TRealSound rsHiss;  // upuszczanie
+    TRealSound rsHiss; // upuszczanie
     TRealSound rsHissU; // napelnianie
     TRealSound rsHissE; // nagle
     TRealSound rsHissX; // fala
@@ -335,7 +335,7 @@ class TTrain
     // TFadeSound sSmallCompressor;  //przetwornica
 
     int iCabLightFlag; // McZapkie:120503: oswietlenie kabiny (0: wyl, 1: przyciemnione, 2: pelne)
-    bool bCabLight;    // hunter-091012: czy swiatlo jest zapalone?
+    bool bCabLight; // hunter-091012: czy swiatlo jest zapalone?
     bool bCabLightDim; // hunter-091012: czy przyciemnienie kabiny jest zapalone?
 
     vector3 pMechSittingPosition; // ABu 180404
@@ -353,8 +353,8 @@ class TTrain
     //    double fCzuwakTimer;
     double fBlinkTimer;
     float fHaslerTimer;
-    float fConverterTimer;  // hunter-261211: dla przekaznika
-    float fMainRelayTimer;  // hunter-141211: zalaczanie WSa z opoznieniem
+    float fConverterTimer; // hunter-261211: dla przekaznika
+    float fMainRelayTimer; // hunter-141211: zalaczanie WSa z opoznieniem
     float fCzuwakTestTimer; // hunter-091012: do testu czuwaka
 
     int CAflag; // hunter-131211: dla osobnego zbijania CA i SHP
@@ -372,13 +372,13 @@ class TTrain
     float fTachoVelocityJump; // ze skakaniem
     float fTachoTimer;
     float fTachoCount;
-    float fHVoltage;    // napiêcie dla dynamicznych ga³ek
+    float fHVoltage; // napiêcie dla dynamicznych ga³ek
     float fHCurrent[4]; // pr¹dy: suma i amperomierze 1,2,3
-    float fEngine[4];   // obroty te?trzeba pobra?
+    float fEngine[4]; // obroty te?trzeba pobra?
     // McZapkie: do syczenia
     float fPPress, fNPress;
     float fSPPress, fSNPress;
-    int iSekunda;      // Ra: sekunda aktualizacji prêdkoœci
+    int iSekunda; // Ra: sekunda aktualizacji prêdkoœci
     int iRadioChannel; // numer aktualnego kana³u radiowego
     TPythonScreens pyScreens;
 

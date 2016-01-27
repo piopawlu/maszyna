@@ -115,7 +115,7 @@ Console::Console()
 {
     PoKeys55[0] = PoKeys55[1] = NULL;
     for (int i = 0; i < 8; ++i)
-    {                   // zerowanie prze³¹czników
+    { // zerowanie prze³¹czników
         iSwitch[i] = 0; // bity 0..127 - bez [Ctrl], 128..255 - z [Ctrl]
         iButton[i] = 0; // bity 0..127 - bez [Shift], 128..255 - z [Shift]
     }
@@ -139,14 +139,14 @@ int Console::On()
     iSwitch[4] = iSwitch[5] = iSwitch[6] = iSwitch[7] = 0; // bity 128..255 - z [Ctrl]
     switch (iMode)
     {
-    case 1:          // kontrolki klawiatury
-    case 2:          // kontrolki klawiatury
+    case 1: // kontrolki klawiatury
+    case 2: // kontrolki klawiatury
         iConfig = 0; // licznik u¿ycia Scroll Lock
         break;
-    case 3:               // LPT
+    case 3: // LPT
         LPT = new TLPT(); // otwarcie inpout32.dll
         if (LPT ? LPT->Connect(iConfig) : false)
-        {                   // wys³aæ 0?
+        { // wys³aæ 0?
             BitsUpdate(-1); // aktualizacjia stanów, bo przy wczytywaniu mog³o byæ nieaktywne
             WriteLog("Feedback Mode 3: InpOut32.dll OK");
         }
@@ -177,9 +177,9 @@ void Console::Off()
 { // wy³¹czenie informacji zwrotnych (reset pulpitu)
     BitsClear(-1);
     if ((iMode == 1) || (iMode == 2))
-        if (iConfig & 1)                   // licznik u¿ycia Scroll Lock
-        {                                  // bez sensu to jest, ale mi siê samo w³¹cza
-            SetLedState(VK_SCROLL, true);  // przyciœniêty
+        if (iConfig & 1) // licznik u¿ycia Scroll Lock
+        { // bez sensu to jest, ale mi siê samo w³¹cza
+            SetLedState(VK_SCROLL, true); // przyciœniêty
             SetLedState(VK_SCROLL, false); // zwolniony
         }
     delete PoKeys55[0];
@@ -191,7 +191,7 @@ void Console::Off()
 };
 
 void Console::BitsSet(int mask, int entry)
-{                               // ustawienie bitów o podanej masce (mask) na wejœciu (entry)
+{ // ustawienie bitów o podanej masce (mask) na wejœciu (entry)
     if ((iBits & mask) != mask) // je¿eli zmiana
     {
         int old = iBits; // poprzednie stany
@@ -201,7 +201,7 @@ void Console::BitsSet(int mask, int entry)
 };
 
 void Console::BitsClear(int mask, int entry)
-{                     // zerowanie bitów o podanej masce (mask) na wejœciu (entry)
+{ // zerowanie bitów o podanej masce (mask) na wejœciu (entry)
     if (iBits & mask) // je¿eli zmiana
     {
         int old = iBits; // poprzednie stany
@@ -214,24 +214,24 @@ void Console::BitsUpdate(int mask)
 { // aktualizacja stanu interfejsu informacji zwrotnej; (mask) - zakres zmienianych bitów
     switch (iMode)
     {
-    case 1:           // sterowanie œwiate³kami klawiatury: CA/SHP+opory
+    case 1: // sterowanie œwiate³kami klawiatury: CA/SHP+opory
         if (mask & 3) // gdy SHP albo CA
             SetLedState(VK_CAPITAL, iBits & 3);
         if (mask & 4) // gdy jazda na oporach
-        {             // Scroll Lock ma jakoœ dziwnie... zmiana stanu na przeciwny
-            SetLedState(VK_SCROLL, true);  // przyciœniêty
+        { // Scroll Lock ma jakoœ dziwnie... zmiana stanu na przeciwny
+            SetLedState(VK_SCROLL, true); // przyciœniêty
             SetLedState(VK_SCROLL, false); // zwolniony
-            ++iConfig;                     // licznik u¿ycia Scroll Lock
+            ++iConfig; // licznik u¿ycia Scroll Lock
         }
         break;
-    case 2:           // sterowanie œwiate³kami klawiatury: CA+SHP
+    case 2: // sterowanie œwiate³kami klawiatury: CA+SHP
         if (mask & 2) // gdy CA
             SetLedState(VK_CAPITAL, iBits & 2);
         if (mask & 1) // gdy SHP
-        {             // Scroll Lock ma jakoœ dziwnie... zmiana stanu na przeciwny
-            SetLedState(VK_SCROLL, true);  // przyciœniêty
+        { // Scroll Lock ma jakoœ dziwnie... zmiana stanu na przeciwny
+            SetLedState(VK_SCROLL, true); // przyciœniêty
             SetLedState(VK_SCROLL, false); // zwolniony
-            ++iConfig;                     // licznik u¿ycia Scroll Lock
+            ++iConfig; // licznik u¿ycia Scroll Lock
         }
         break;
     case 3: // LPT Marcela z modyfikacj¹ (jazda na oporach zamiast brzêczyka)
@@ -301,11 +301,11 @@ void Console::Update()
                 Global::iPause &= ~8;
             }
             else
-            {                                  // b³¹d komunikacji - zapauzowaæ symulacjê?
-                if (!(Global::iPause & 8))     // jeœli jeszcze nie oflagowana
+            { // b³¹d komunikacji - zapauzowaæ symulacjê?
+                if (!(Global::iPause & 8)) // jeœli jeszcze nie oflagowana
                     Global::iTextMode = VK_F1; // pokazanie czasu/pauzy
-                Global::iPause |= 8;           // tak???
-                PoKeys55[0]->Connect();        // próba ponownego pod³¹czenia
+                Global::iPause |= 8; // tak???
+                PoKeys55[0]->Connect(); // próba ponownego pod³¹czenia
             }
 };
 
@@ -326,32 +326,32 @@ unsigned char Console::DigitalGet(int x)
 };
 
 void Console::OnKeyDown(int k)
-{                        // naciœniêcie klawisza z powoduje wy³¹czenie, a
-    if (k & 0x10000)     // jeœli [Shift]
-    {                    // ustawienie bitu w tabeli prze³¹czników bistabilnych
+{ // naciœniêcie klawisza z powoduje wy³¹czenie, a
+    if (k & 0x10000) // jeœli [Shift]
+    { // ustawienie bitu w tabeli prze³¹czników bistabilnych
         if (k & 0x20000) // jeœli [Ctrl], to zestaw dodatkowy
             iSwitch[4 + (char(k) >> 5)] |= 1 << (k & 31); // za³¹cz bistabliny dodatkowy
         else
         { // z [Shift] w³¹czenie bitu bistabilnego i dodatkowego monostabilnego
-            iSwitch[char(k) >> 5] |= 1 << (k & 31);         // za³¹cz bistabliny podstawowy
+            iSwitch[char(k) >> 5] |= 1 << (k & 31); // za³¹cz bistabliny podstawowy
             iButton[4 + (char(k) >> 5)] |= (1 << (k & 31)); // za³¹cz monostabilny dodatkowy
         }
     }
     else
-    {                    // zerowanie bitu w tabeli prze³¹czników bistabilnych
+    { // zerowanie bitu w tabeli prze³¹czników bistabilnych
         if (k & 0x20000) // jeœli [Ctrl], to zestaw dodatkowy
             iSwitch[4 + (char(k) >> 5)] &= ~(1 << (k & 31)); // wy³¹cz bistabilny dodatkowy
         else
         {
             iSwitch[char(k) >> 5] &= ~(1 << (k & 31)); // wy³¹cz bistabilny podstawowy
-            iButton[char(k) >> 5] |= 1 << (k & 31);    // za³¹cz monostabilny podstawowy
+            iButton[char(k) >> 5] |= 1 << (k & 31); // za³¹cz monostabilny podstawowy
         }
     }
 };
 void Console::OnKeyUp(int k)
 { // puszczenie klawisza w zasadzie nie ma znaczenia dla iSwitch, ale zeruje iButton
-    if ((k & 0x20000) == 0)                                  // monostabilne tylko bez [Ctrl]
-        if (k & 0x10000)                                     // jeœli [Shift]
+    if ((k & 0x20000) == 0) // monostabilne tylko bez [Ctrl]
+        if (k & 0x10000) // jeœli [Shift]
             iButton[4 + (char(k) >> 5)] &= ~(1 << (k & 31)); // wy³¹cz monostabilny dodatkowy
         else
             iButton[char(k) >> 5] &= ~(1 << (k & 31)); // wy³¹cz monostabilny podstawowy

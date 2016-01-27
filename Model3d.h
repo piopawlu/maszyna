@@ -132,27 +132,27 @@ const int TP_TEXT = 259;
 
 enum TAnimType // rodzaj animacji
 {
-    at_None,         // brak
-    at_Rotate,       // obrót wzglêdem wektora o k¹t
-    at_RotateXYZ,    // obrót wzglêdem osi o k¹ty
-    at_Translate,    // przesuniêcie
-    at_SecondsJump,  // sekundy z przeskokiem
-    at_MinutesJump,  // minuty z przeskokiem
-    at_HoursJump,    // godziny z przeskokiem 12h/360°
-    at_Hours24Jump,  // godziny z przeskokiem 24h/360°
-    at_Seconds,      // sekundy p³ynnie
-    at_Minutes,      // minuty p³ynnie
-    at_Hours,        // godziny p³ynnie 12h/360°
-    at_Hours24,      // godziny p³ynnie 24h/360°
-    at_Billboard,    // obrót w pionie do kamery
-    at_Wind,         // ruch pod wp³ywem wiatru
-    at_Sky,          // animacja nieba
-    at_IK = 0x100,   // odwrotna kinematyka - submodel steruj¹cy (np. staw skokowy)
+    at_None, // brak
+    at_Rotate, // obrót wzglêdem wektora o k¹t
+    at_RotateXYZ, // obrót wzglêdem osi o k¹ty
+    at_Translate, // przesuniêcie
+    at_SecondsJump, // sekundy z przeskokiem
+    at_MinutesJump, // minuty z przeskokiem
+    at_HoursJump, // godziny z przeskokiem 12h/360°
+    at_Hours24Jump, // godziny z przeskokiem 24h/360°
+    at_Seconds, // sekundy p³ynnie
+    at_Minutes, // minuty p³ynnie
+    at_Hours, // godziny p³ynnie 12h/360°
+    at_Hours24, // godziny p³ynnie 24h/360°
+    at_Billboard, // obrót w pionie do kamery
+    at_Wind, // ruch pod wp³ywem wiatru
+    at_Sky, // animacja nieba
+    at_IK = 0x100, // odwrotna kinematyka - submodel steruj¹cy (np. staw skokowy)
     at_IK11 = 0x101, // odwrotna kinematyka - submodel nadrzêdny do sterowango (np. stopa)
     at_IK21 = 0x102, // odwrotna kinematyka - submodel nadrzêdny do sterowango (np. podudzie)
     at_IK22 = 0x103, // odwrotna kinematyka - submodel nadrzêdny do nadrzêdnego sterowango (np. udo)
-    at_Digital = 0x200,       // dziesiêciocyfrowy licznik mechaniczny (z cylindrami)
-    at_DigiClk = 0x201,       // zegar cyfrowy jako licznik na dziesiêcioœcianach
+    at_Digital = 0x200, // dziesiêciocyfrowy licznik mechaniczny (z cylindrami)
+    at_DigiClk = 0x201, // zegar cyfrowy jako licznik na dziesiêcioœcianach
     at_Undefined = 0x800000FF // animacja chwilowo nieokreœlona
 };
 
@@ -160,7 +160,7 @@ class TModel3d;
 class TSubModelInfo;
 
 class TSubModel
-{   // klasa submodelu - pojedyncza siatka, punkt œwietlny albo grupa punktów
+{ // klasa submodelu - pojedyncza siatka, punkt œwietlny albo grupa punktów
     // Ra: ta klasa ma mieæ wielkoœæ 256 bajtów, aby pokry³a siê z formatem binarnym
     // Ra: nie przestawiaæ zmiennych, bo wczytuj¹ siê z pliku binarnego!
   private:
@@ -168,7 +168,7 @@ class TSubModel
     TSubModel *Child;
     int eType; // Ra: modele binarne daj¹ wiêcej mo¿liwoœci ni¿ mesh z³o¿ony z trójk¹tów
     int iName; // numer ³añcucha z nazw¹ submodelu, albo -1 gdy anonimowy
-  public:      // chwilowo
+  public: // chwilowo
     TAnimType b_Anim;
 
   private:
@@ -186,16 +186,16 @@ class TSubModel
     // bit 14: =1 wymagane przechowanie macierzy (animacje)
     // bit 15: =1 wymagane przechowanie macierzy (transform niejedynkowy)
     union
-    {                      // transform, nie ka¿dy submodel musi mieæ
+    { // transform, nie ka¿dy submodel musi mieæ
         float4x4 *fMatrix; // pojedyncza precyzja wystarcza
         // matrix4x4 *dMatrix; //do testu macierz podwójnej precyzji
         int iMatrix; // w pliku binarnym jest numer matrycy
     };
-    int iNumVerts;  // iloœæ wierzcho³ków (1 dla FreeSpotLight)
-    int iVboPtr;    // pocz¹tek na liœcie wierzcho³ków albo indeksów
-    int iTexture;   // numer nazwy tekstury, -1 wymienna, 0 brak
+    int iNumVerts; // iloœæ wierzcho³ków (1 dla FreeSpotLight)
+    int iVboPtr; // pocz¹tek na liœcie wierzcho³ków albo indeksów
+    int iTexture; // numer nazwy tekstury, -1 wymienna, 0 brak
     float fVisible; // próg jasnoœci œwiat³a do za³¹czenia submodelu
-    float fLight;   // próg jasnoœci œwiat³a do zadzia³ania selfillum
+    float fLight; // próg jasnoœci œwiat³a do zadzia³ania selfillum
     float f4Ambient[4];
     float f4Diffuse[4]; // float ze wzglêdu na glMaterialfv()
     float f4Specular[4];
@@ -206,19 +206,19 @@ class TSubModel
     // McZapkie-050702: parametry dla swiatla:
     float fNearAttenStart;
     float fNearAttenEnd;
-    int bUseNearAtten;  // te 3 zmienne okreslaja rysowanie aureoli wokol zrodla swiatla
+    int bUseNearAtten; // te 3 zmienne okreslaja rysowanie aureoli wokol zrodla swiatla
     int iFarAttenDecay; // ta zmienna okresla typ zaniku natezenia swiatla (0:brak, 1,2: potega 1/R)
-    float fFarDecayRadius;  // normalizacja j.w.
+    float fFarDecayRadius; // normalizacja j.w.
     float fCosFalloffAngle; // cosinus k¹ta sto¿ka pod którym widaæ œwiat³o
     float fCosHotspotAngle; // cosinus k¹ta sto¿ka pod którym widaæ aureolê i zwiêkszone natê¿enie
-                            // œwiat³a
-    float fCosViewAngle;    // cos kata pod jakim sie teraz patrzy
+    // œwiat³a
+    float fCosViewAngle; // cos kata pod jakim sie teraz patrzy
     // Ra: dalej s¹ zmienne robocze, mo¿na je przestawiaæ z zachowaniem rozmiaru klasy
     int TextureID; // numer tekstury, -1 wymienna, 0 brak
-    int bWire;     // nie u¿ywane, ale wczytywane
+    int bWire; // nie u¿ywane, ale wczytywane
     // short TexAlpha;  //Ra: nie u¿ywane ju¿
     GLuint uiDisplayList; // roboczy numer listy wyœwietlania
-    float Opacity;        // nie u¿ywane, ale wczytywane
+    float Opacity; // nie u¿ywane, ale wczytywane
     // ABu: te same zmienne, ale zdublowane dla Render i RenderAlpha,
     // bo sie chrzanilo przemieszczanie obiektow.
     // Ra: ju¿ siê nie chrzani
@@ -228,21 +228,21 @@ class TSubModel
 
   public: // chwilowo
     float3 v_TransVector;
-    float8 *Vertices;  // roboczy wskaŸnik - wczytanie T3D do VBO
-    int iAnimOwner;    // roboczy numer egzemplarza, który ustawi³ animacjê
+    float8 *Vertices; // roboczy wskaŸnik - wczytanie T3D do VBO
+    int iAnimOwner; // roboczy numer egzemplarza, który ustawi³ animacjê
     TAnimType b_aAnim; // kody animacji oddzielnie, bo zerowane
   public:
     float4x4 *mAnimMatrix; // macierz do animacji kwaternionowych (nale¿y do AnimContainer)
-    char space[8];         // wolne miejsce na przysz³e zmienne (zmniejszyæ w miarê potrzeby)
+    char space[8]; // wolne miejsce na przysz³e zmienne (zmniejszyæ w miarê potrzeby)
   public:
     TSubModel *
         *smLetter; // wskaŸnik na tablicê submdeli do generoania tekstu (docelowo zapisaæ do E3D)
     TSubModel *Parent; // nadrzêdny, np. do wymna¿ania macierzy
-    int iVisible;      // roboczy stan widocznoœci
+    int iVisible; // roboczy stan widocznoœci
     // AnsiString asTexture; //robocza nazwa tekstury do zapisania w pliku binarnym
     // AnsiString asName; //robocza nazwa
     char *pTexture; // robocza nazwa tekstury do zapisania w pliku binarnym
-    char *pName;    // robocza nazwa
+    char *pName; // robocza nazwa
   private:
     // int SeekFaceNormal(DWORD *Masks, int f,DWORD dwMask,vector3 *pt,GLVERTEX
     // *Vertices);
@@ -347,17 +347,17 @@ class TSubModel
 class TSubModelInfo
 { // klasa z informacjami o submodelach, do tworzenia pliku binarnego
   public:
-    TSubModel *pSubModel;         // wskaŸnik na submodel
-    int iTransform;               // numer transformu (-1 gdy brak)
-    int iName;                    // numer nazwy
-    int iTexture;                 // numer tekstury
-    int iNameLen;                 // d³ugoœæ nazwy
-    int iTextureLen;              // d³ugoœæ tekstury
-    int iNext, iChild;            // numer nastêpnego i potomnego
-    static int iTotalTransforms;  // iloœæ transformów
-    static int iTotalNames;       // iloœæ nazw
-    static int iTotalTextures;    // iloœæ tekstur
-    static int iCurrent;          // aktualny obiekt
+    TSubModel *pSubModel; // wskaŸnik na submodel
+    int iTransform; // numer transformu (-1 gdy brak)
+    int iName; // numer nazwy
+    int iTexture; // numer tekstury
+    int iNameLen; // d³ugoœæ nazwy
+    int iTextureLen; // d³ugoœæ tekstury
+    int iNext, iChild; // numer nastêpnego i potomnego
+    static int iTotalTransforms; // iloœæ transformów
+    static int iTotalNames; // iloœæ nazw
+    static int iTotalTextures; // iloœæ tekstur
+    static int iCurrent; // aktualny obiekt
     static TSubModelInfo *pTable; // tabele obiektów pomocniczych
     TSubModelInfo()
     {
@@ -380,15 +380,15 @@ class TModel3d : public CMesh
     // int MaterialsCount; //Ra: nie u¿ywane
     // bool TractionPart; //Ra: nie u¿ywane
     TSubModel *Root; // drzewo submodeli
-    int iFlags;      // Ra: czy submodele maj¹ przezroczyste tekstury
-  public:            // Ra: tymczasowo
-    int iNumVerts;   // iloœæ wierzcho³ków (gdy nie ma VBO, to m_nVertexCount=0)
+    int iFlags; // Ra: czy submodele maj¹ przezroczyste tekstury
+  public: // Ra: tymczasowo
+    int iNumVerts; // iloœæ wierzcho³ków (gdy nie ma VBO, to m_nVertexCount=0)
   private:
     TStringPack Textures; // nazwy tekstur
-    TStringPack Names;    // nazwy submodeli
-    int *iModel;          // zawartoœæ pliku binarnego
-    int iSubModelsCount;  // Ra: u¿ywane do tworzenia binarnych
-    AnsiString asBinary;  // nazwa pod któr¹ zapisaæ model binarny
+    TStringPack Names; // nazwy submodeli
+    int *iModel; // zawartoœæ pliku binarnego
+    int iSubModelsCount; // Ra: u¿ywane do tworzenia binarnych
+    AnsiString asBinary; // nazwa pod któr¹ zapisaæ model binarny
   public:
     inline TSubModel *__fastcall GetSMRoot()
     {

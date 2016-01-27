@@ -52,16 +52,16 @@ class TWorld
     TTrain *Train;
     TDynamicObject *pDynamicNearest;
     bool Paused;
-    GLuint base;  // numer DL dla znaków w napisach
+    GLuint base; // numer DL dla znaków w napisach
     GLuint light; // numer tekstury dla smugi
     TSky Clouds;
-    TEvent *KeyEvents[10];          // eventy wyzwalane z klawiaury
+    TEvent *KeyEvents[10]; // eventy wyzwalane z klawiaury
     TMoverParameters *mvControlled; // wskaŸnik na cz³on silnikowy, do wyœwietlania jego parametrów
-    int iCheckFPS;      // kiedy znów sprawdziæ FPS, ¿eby wy³¹czaæ optymalizacji od razu do zera
-    double fTime50Hz;   // bufor czasu dla komunikacji z PoKeys
+    int iCheckFPS; // kiedy znów sprawdziæ FPS, ¿eby wy³¹czaæ optymalizacji od razu do zera
+    double fTime50Hz; // bufor czasu dla komunikacji z PoKeys
     double fTimeBuffer; // bufor czasu aktualizacji dla sta³ego kroku fizyki
-    double fMaxDt;      //[s] krok czasowy fizyki (0.01 dla normalnych warunków)
-    int iPause;         // wykrywanie zmian w zapauzowaniu
+    double fMaxDt; //[s] krok czasowy fizyki (0.01 dla normalnych warunków)
+    int iPause; // wykrywanie zmian w zapauzowaniu
   public:
     void ModifyTGA(const AnsiString &dir = "");
     void CreateE3D(const AnsiString &dir = "", bool dyn = false);

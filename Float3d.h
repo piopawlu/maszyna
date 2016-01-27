@@ -109,7 +109,7 @@ inline float4 operator-(const float4 &q)
     return float4(-q.x, -q.y, -q.z, q.w);
 };
 inline float4 operator-(const float4 &q1, const float4 &q2)
-{                      // z odejmowaniem nie ma lekko
+{ // z odejmowaniem nie ma lekko
     return (-q1) * q2; // inwersja tylko dla znormalizowanych!
 };
 inline float4 operator+(const float4 &v1, const float4 &v2)
@@ -164,7 +164,7 @@ inline float4 Slerp(const float4 &q0, const float4 &q1, float t)
     else
     { // a w ogólnym przypadku trzeba liczyæ na trygonometriê
         double sinOmega = sqrt(1.0f - cosOmega * cosOmega); // sinus z jedynki tryg.
-        double omega = atan2(sinOmega, cosOmega);           // wyznaczenie k¹ta
+        double omega = atan2(sinOmega, cosOmega); // wyznaczenie k¹ta
         double oneOverSinOmega = 1.0f / sinOmega; // odwrotnoœæ sinusa, bo sinus w mianowniku
         k0 = sin((1.0f - t) * omega) * oneOverSinOmega;
         k1 = sin(t * omega) * oneOverSinOmega;

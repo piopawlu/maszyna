@@ -17,18 +17,18 @@ class TRealSound
 {
   protected:
     PSound pSound;
-    char *Nazwa;                         // dla celow odwszawiania
+    char *Nazwa; // dla celow odwszawiania
     double fDistance, fPreviousDistance; // dla liczenia Dopplera
-    float fFrequency;                    // czêstotliwoœæ samplowania pliku
+    float fFrequency; // czêstotliwoœæ samplowania pliku
     int iDoppler; // Ra 2014-07: mo¿liwoœæ wy³¹czenia efektu Dopplera np. dla œpiewu ptaków
   public:
     vector3 vSoundPosition; // polozenie zrodla dzwieku
-    double dSoundAtt;       // odleglosc polowicznego zaniku dzwieku
-    double AM;              // mnoznik amplitudy
-    double AA;              // offset amplitudy
-    double FM;              // mnoznik czestotliwosci
-    double FA;              // offset czestotliwosci
-    bool bLoopPlay;         // czy zapêtlony dŸwiêk jest odtwarzany
+    double dSoundAtt; // odleglosc polowicznego zaniku dzwieku
+    double AM; // mnoznik amplitudy
+    double AA; // offset amplitudy
+    double FM; // mnoznik czestotliwosci
+    double FA; // offset czestotliwosci
+    bool bLoopPlay; // czy zapêtlony dŸwiêk jest odtwarzany
     TRealSound();
     ~TRealSound();
     void Free();

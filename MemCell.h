@@ -22,7 +22,7 @@ class TMemCell
     double fValue1;
     double fValue2;
     TCommandType eCommand;
-    bool bCommand;  // czy zawiera komendê dla zatrzymanego AI
+    bool bCommand; // czy zawiera komendê dla zatrzymanego AI
     TEvent *OnSent; // event dodawany do kolejki po wys³aniu komendy zatrzymuj¹cej sk³ad
   public:
     AnsiString

@@ -89,7 +89,7 @@ bool TPoKeys55::Connect()
         {
             ErrorStatus = GetLastError();
             if (ERROR_NO_MORE_ITEMS == ErrorStatus) // Did we reach the end of the list of matching
-                                                    // devices in the DeviceInfoTable?
+            // devices in the DeviceInfoTable?
             { // Cound not find the device. Must not have been attached.
                 SetupDiDestroyDeviceInfoList(
                     DeviceInfoTable); // Clean up the old structure we no longer need.
@@ -141,7 +141,7 @@ bool TPoKeys55::Connect()
         // free(PropertyValueBuffer); //No longer need the PropertyValueBuffer,free the memory to
         // prevent potential memory leaks
         delete PropertyValueBuffer; // No longer need the PropertyValueBuffer,free the memory to
-                                    // prevent potential memory leaks
+        // prevent potential memory leaks
         // Convert both strings to lower case.  This makes the code more robust/portable accross OS
         // Versions
         DeviceIDFromRegistry = DeviceIDFromRegistry.LowerCase();
@@ -165,7 +165,7 @@ bool TPoKeys55::Connect()
                 (PSP_DEVICE_INTERFACE_DETAIL_DATA)(malloc(StructureSize)); // Allocate enough memory
             if (DetailedInterfaceDataStructure ==
                 NULL) // if null,error,couldn't allocate enough memory
-            {         // Can't really recover from this situation,just exit instead.
+            { // Can't really recover from this situation,just exit instead.
                 SetupDiDestroyDeviceInfoList(
                     DeviceInfoTable); // Clean up the old structure we no longer need.
                 return false;
@@ -194,7 +194,7 @@ bool TPoKeys55::Connect()
             }
             SetupDiDestroyDeviceInfoList(
                 DeviceInfoTable); // Clean up the old structure we no longer need.
-            iRepeats = 0;         // nowe szanse na pod³¹czenie
+            iRepeats = 0; // nowe szanse na pod³¹czenie
             return true;
         }
         InterfaceIndex++;
@@ -209,10 +209,10 @@ bool TPoKeys55::Write(unsigned char c, unsigned char b3, unsigned char b4, unsig
 {
     DWORD BytesWritten = 0;
     OutputBuffer[0] = 0; // The first byte is the "Report ID" and does not get transmitted over the
-                         // USB bus. Always set=0.
-    OutputBuffer[1] = 0xBB;             // 0xBB - bajt rozpoznawczy dla PoKeys55
+    // USB bus. Always set=0.
+    OutputBuffer[1] = 0xBB; // 0xBB - bajt rozpoznawczy dla PoKeys55
     OutputBuffer[2] = iLastCommand = c; // operacja: 0x31: blokowy odczyt wejœæ
-    OutputBuffer[3] = b3;               // np. numer pinu (o 1 mniej ni¿ numer na p³ytce)
+    OutputBuffer[3] = b3; // np. numer pinu (o 1 mniej ni¿ numer na p³ytce)
     OutputBuffer[4] = b4;
     OutputBuffer[5] = b5;
     OutputBuffer[6] = 0;
@@ -235,7 +235,7 @@ bool TPoKeys55::Read()
 {
     DWORD BytesRead = 0;
     InputBuffer[0] = 0; // The first byte is the "Report ID" and does not get transmitted over the
-                        // USB bus.  Always set=0.
+    // USB bus.  Always set=0.
     // Now get the response packet from the firmware.
     // The following call to ReadFIle() retrieves 64 bytes of data from the USB device.
     ReadFile(ReadHandle, &InputBuffer, 65, &BytesRead,
@@ -300,14 +300,14 @@ bool TPoKeys55::PWM(int x, float y)
 bool TPoKeys55::Update(bool pause)
 { // funkcja powinna byæ wywo³ywana regularnie, np. raz w ka¿dej ramce ekranowej
     if (pause)
-    {                     // specjalna procedura, jeœli utracone po³¹czenie spowodowa³o pauzê
+    { // specjalna procedura, jeœli utracone po³¹czenie spowodowa³o pauzê
         iLastCommand = 0; // po³¹czenie zosta³o na nowo otwarte
         // iFaza=0; //jeden b³¹d i podtrzymanie pauzy jest kontynuowane
     }
     switch (iFaza)
     {
-    case 0:                                      // uaktualnienie PWM raz na jakiœ czas
-        OutputBuffer[9] = 0x3F;                  // maska u¿ytych PWM
+    case 0: // uaktualnienie PWM raz na jakiœ czas
+        OutputBuffer[9] = 0x3F; // maska u¿ytych PWM
         *((int *)(OutputBuffer + 10)) = iPWM[0]; // PWM1 (pin 22)
         *((int *)(OutputBuffer + 14)) = iPWM[1]; // PWM2 (pin 21)
         *((int *)(OutputBuffer + 18)) = iPWM[2]; // PWM3 (pin 20)
@@ -315,14 +315,14 @@ bool TPoKeys55::Update(bool pause)
         *((int *)(OutputBuffer + 26)) = iPWM[4]; // PWM5 (pin 18)
         *((int *)(OutputBuffer + 30)) = iPWM[5]; // PWM6 (pin 17)
         *((int *)(OutputBuffer + 34)) = iPWM[7]; // PWM period
-        if (Write(0xCB, 1))                      // wys³anie ustawieñ (1-ustaw, 0-odczyt)
-            iRepeats = 0;                        // informacja, ¿e posz³o dobrze
-        ++iFaza;                                 // ta faza zosta³a zakoñczona
+        if (Write(0xCB, 1)) // wys³anie ustawieñ (1-ustaw, 0-odczyt)
+            iRepeats = 0; // informacja, ¿e posz³o dobrze
+        ++iFaza; // ta faza zosta³a zakoñczona
         // iRepeats=0;
         break;
-    case 1:                       // odczyt wejœæ analogowych - komenda i przetwarzanie
+    case 1: // odczyt wejœæ analogowych - komenda i przetwarzanie
         if (iLastCommand != 0x3A) // asynchroniczne ustawienie kontrolki mo¿e namieszaæ
-            Write(0x3A, 0);       // 0x3A - Analog inputs reading – all analog inputs in one command
+            Write(0x3A, 0); // 0x3A - Analog inputs reading – all analog inputs in one command
         else if (Read())
         { // jest odebrana ramka i zgodnoœæ numeru ¿¹dania
             fAnalog[0] = ((InputBuffer[21] << 8) + InputBuffer[22]) / 4095.0f; // pin 47
@@ -331,28 +331,28 @@ bool TPoKeys55::Update(bool pause)
             fAnalog[3] = ((InputBuffer[15] << 8) + InputBuffer[16]) / 4095.0f; // pin 44
             fAnalog[4] = ((InputBuffer[13] << 8) + InputBuffer[14]) / 4095.0f; // pin 43
             fAnalog[5] = ((InputBuffer[11] << 8) + InputBuffer[12]) / 4095.0f; // pin 42
-            fAnalog[6] = ((InputBuffer[9] << 8) + InputBuffer[10]) / 4095.0f;  // pin 41
-            ++iFaza;      // skoro odczytano, mo¿na przejœæ do kolejnej fazy
+            fAnalog[6] = ((InputBuffer[9] << 8) + InputBuffer[10]) / 4095.0f; // pin 41
+            ++iFaza; // skoro odczytano, mo¿na przejœæ do kolejnej fazy
             iRepeats = 0; // zerowanie licznika prób
         }
         else
             ++iRepeats; // licznik nieudanych prób
         break;
-    case 2:                       // odczyt wejœæ cyfrowych - komenda i przetwarzanie
+    case 2: // odczyt wejœæ cyfrowych - komenda i przetwarzanie
         if (iLastCommand != 0x31) // asynchroniczne ustawienie kontrolki mo¿e namieszaæ
-            Write(0x31, 0);       // 0x31: blokowy odczyt wejœæ
+            Write(0x31, 0); // 0x31: blokowy odczyt wejœæ
         else if (Read())
         { // jest odebrana ramka i zgodnoœæ numeru ¿¹dania
             iInputs[0] = *((int *)(InputBuffer + 3)); // odczyt 32 bitów
-            iFaza = 3;                                // skoro odczytano, mo¿na kolejny cykl
-            iRepeats = 0;                             // zerowanie licznika prób
+            iFaza = 3; // skoro odczytano, mo¿na kolejny cykl
+            iRepeats = 0; // zerowanie licznika prób
         }
         else
             ++iRepeats; // licznik nieudanych prób
         break;
     case 3: // ustawienie wyjœæ analogowych, 0..4095 mapowaæ na 0..65520 (<<4)
         if (Write(0x41, 43 - 1, (iPWM[6] >> 4), (iPWM[6] << 4))) // wys³anie ustawieñ
-            iRepeats = 0;                                        // informacja, ¿e posz³o dobrze
+            iRepeats = 0; // informacja, ¿e posz³o dobrze
         iFaza = 0; //++iFaza; //ta faza zosta³a zakoñczona
         // powinno jeszcze przyjœæ potwierdzenie o kodzie 0x41
         break;
@@ -361,12 +361,12 @@ bool TPoKeys55::Update(bool pause)
         // iRepeats=0;
     }
     if (!iRepeats)
-        bNoError = true;     // jest OK
+        bNoError = true; // jest OK
     else if (iRepeats >= 10) // youBy 2014-07: przy 5 powtórzeniach sieje mi pauz¹ po 2 razy na
-                             // sekundê, a przy 10 jest ok
-    {                        // przekroczenie liczby prób wymusza kolejn¹ fazê
+    // sekundê, a przy 10 jest ok
+    { // przekroczenie liczby prób wymusza kolejn¹ fazê
         ++iFaza;
-        iRepeats = 1;     // w nowej fazie nowe szanse, ale nie od 0!
+        iRepeats = 1; // w nowej fazie nowe szanse, ale nie od 0!
         bNoError = false; // zg³osiæ b³¹d
     }
     return (bNoError); // true oznacza prawid³owe dzia³anie

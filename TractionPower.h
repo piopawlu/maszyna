@@ -35,10 +35,10 @@ class TTractionPowerSource
     int FuseCounter;
 
   protected:
-  public:                            // zmienne publiczne
+  public: // zmienne publiczne
     TTractionPowerSource *psNode[2]; // zasilanie na koñcach dla sekcji
-    bool bSection;                   // czy jest sekcj¹
-    TGroundNode *gMyNode;            // Ra 2015-03: znowu prowizorka, aby mieæ nazwê do logowania
+    bool bSection; // czy jest sekcj¹
+    TGroundNode *gMyNode; // Ra 2015-03: znowu prowizorka, aby mieæ nazwê do logowania
   public:
     // AnsiString asName;
     TTractionPowerSource();

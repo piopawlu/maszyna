@@ -31,9 +31,9 @@ TEvent::TEvent(AnsiString m)
     // asName=""; //czy nazwa eventu jest niezbêdna w tym przypadku? chyba nie
     evNext = evNext2 = NULL;
     bEnabled = false; // false dla eventów u¿ywanych do skanowania sygna³ów (nie dodawane do
-                      // kolejki)
-    asNodeName = m;   // nazwa obiektu powi¹zanego
-    iQueued = 0;      // nie zosta³ dodany do kolejki
+    // kolejki)
+    asNodeName = m; // nazwa obiektu powi¹zanego
+    iQueued = 0; // nie zosta³ dodany do kolejki
     // bIsHistory=false;
     fDelay = 0;
     fStartTime = 0; // 0 nie ma sensu
@@ -70,9 +70,9 @@ TEvent::~TEvent()
     case tp_Animation: // nic
         // SafeDeleteArray(Params[9].asText); //nie usuwaæ - nazwa jest zamieniana na wskaŸnik do
         // submodelu
-        if (Params[0].asInt == 4)         // jeœli z pliku VMD
+        if (Params[0].asInt == 4) // jeœli z pliku VMD
             delete[] Params[8].asPointer; // zwolniæ obszar
-    case tp_GetValues:                    // nic
+    case tp_GetValues: // nic
         break;
     }
     evJoined = NULL; // nie usuwaæ podczepionych tutaj
@@ -91,7 +91,7 @@ void TEvent::Conditions(cParser *parser, AnsiString s)
         if (!asNodeName.IsEmpty())
         { // podczepienie ³añcucha, jeœli nie jest pusty
             Params[9].asText = new char[asNodeName.Length() + 1]; // usuwane i zamieniane na
-                                                                  // wskaŸnik
+            // wskaŸnik
             strcpy(Params[9].asText, asNodeName.c_str());
         }
         parser->getTokens();
@@ -114,7 +114,7 @@ void TEvent::Conditions(cParser *parser, AnsiString s)
             *parser >> token;
             str = AnsiString(token.c_str());
             if (str != "*") //"*" - nie brac command pod uwage
-            {               // zapamiêtanie ³añcucha do porównania
+            { // zapamiêtanie ³añcucha do porównania
                 Params[10].asText = new char[255];
                 strcpy(Params[10].asText, str.c_str());
                 iFlags |= conditional_memstring;
@@ -273,7 +273,7 @@ void TEvent::Load(cParser *parser, vector3 *org)
         while (token.compare("endevent") != 0)
         {
             switch (++i)
-            {       // znaczenie kolejnych parametrów
+            { // znaczenie kolejnych parametrów
             case 1: // nazwa drugiej komórki (Ÿród³owej)
                 Params[9].asText = new char[token.length() + 1]; // usuwane i zamieniane na wskaŸnik
                 strcpy(Params[9].asText, token.c_str());
@@ -295,7 +295,7 @@ void TEvent::Load(cParser *parser, vector3 *org)
         while (token.compare("endevent") != 0)
         {
             switch (++i)
-            {       // znaczenie kolejnych parametrów
+            { // znaczenie kolejnych parametrów
             case 1: // maska wartoœci
                 iFlags = AnsiString(token.c_str())
                              .ToIntDef(update_memstring | update_memval1 | update_memval2);
@@ -313,7 +313,7 @@ void TEvent::Load(cParser *parser, vector3 *org)
     case tp_PutValues:
         parser->getTokens(3);
         *parser >> Params[3].asdouble >> Params[4].asdouble >> Params[5].asdouble; // po³o¿enie
-                                                                                   // X,Y,Z
+        // X,Y,Z
         if (org)
         { // przesuniêcie
             // tmp->pCenter.RotateY(aRotate.y/180.0*M_PI); //Ra 2014-11: uwzglêdnienie rotacji
@@ -330,7 +330,7 @@ void TEvent::Load(cParser *parser, vector3 *org)
             if (str.Pos("#"))
                 str = str.SubString(1, str.Pos("#") - 1); // obciêcie unikatowoœci
             bEnabled = false; // nie do kolejki (dla SetVelocity te¿, ale jak jest do toru
-                              // dowi¹zany)
+            // dowi¹zany)
             Params[6].asCommand = cm_PassengerStopPoint;
         }
         else if (str == "SetVelocity")
@@ -480,7 +480,7 @@ void TEvent::Load(cParser *parser, vector3 *org)
                 Params[4].asdouble;
         }
         else if (token.substr(token.length() - 4, 4) == ".vmd") // na razie tu, mo¿e bêdzie inaczej
-        {                                                       // animacja z pliku VMD
+        { // animacja z pliku VMD
             TFileStream *fs = new TFileStream("models\\" + AnsiString(token.c_str()), fmOpenRead);
             Params[7].asInt = fs->Size;
             Params[8].asPointer = new char[fs->Size];
@@ -567,7 +567,7 @@ void TEvent::Load(cParser *parser, vector3 *org)
         }
         Conditions(parser, str); // sprawdzanie warunków
         break;
-    case tp_Voltage:  // zmiana napiêcia w zasilaczu (TractionPowerSource)
+    case tp_Voltage: // zmiana napiêcia w zasilaczu (TractionPowerSource)
     case tp_Friction: // zmiana przyczepnosci na scenerii
         parser->getTokens();
         *parser >> Params[0].asdouble; // Ra 2014-01-27
@@ -634,7 +634,7 @@ TCommandType TEvent::Command()
 };
 
 double TEvent::ValueGet(int n)
-{           // odczytanie komendy z eventu
+{ // odczytanie komendy z eventu
     n &= 1; // tylko 1 albo 2 jest prawid³owy
     switch (Type)
     { // to siê wykonuje równie¿ sk³adu jad¹cego bez obs³ugi

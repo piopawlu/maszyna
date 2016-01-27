@@ -61,7 +61,7 @@ TTrack *__fastcall TTrackFollower::SetCurrentTrack(TTrack *pTrack, int end)
         case tt_Switch: // jeœli zwrotnica, to przek³adamy j¹, aby uzyskaæ dobry segment
         {
             int i = (end ? pCurrentTrack->iNextDirection : pCurrentTrack->iPrevDirection);
-            if (i > 0)                               // je¿eli wjazd z ostrza
+            if (i > 0) // je¿eli wjazd z ostrza
                 pTrack->SwitchForced(i >> 1, Owner); // to prze³o¿enie zwrotnicy - rozprucie!
         }
         break;
@@ -77,12 +77,12 @@ TTrack *__fastcall TTrackFollower::SetCurrentTrack(TTrack *pTrack, int end)
             // if fDirection=(iSegment>0)?1.0:-1.0; //kierunek na tym segmencie jest ustalany
             // bezpoœrednio
             if (iSegment == 0)
-            {   // to jest b³êdna sytuacja - generuje pêtle zawracaj¹ce za skrzy¿owaniem - ustaliæ,
+            { // to jest b³êdna sytuacja - generuje pêtle zawracaj¹ce za skrzy¿owaniem - ustaliæ,
                 // kiedy powstaje!
                 iSegment = 1; // doraŸna poprawka
             }
             if ((end ? iSegment : -iSegment) < 0)
-                fDirection = -fDirection;                  // wtórna zmiana
+                fDirection = -fDirection; // wtórna zmiana
             pTrack->SwitchForced(abs(iSegment) - 1, NULL); // wybór zapamiêtanego segmentu
         }
         break;
@@ -90,8 +90,8 @@ TTrack *__fastcall TTrackFollower::SetCurrentTrack(TTrack *pTrack, int end)
     if (!pTrack)
     { // gdy nie ma toru w kierunku jazdy
         pTrack = pCurrentTrack->NullCreate(
-            end);                     // tworzenie toru wykolej¹cego na przed³u¿eniu pCurrentTrack
-        if (!end)                     // jeœli dodana od strony zero, to zmiana kierunku
+            end); // tworzenie toru wykolej¹cego na przed³u¿eniu pCurrentTrack
+        if (!end) // jeœli dodana od strony zero, to zmiana kierunku
             fDirection = -fDirection; // wtórna zmiana
         // if (pTrack->iCategoryFlag&2)
         //{//jeœli samochód, zepsuæ na miejscu
@@ -119,26 +119,26 @@ bool TTrackFollower::Move(double fDistance, bool bPrimary)
     // bPrimary=true - jest pierwsz¹ osi¹ w pojeŸdzie, czyli generuje eventy i przepisuje pojazd
     // Ra: zwraca false, jeœli pojazd ma byæ usuniêty
     fDistance *= fDirection; // dystans mno¿nony przez kierunek
-    double s;                // roboczy dystans
-    double dir;              // zapamiêtany kierunek do sprawdzenia, czy siê zmieni³
-    bool bCanSkip;           // czy przemieœciæ pojazd na inny tor
-    while (true)             // pêtla wychodzi, gdy przesuniêcie wyjdzie zerowe
-    {                        // pêtla przesuwaj¹ca wózek przez kolejne tory, a¿ do trafienia w jakiœ
+    double s; // roboczy dystans
+    double dir; // zapamiêtany kierunek do sprawdzenia, czy siê zmieni³
+    bool bCanSkip; // czy przemieœciæ pojazd na inny tor
+    while (true) // pêtla wychodzi, gdy przesuniêcie wyjdzie zerowe
+    { // pêtla przesuwaj¹ca wózek przez kolejne tory, a¿ do trafienia w jakiœ
         if (!pCurrentTrack)
-            return false;           // nie ma toru, to nie ma przesuwania
+            return false; // nie ma toru, to nie ma przesuwania
         if (pCurrentTrack->iEvents) // sumaryczna informacja o eventach
         { // omijamy ca³y ten blok, gdy tor nie ma on ¿adnych eventów (wiêkszoœæ nie ma)
             if (fDistance < 0)
             {
                 if (iSetFlag(iEventFlag, -1)) // zawsze zeruje flagê sprawdzenia, jak mechanik
-                                              // dosi¹dzie, to siê nie wykona
-                    if (Owner->Mechanik)      // tylko dla jednego cz³onu
+                    // dosi¹dzie, to siê nie wykona
+                    if (Owner->Mechanik) // tylko dla jednego cz³onu
                         // if (TestFlag(iEventFlag,1)) //McZapkie-280503: wyzwalanie event tylko dla
                         // pojazdow z obsada
                         if (bPrimary && pCurrentTrack->evEvent1 &&
                             (!pCurrentTrack->evEvent1->iQueued))
                             Global::AddToQuery(pCurrentTrack->evEvent1, Owner); // dodanie do
-                                                                                // kolejki
+                // kolejki
                 // Owner->RaAxleEvent(pCurrentTrack->Event1); //Ra: dynamic zdecyduje, czy dodaæ do
                 // kolejki
                 // if (TestFlag(iEventallFlag,1))
@@ -153,8 +153,8 @@ bool TTrackFollower::Move(double fDistance, bool bPrimary)
             else if (fDistance > 0)
             {
                 if (iSetFlag(iEventFlag, -2)) // zawsze ustawia flagê sprawdzenia, jak mechanik
-                                              // dosi¹dzie, to siê nie wykona
-                    if (Owner->Mechanik)      // tylko dla jednego cz³onu
+                    // dosi¹dzie, to siê nie wykona
+                    if (Owner->Mechanik) // tylko dla jednego cz³onu
                         // if (TestFlag(iEventFlag,2)) //sprawdzanie jest od razu w pierwszym
                         // warunku
                         if (bPrimary && pCurrentTrack->evEvent2 &&
@@ -219,9 +219,9 @@ bool TTrackFollower::Move(double fDistance, bool bPrimary)
             }
             else if (!SetCurrentTrack(pCurrentTrack->Neightbour(-1, fDirection),
                                       0)) // ustawia fDirection
-                return false;             // wyjœcie z b³êdem
-            if (dir == fDirection)        //(pCurrentTrack->iPrevDirection)
-            {                             // gdy kierunek bez zmiany (Point1->Point2)
+                return false; // wyjœcie z b³êdem
+            if (dir == fDirection) //(pCurrentTrack->iPrevDirection)
+            { // gdy kierunek bez zmiany (Point1->Point2)
                 fCurrentDistance = pCurrentSegment->GetLength();
                 fDistance = s;
             }
@@ -256,10 +256,10 @@ bool TTrackFollower::Move(double fDistance, bool bPrimary)
             }
             else if (!SetCurrentTrack(pCurrentTrack->Neightbour(1, fDirection),
                                       1)) // ustawia fDirection
-                return false;             // wyjœcie z b³êdem
-            if (dir != fDirection)        //(pCurrentTrack->iNextDirection)
-            {                             // gdy zmiana kierunku toru (Point2->Point2)
-                fDistance = -fDistance;   //(s-pCurrentSegment->GetLength());
+                return false; // wyjœcie z b³êdem
+            if (dir != fDirection) //(pCurrentTrack->iNextDirection)
+            { // gdy zmiana kierunku toru (Point2->Point2)
+                fDistance = -fDistance; //(s-pCurrentSegment->GetLength());
                 fCurrentDistance = pCurrentSegment->GetLength();
             }
             else // gdy kierunek bez zmiany (Point2->Point1)
@@ -300,12 +300,12 @@ bool TTrackFollower::Move(double fDistance, bool bPrimary)
 };
 
 bool TTrackFollower::ComputatePosition()
-{                        // ustalenie wspó³rzêdnych XYZ
+{ // ustalenie wspó³rzêdnych XYZ
     if (pCurrentSegment) // o ile jest tor
     {
         pCurrentSegment->RaPositionGet(fCurrentDistance, pPosition, vAngles);
-        if (fDirection < 0)         // k¹ty zale¿¹ jeszcze od zwrotu na torze
-        {                           // k¹ty s¹ w przedziale <-M_PI;M_PI>
+        if (fDirection < 0) // k¹ty zale¿¹ jeszcze od zwrotu na torze
+        { // k¹ty s¹ w przedziale <-M_PI;M_PI>
             vAngles.x = -vAngles.x; // przechy³ka jest w przecinw¹ stronê
             vAngles.y = -vAngles.y; // pochylenie jest w przecinw¹ stronê
             vAngles.z +=
@@ -322,10 +322,10 @@ bool TTrackFollower::ComputatePosition()
 #include "opengl/glew.h"
 #include "opengl/glut.h"
 void TTrackFollower::Render(float fNr)
-{                   // funkcja rysuj¹ca sto¿ek w miejscu osi
+{ // funkcja rysuj¹ca sto¿ek w miejscu osi
     glPushMatrix(); // matryca kamery
     glTranslatef(pPosition.x, pPosition.y + 6, pPosition.z); // 6m ponad
-    glRotated(RadToDeg(-vAngles.z), 0, 1, 0);                // obrót wzglêdem osi OY
+    glRotated(RadToDeg(-vAngles.z), 0, 1, 0); // obrót wzglêdem osi OY
     // glRotated(RadToDeg(vAngles.z),0,1,0); //obrót wzglêdem osi OY
     glDisable(GL_LIGHTING);
     glColor3f(1.0, 1.0 - fNr, 1.0 - fNr); // bia³y dla 0, czerwony dla 1

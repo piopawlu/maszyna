@@ -22,13 +22,13 @@ class TKeyTrans
 };
 
 class Console
-{   // Ra: klasa statyczna gromadz¹ca sygna³y steruj¹ce oraz informacje zwrotne
+{ // Ra: klasa statyczna gromadz¹ca sygna³y steruj¹ce oraz informacje zwrotne
     // Ra: stan wejœcia zmieniany klawiatur¹ albo dedykowanym urz¹dzeniem
     // Ra: stan wyjœcia zmieniany przez symulacjê (mierniki, kontrolki)
   private:
-    static int iMode;              // tryb pracy
-    static int iConfig;            // dodatkowa informacja o sprzêcie (np. numer LPT)
-    static int iBits;              // podstawowy zestaw lampek
+    static int iMode; // tryb pracy
+    static int iConfig; // dodatkowa informacja o sprzêcie (np. numer LPT)
+    static int iBits; // podstawowy zestaw lampek
     static TPoKeys55 *PoKeys55[2]; // mo¿e ich byæ kilka
     static TLPT *LPT;
     static void BitsUpdate(int mask);

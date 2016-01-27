@@ -25,7 +25,7 @@ CMesh::CMesh()
 };
 
 CMesh::~CMesh()
-{            // usuwanie obiektu
+{ // usuwanie obiektu
     Clear(); // zwolnienie zasobów
 };
 
@@ -38,7 +38,7 @@ void CMesh::MakeArray(int n)
 void CMesh::BuildVBOs(bool del)
 { // tworzenie VBO i kasowanie ju¿ niepotrzebnych tablic
     // pobierz numer VBO oraz ustaw go jako aktywny
-    glGenBuffersARB(1, &m_nVBOVertices);                  // pobierz numer
+    glGenBuffersARB(1, &m_nVBOVertices); // pobierz numer
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_nVBOVertices); // ustaw bufor jako aktualny
     glBufferDataARB(GL_ARRAY_BUFFER_ARB, m_nVertexCount * sizeof(CVertNormTex), m_pVNT,
                     GL_STATIC_DRAW_ARB);
@@ -57,7 +57,7 @@ void CMesh::Clear()
         // WriteLog("Released VBO number "+AnsiString(m_nVBOVertices));
     }
     m_nVBOVertices = 0;
-    m_nVertexCount = -1;     // do ponownego zliczenia
+    m_nVertexCount = -1; // do ponownego zliczenia
     SafeDeleteArray(m_pVNT); // usuwanie tablic, gdy by³y u¿yte do Vertex Array
 };
 
@@ -71,8 +71,8 @@ bool CMesh::StartVBO()
     if (m_nVBOVertices)
     {
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_nVBOVertices);
-        glVertexPointer(3, GL_FLOAT, sizeof(CVertNormTex), ((char *)NULL));        // pozycje
-        glNormalPointer(GL_FLOAT, sizeof(CVertNormTex), ((char *)NULL) + 12);      // normalne
+        glVertexPointer(3, GL_FLOAT, sizeof(CVertNormTex), ((char *)NULL)); // pozycje
+        glNormalPointer(GL_FLOAT, sizeof(CVertNormTex), ((char *)NULL) + 12); // normalne
         glTexCoordPointer(2, GL_FLOAT, sizeof(CVertNormTex), ((char *)NULL) + 24); // wierzcho³ki
     }
     return true; // mo¿na rysowaæ z VBO

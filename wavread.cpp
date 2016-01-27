@@ -44,7 +44,7 @@ http://mozilla.org/MPL/2.0/.
 //-----------------------------------------------------------------------------
 HRESULT ReadMMIO(HMMIO hmmioIn, MMCKINFO *pckInRIFF, WAVEFORMATEX **ppwfxInfo)
 {
-    MMCKINFO ckIn;               // chunk info. for general use.
+    MMCKINFO ckIn; // chunk info. for general use.
     PCMWAVEFORMAT pcmWaveFormat; // Temp PCM structure to load in.
 
     *ppwfxInfo = NULL;

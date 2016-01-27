@@ -22,19 +22,19 @@ const int iMaxNumLights = 8;
 // typy stanu œwiate³
 typedef enum
 {
-    ls_Off = 0,   // zgaszone
-    ls_On = 1,    // zapalone
+    ls_Off = 0, // zgaszone
+    ls_On = 1, // zapalone
     ls_Blink = 2, // migaj¹ce
-    ls_Dark = 3   // Ra: zapalajce siê automatycznie, gdy zrobi siê ciemno
+    ls_Dark = 3 // Ra: zapalajce siê automatycznie, gdy zrobi siê ciemno
 } TLightState;
 
 class TAnimVocaloidFrame
 { // ramka animacji typu Vocaloid Motion Data z programu MikuMikuDance
   public:
-    char cBone[15];   // nazwa koœci, mo¿e byæ po japoñsku
-    int iFrame;       // numer ramki
-    float3 f3Vector;  // przemieszczenie
-    float4 qAngle;    // kwaternion obrotu
+    char cBone[15]; // nazwa koœci, mo¿e byæ po japoñsku
+    int iFrame; // numer ramki
+    float3 f3Vector; // przemieszczenie
+    float4 qAngle; // kwaternion obrotu
     char cBezier[64]; // krzywe Béziera do interpolacji dla x,y,z i obrotu
 };
 
@@ -51,16 +51,16 @@ class TAnimContainer
     vector3 vTranslation;
     vector3 vTranslateTo;
     double fTranslateSpeed; // mo¿e tu daæ wektor?
-    float4 qCurrent;        // aktualny interpolowany
-    float4 qStart;          // pozycja pocz¹tkowa (0 dla interpolacji)
-    float4 qDesired;        // pozycja koñcowa (1 dla interpolacji)
-    float fAngleCurrent;    // parametr interpolacyjny: 0=start, 1=docelowy
-    float fAngleSpeed;      // zmiana parametru interpolacji w sekundach
+    float4 qCurrent; // aktualny interpolowany
+    float4 qStart; // pozycja pocz¹tkowa (0 dla interpolacji)
+    float4 qDesired; // pozycja koñcowa (1 dla interpolacji)
+    float fAngleCurrent; // parametr interpolacyjny: 0=start, 1=docelowy
+    float fAngleSpeed; // zmiana parametru interpolacji w sekundach
     TSubModel *pSubModel;
     float4x4 *mAnim; // macierz do animacji kwaternionowych
     // dla kinematyki odwróconej u¿ywane s¹ kwaterniony
     float fLength; // d³ugoœæ koœci dla IK
-    int iAnim;     // animacja: +1-obrót Eulera, +2-przesuw, +4-obrót kwaternionem, +8-IK
+    int iAnim; // animacja: +1-obrót Eulera, +2-przesuw, +4-obrót kwaternionem, +8-IK
     //+0x80000000: animacja z eventem, wykonywana poza wyœwietlaniem
     //+0x100: pierwszy stopieñ IK - obróciæ w stronê pierwszego potomnego (dziecka)
     //+0x200: drugi stopieñ IK - dostosowaæ do pozycji potomnego potomnego (wnuka)
@@ -72,7 +72,7 @@ class TAnimContainer
   public:
     TAnimContainer *pNext;
     TAnimContainer *acAnimNext; // lista animacji z eventem, które musz¹ byæ przeliczane równie¿ bez
-                                // wyœwietlania
+    // wyœwietlania
     TAnimContainer();
     ~TAnimContainer();
     bool Init(TSubModel *pNewSubModel);
@@ -118,9 +118,9 @@ class TAnimAdvanced
   public:
     TAnimVocaloidFrame *pMovementData;
     unsigned char *pVocaloidMotionData; // plik animacyjny dla egzemplarza (z eventu)
-    double fFrequency;                  // przeliczenie czasu rzeczywistego na klatki animacji
+    double fFrequency; // przeliczenie czasu rzeczywistego na klatki animacji
     double fCurrent; // klatka animacji wyœwietlona w poprzedniej klatce renderingu
-    double fLast;    // klatka koñcz¹ca animacjê
+    double fLast; // klatka koñcz¹ca animacjê
     int iMovements;
     TAnimAdvanced();
     ~TAnimAdvanced();
@@ -136,8 +136,8 @@ class TAnimModel
     int iNumLights;
     TSubModel *LightsOn[iMaxNumLights]; // Ra: te wskaŸniki powinny byæ w ramach TModel3d
     TSubModel *LightsOff[iMaxNumLights];
-    vector3 vAngle;    // bazowe obroty egzemplarza wzglêdem osi
-    int iTexAlpha;     //¿eby nie sprawdzaæ za ka¿dym razem, dla 4 wymiennych tekstur
+    vector3 vAngle; // bazowe obroty egzemplarza wzglêdem osi
+    int iTexAlpha; //¿eby nie sprawdzaæ za ka¿dym razem, dla 4 wymiennych tekstur
     AnsiString asText; // tekst dla wyœwietlacza znakowego
     TAnimAdvanced *pAdvanced;
     void Advanced();
@@ -148,9 +148,9 @@ class TAnimModel
     void RaAnimate(); // przeliczenie animacji egzemplarza
     void RaPrepare(); // ustawienie animacji egzemplarza na wzorcu
   public:
-    GLuint ReplacableSkinId[5];        // McZapkie-020802: zmienialne skory
+    GLuint ReplacableSkinId[5]; // McZapkie-020802: zmienialne skory
     static TAnimContainer *acAnimList; // lista animacji z eventem, które musz¹ byæ przeliczane
-                                       // równie¿ bez wyœwietlania
+    // równie¿ bez wyœwietlania
     TAnimModel();
     ~TAnimModel();
     bool Init(TModel3d *pNewModel);

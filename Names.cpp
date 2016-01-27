@@ -64,7 +64,7 @@ void ItemRecord::ListGet(ItemRecord *r, int *&n)
 { // rekurencyjne wype³nianie posortowanej listy na podstawie drzewa
     if (rPrev)
         rPrev->ListGet(r, n); // dodanie wszystkich wczeœniejszych
-    *n++ = this - r;          // dodanie swojego indeksu do tabeli
+    *n++ = this - r; // dodanie swojego indeksu do tabeli
     if (rNext)
         rNext->ListGet(r, n); // dodanie wszystkich póŸniejszych
 };
@@ -76,7 +76,7 @@ void *__fastcall ItemRecord::TreeFind(const char *n)
 };
 
 ItemRecord *__fastcall ItemRecord::TreeFindRecord(const char *n)
-{                         // wyszukanie ci¹gu (n)
+{ // wyszukanie ci¹gu (n)
     ItemRecord *r = this; //¿eby nie robiæ rekurencji
     int i = 0;
     do
@@ -88,12 +88,12 @@ ItemRecord *__fastcall ItemRecord::TreeFindRecord(const char *n)
             ++i; // porównaæ kolejny znak
         else if ((unsigned char)(n[i]) < (unsigned char)(r->cName[i]))
         {
-            i = 0;        // porównywaæ od nowa
+            i = 0; // porównywaæ od nowa
             r = r->rPrev; // wczeœniejsza ga³¹Ÿ drzewa
         }
         else
         {
-            i = 0;        // porównywaæ od nowa
+            i = 0; // porównywaæ od nowa
             r = r->rNext; // póŸniejsza ga³¹Ÿ drzewa
         }
     } while (r);
@@ -101,7 +101,7 @@ ItemRecord *__fastcall ItemRecord::TreeFindRecord(const char *n)
 };
 
 TNames::TNames()
-{                             // tworzenie bufora
+{ // tworzenie bufora
     iSize = 16 * 1024 * 1024; // rozmiar bufora w bajtach
     cBuffer = new char[iSize];
     ZeroMemory(cBuffer, iSize); // nie trzymaæ jakiœ starych œmieci
@@ -112,10 +112,10 @@ TNames::TNames()
 };
 
 int TNames::Add(int t, const char *n)
-{                            // dodanie obiektu typu (t) o nazwie (n)
+{ // dodanie obiektu typu (t) o nazwie (n)
     int len = strlen(n) + 1; // ze znacznikiem koñca
-    cLast -= len;            // rezerwacja miejsca
-    memcpy(cLast, n, len);   // przekopiowanie tekstu do bufora
+    cLast -= len; // rezerwacja miejsca
+    memcpy(cLast, n, len); // przekopiowanie tekstu do bufora
     // cLast[len-1]='\0';
     rRecords[++iLast].cName = cLast; // po³¹czenie nazwy z rekordem
     rRecords[iLast].iFlags = t;
@@ -125,7 +125,7 @@ int TNames::Add(int t, const char *n)
         rTypes[t]->TreeAdd(rRecords + iLast, 0); // doczepienie jako ga³¹Ÿ
     // rTypes[t]=Sort(t); //sortowanie uruchamiaæ rêcznie
     if ((iLast & 0x3F) == 0) // nie za czêsto, bo sortowania zajm¹ wiêcej czasu ni¿ wyszukiwania
-        Sort(t);             // optymalizacja drzewa co jakiœ czas
+        Sort(t); // optymalizacja drzewa co jakiœ czas
     return iLast;
 }
 int TNames::Add(int t, const char *n, void *d)
@@ -136,7 +136,7 @@ int TNames::Add(int t, const char *n, void *d)
 };
 
 bool TNames::Update(int t, const char *n, void *d)
-{                                     // dodanie jeœli nie ma, wymiana (d), gdy jest
+{ // dodanie jeœli nie ma, wymiana (d), gdy jest
     ItemRecord *r = FindRecord(t, n); // najpierw sprawdziæ, czy ju¿ jest
     if (r)
     { // przy zdublowaniu nazwy podmieniaæ w drzewku na póŸniejszy
@@ -156,7 +156,7 @@ ItemRecord *__fastcall TNames::TreeSet(int *n, int d, int u)
     }
     else if (d > u)
         return NULL;
-    int p = (u + d) >> 1;                        // po³owa
+    int p = (u + d) >> 1; // po³owa
     rRecords[n[p]].rPrev = TreeSet(n, d, p - 1); // zapisanie wczeœniejszych ga³êzi
     rRecords[n[p]].rNext = TreeSet(n, p + 1, u); // zapisanie póŸniejszych ga³êzi
     return rRecords + n[p];
@@ -165,11 +165,11 @@ ItemRecord *__fastcall TNames::TreeSet(int *n, int d, int u)
 void TNames::Sort(int t)
 { // przebudowa drzewa typu (t), zwraca wierzcho³ek drzewa
     if (iLast < 3)
-        return;    // jak jest ma³o, to nie ma sensu sortowaæ
+        return; // jak jest ma³o, to nie ma sensu sortowaæ
     if (rTypes[t]) // jeœli jest jakiœ rekord danego typu
     {
-        int *r = new int[iLast + 1];     // robocza tablica indeksów - numery posortowanych rekordów
-        int *q = r;                      // wskaŸnik roboczy, przekazywany przez referencjê
+        int *r = new int[iLast + 1]; // robocza tablica indeksów - numery posortowanych rekordów
+        int *q = r; // wskaŸnik roboczy, przekazywany przez referencjê
         rTypes[t]->ListGet(rRecords, q); // drzewo jest ju¿ posortowane - zamieniæ je na listê
         rTypes[t] = TreeSet(r, 0, (q - r) - 1);
         delete[] r;

@@ -100,7 +100,7 @@ TModel3d *__fastcall TModelsManager::GetModel(const char *Name, bool dynamic)
     // - wczytanie modelu animowanego - Init() - sprawdziæ
     char buf[255];
     AnsiString buftp = Global::asCurrentTexturePath; // zapamiêtanie aktualnej œcie¿ki do tekstur,
-                                                     // bo bêdzie tyczmasowo zmieniana
+    // bo bêdzie tyczmasowo zmieniana
     /*
     // Ra: niby tak jest lepiej, ale dzia³a gorzej, wiêc przywrócone jest oryginalne
      //nawet jeœli model bêdzie pobrany z tablicy, to trzeba ustaliæ œcie¿kê dla tekstur
@@ -174,8 +174,8 @@ TModel3d *__fastcall TModelsManager::GetModel(const char *Name, bool dynamic)
         }
     };
     TModel3d *tmpModel = LoadModel(buf, dynamic); // model nie znaleziony, to wczytaæ
-    Global::asCurrentTexturePath = buftp;         // odtworzenie œcie¿ki do tekstur
-    return (tmpModel);                            // NULL jeœli b³¹d
+    Global::asCurrentTexturePath = buftp; // odtworzenie œcie¿ki do tekstur
+    return (tmpModel); // NULL jeœli b³¹d
 };
 
 /*

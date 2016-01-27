@@ -106,7 +106,7 @@ void UpdateTimers(bool pause)
 
     // Keep track of the time lapse and frame count
     double fTime = GetTickCount() * 0.001f; // Get current time in seconds
-    ++dwFrames;                             // licznik ramek
+    ++dwFrames; // licznik ramek
     // update the frame rate once per second
     if (fTime - fLastTime > 1.0f)
     {

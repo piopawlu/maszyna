@@ -58,8 +58,8 @@ bool TPythonInterpreter::loadClassFile(const char *lookupPath, const char *class
             fseek(sourceFile, 0, SEEK_SET);
             long freaded = fread(buffer, sizeof(char), fsize, sourceFile);
             buffer[freaded] = 0; // z jakiegos powodu czytamy troche mniej i trzczeba dodac konczace
-                                 // zero do bufora (mimo ze calloc teoretycznie powiniene zwrocic
-                                 // wyzerowana pamiec)
+// zero do bufora (mimo ze calloc teoretycznie powiniene zwrocic
+// wyzerowana pamiec)
 #ifdef _PY_INT_MORE_LOG
             char buf[255];
             sprintf(buf, "readed %d / %d characters for %s", freaded, fsize, className);
