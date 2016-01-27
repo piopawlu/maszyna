@@ -1,4 +1,11 @@
-//---------------------------------------------------------------------------
+/*
+This Source Code Form is subject to the
+terms of the Mozilla Public License, v.
+2.0. If a copy of the MPL was not
+distributed with this file, You can
+obtain one at
+http://mozilla.org/MPL/2.0/.
+*/
 
 #ifndef GeomH
 #define GeomH
@@ -10,12 +17,12 @@ struct TGeomVertex
 {
     vector3 Point;
     vector3 Normal;
-    double tu,tv;
+    double tu, tv;
 };
 
 class TGeometry
 {
-private:
+  private:
     GLuint iType;
     union
     {
@@ -26,12 +33,13 @@ private:
     TMaterialColor Ambient;
     TMaterialColor Diffuse;
     TMaterialColor Specular;
-public:
-    __fastcall TGeometry();
-    __fastcall ~TGeometry();
-    bool __fastcall Init();
-    vector3 __fastcall Load(TQueryParserComp *Parser);
-    bool __fastcall Render();
+
+  public:
+    TGeometry();
+    ~TGeometry();
+    bool Init();
+    vector3 Load(TQueryParserComp *Parser);
+    bool Render();
 };
 
 //---------------------------------------------------------------------------

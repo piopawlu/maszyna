@@ -1,32 +1,38 @@
-//---------------------------------------------------------------------------
+/*
+This Source Code Form is subject to the
+terms of the Mozilla Public License, v.
+2.0. If a copy of the MPL was not
+distributed with this file, You can
+obtain one at
+http://mozilla.org/MPL/2.0/.
+*/
 
 #ifndef TimerH
 #define TimerH
 
-namespace Timer { 
+namespace Timer
+{
 
+double GetTime();
 
-double __fastcall GetTime();
+double GetDeltaTime();
+double GetDeltaRenderTime();
 
-double __fastcall GetDeltaTime();
-double __fastcall GetDeltaRenderTime();
+double GetfSinceStart();
 
-double __fastcall GetfSinceStart();
+void SetDeltaTime(double v);
 
-void __fastcall SetDeltaTime(double v);
+double GetSimulationTime();
 
-double __fastcall GetSimulationTime();
+void SetSimulationTime(double v);
 
-void __fastcall SetSimulationTime(double v);
+bool GetSoundTimer();
 
-bool __fastcall GetSoundTimer();
+double GetFPS();
 
-double __fastcall GetFPS();
+void ResetTimers();
 
-void __fastcall ResetTimers();
-
-void __fastcall UpdateTimers(bool pause);
-
+void UpdateTimers(bool pause);
 };
 
 //---------------------------------------------------------------------------

@@ -1,4 +1,11 @@
-//---------------------------------------------------------------------------
+/*
+This Source Code Form is subject to the
+terms of the Mozilla Public License, v.
+2.0. If a copy of the MPL was not
+distributed with this file, You can
+obtain one at
+http://mozilla.org/MPL/2.0/.
+*/
 
 #ifndef CurveH
 #define CurveH
@@ -8,22 +15,21 @@
 
 class TCurve
 {
-public:
-    __fastcall TCurve();
-    __fastcall ~TCurve();
-    bool __fastcall Init(int n, int c);
-    float __fastcall GetValue(int c, float p);
-    bool __fastcall SetValue(int c, float p, float v);
-    bool __fastcall Load(TQueryParserComp *Parser);
-    bool __fastcall LoadFromFile(AnsiString asName);
-    bool __fastcall SaveToFile(AnsiString asName);
+  public:
+    TCurve();
+    ~TCurve();
+    bool Init(int n, int c);
+    float GetValue(int c, float p);
+    bool SetValue(int c, float p, float v);
+    bool Load(TQueryParserComp *Parser);
+    bool LoadFromFile(AnsiString asName);
+    bool SaveToFile(AnsiString asName);
 
     int iNumValues;
     int iNumCols;
 
-private:
+  private:
     float **Values;
 };
 //---------------------------------------------------------------------------
 #endif
- 

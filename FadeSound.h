@@ -1,4 +1,11 @@
-//---------------------------------------------------------------------------
+/*
+This Source Code Form is subject to the
+terms of the Mozilla Public License, v.
+2.0. If a copy of the MPL was not
+distributed with this file, You can
+obtain one at
+http://mozilla.org/MPL/2.0/.
+*/
 
 #ifndef FadeSoundH
 #define FadeSoundH
@@ -10,19 +17,22 @@ class TFadeSound
 {
     PSound Sound;
     float fFade;
-    float dt,fTime;
+    float dt, fTime;
     TSoundState State;
-public:
-    __fastcall TFadeSound();
-    __fastcall ~TFadeSound();
-    void __fastcall Init(char *Name, float fNewFade);
-    void __fastcall TurnOn();
-    void __fastcall TurnOff();
-    bool __fastcall Playing() {return (State==ss_Commencing || State==ss_Starting); };
-    void __fastcall Free();
-    void __fastcall Update();
-    void __fastcall Volume(long vol);
 
+  public:
+    TFadeSound();
+    ~TFadeSound();
+    void Init(char *Name, float fNewFade);
+    void TurnOn();
+    void TurnOff();
+    bool Playing()
+    {
+        return (State == ss_Commencing || State == ss_Starting);
+    };
+    void Free();
+    void Update();
+    void Volume(long vol);
 };
 
 //---------------------------------------------------------------------------
