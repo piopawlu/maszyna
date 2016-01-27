@@ -33,10 +33,11 @@ http://mozilla.org/MPL/2.0/.
 TMemCell::TMemCell(vector3 *p)
 {
     fValue1 = fValue2 = 0;
-    szText = new char[256]; // musi byæ dla automatycznie tworzonych komórek dla odcinków
+    szText = new char[256]; // musi byæ dla automatycznie tworzonych komórek dla
+    // odcinków
     // izolowanych
-    vPosition =
-        p ? *p : vector3(0, 0, 0); // ustawienie wspó³rzêdnych, bo do TGroundNode nie ma dostêpu
+    vPosition = p ? *p : vector3(0, 0,
+                                 0); // ustawienie wspó³rzêdnych, bo do TGroundNode nie ma dostêpu
     bCommand = false; // komenda wys³ana
     OnSent = NULL;
 }
@@ -145,7 +146,8 @@ void TMemCell::PutCommand(TController *Mech, vector3 *Loc)
 }
 
 bool TMemCell::Compare(char *szTestText, double fTestValue1, double fTestValue2, int CheckMask)
-{ // porównanie zawartoœci komórki pamiêci z podanymi wartoœciami
+{ // porównanie zawartoœci komórki pamiêci
+    // z podanymi wartoœciami
     if (TestFlag(CheckMask, conditional_memstring))
     { // porównaæ teksty
         char *pos = StrPos(szTestText, "*"); // zwraca wskaŸnik na pozycjê albo NULL
@@ -170,7 +172,8 @@ bool TMemCell::Render()
 }
 
 bool TMemCell::IsVelocity()
-{ // sprawdzenie, czy event odczytu tej komórki ma byæ do skanowania, czy do kolejkowania
+{ // sprawdzenie, czy event odczytu tej komórki ma
+    // byæ do skanowania, czy do kolejkowania
     if (eCommand == cm_SetVelocity)
         return true;
     if (eCommand == cm_ShuntVelocity)

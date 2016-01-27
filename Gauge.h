@@ -21,7 +21,8 @@ typedef enum
     gt_Unknown, // na razie nie znany
     gt_Rotate, // obrót
     gt_Move, // przesuniêcie równoleg³e
-    gt_Wiper, // obrót trzech kolejnych submodeli o ten sam k¹t (np. wycieraczka, drzwi
+    gt_Wiper, // obrót trzech kolejnych submodeli o ten sam k¹t (np. wycieraczka,
+    // drzwi
     // harmonijkowe)
     gt_Digital // licznik cyfrowy, np. kilometrów
 } TGaugeType;
@@ -66,7 +67,8 @@ class TGauge // zmienne "gg"
     void AssignDouble(double *dValue);
     void AssignInt(int *iValue);
     void UpdateValue();
-    TSubModel *SubModel; // McZapkie-310302: zeby mozna bylo sprawdzac czy zainicjowany poprawnie
+    TSubModel *SubModel; // McZapkie-310302: zeby mozna bylo sprawdzac czy
+    // zainicjowany poprawnie
 };
 
 //---------------------------------------------------------------------------

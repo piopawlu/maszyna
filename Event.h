@@ -85,7 +85,8 @@ class TEvent // zmienne: ev*
 
   public:
     AnsiString asName;
-    bool bEnabled; // false gdy ma nie byæ dodawany do kolejki (skanowanie sygna³ów)
+    bool bEnabled; // false gdy ma nie byæ dodawany do kolejki (skanowanie
+    // sygna³ów)
     int iQueued; // ile razy dodany do kolejki
     // bool bIsHistory;
     TEvent *evNext; // nastêpny w kolejce

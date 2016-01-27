@@ -11,7 +11,8 @@ http://mozilla.org/MPL/2.0/.
 #define NamesH
 //---------------------------------------------------------------------------
 class ItemRecord
-{ // rekord opisuj¹cy obiekt; raz utworzony nie przemieszcza siê
+{ // rekord opisuj¹cy obiekt; raz utworzony nie przemieszcza
+    // siê
     // rozmiar rekordu mo¿na zmieniæ w razie potrzeby
   public:
     char *cName; // wskaŸnik do nazwy umieszczonej w buforze

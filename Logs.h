@@ -18,5 +18,7 @@ void WriteLog(const char *str);
 void Error(const AnsiString &asMessage, bool box = true);
 void ErrorLog(const AnsiString &asMessage);
 void WriteLog(const AnsiString &str);
+void CommLog(const char *str);
+void CommLog(const AnsiString &str);
 //---------------------------------------------------------------------------
 #endif

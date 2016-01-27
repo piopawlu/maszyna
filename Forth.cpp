@@ -32,13 +32,15 @@ sk³adni, poprzez np. po³¹czenie w jednym wpisie ró¿nych typów eventów wraz z
 dodaniem warunków dostêpnych tylko dla Multiple. Równie¿ mo¿na bêdzie u¿ywaæ
 wyra¿eñ jêzyka Forth, czyli dokonywaæ obliczeñ.
  2. Jako docelowa postaæ schematów obwodów Ladder Diagram. Mo¿na zrobiæ tak, by
-program Ÿród³owy w Forth (przy pewnych ograniczeniach) by³ wyœwietlany graficznie
+program Ÿród³owy w Forth (przy pewnych ograniczeniach) by³ wyœwietlany
+graficznie
 jako Ladder Diagram. Jednoczeœnie graficzne modyfikacje schematu mo¿na by
 prze³o¿yæ na postaæ tekstow¹ Forth i skompilowaæ na kod niskiego poziomu.
  3. Jako algorytm funkcjonowania AI, mo¿liwy do zaprogramowania na zewn¹tzr EXE.
 Ka¿dy u¿ytkownik bêdzie móg³ swój w³asny styl jazdy.
  4. Jako algorytm sterowania ruchem (zale¿noœci na stacji).
- 5. Jako AI stacji, zarz¹dzaj¹ce ruchem na stacji zale¿nie w czasie rzeczywistym.
+ 5. Jako AI stacji, zarz¹dzaj¹ce ruchem na stacji zale¿nie w czasie
+rzeczywistym.
 
 Wzglêdem pierwotnego jêzyka Forth, u¿yty tutaj bêdzie mia³ pewne odstêpstwa:
  1. Operacje na liczbach czterobajtowych float. Nale¿y we w³asnym zakresie dbaæ

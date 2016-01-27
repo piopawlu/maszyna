@@ -138,7 +138,8 @@ void TCamera::Update()
         Pos = Pos + Vec * Timer::GetDeltaRenderTime(); // czas bez pauzy
         Velocity = Velocity / 2; // p³ynne hamowanie ruchu
         //    double tmp= 10*DeltaTime;
-        //        Velocity+= -Velocity*10 * Timer::GetDeltaTime();//( tmp<1 ? tmp : 1 );
+        //        Velocity+= -Velocity*10 * Timer::GetDeltaTime();//( tmp<1 ? tmp :
+        //        1 );
         //        Type= tp_Free;
     }
 }
@@ -186,13 +187,16 @@ bool TCamera::SetMatrix()
 }
 
 void TCamera::SetCabMatrix(vector3 &p)
-{ // ustawienie widoku z kamery bez przesuniêcia robionego przez OpenGL - nie powinno tak trz¹œæ
+{ // ustawienie widoku z kamery bez
+    // przesuniêcia robionego przez OpenGL
+    // - nie powinno tak trz¹œæ
     glRotated(-Roll * 180.0f / M_PI, 0, 0, 1);
     glRotated(-Pitch * 180.0f / M_PI, 1, 0, 0);
     glRotated(-Yaw * 180.0f / M_PI, 0, 1, 0); // w zewnêtrznym widoku: kierunek patrzenia
     if (Type == tp_Follow)
         gluLookAt(Pos.x - p.x, Pos.y - p.y, Pos.z - p.z, LookAt.x - p.x, LookAt.y - p.y,
-                  LookAt.z - p.z, vUp.x, vUp.y, vUp.z); // Ra: pOffset is zero
+                  LookAt.z - p.z, vUp.x, vUp.y,
+                  vUp.z); // Ra: pOffset is zero
 }
 
 void TCamera::RaLook()

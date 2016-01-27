@@ -215,7 +215,8 @@ void TTraction::Optimize()
 
         f = step;
 
-        // Przewody pionowe (wieszaki) 'Marcin, poprawki na 2 przewody jezdne 'Winger
+        // Przewody pionowe (wieszaki) 'Marcin, poprawki na 2 przewody jezdne
+        // 'Winger
         if (Wires != 1)
         {
             glBegin(GL_LINES);
@@ -268,7 +269,8 @@ void TTraction::RenderDL(float mgn) // McZapkie: mgn to odleglosc od obserwatora
     // McZapkie: ustalanie przezroczystosci i koloru linii:
     if (Wires != 0 && !TestFlag(DamageFlag, 128)) // rysuj jesli sa druty i nie zerwana
     {
-        // glDisable(GL_LIGHTING); //aby nie u¿ywa³o wektorów normalnych do kolorowania
+        // glDisable(GL_LIGHTING); //aby nie u¿ywa³o wektorów normalnych do
+        // kolorowania
         glColor4f(0, 0, 0, 1); // jak nieznany kolor to czarne nieprzezroczyste
         if (!Global::bSmoothTraction)
             glDisable(GL_LINE_SMOOTH); // na liniach kiepsko wygl¹da - robi gradient
@@ -281,8 +283,10 @@ void TTraction::RenderDL(float mgn) // McZapkie: mgn to odleglosc od obserwatora
         // McZapkie-261102: kolor zalezy od materialu i zasniedzenia
         float r, g, b;
         switch (Material)
-        { // Ra: kolory podzieli³em przez 2, bo po zmianie ambient za jasne by³y
-        // trzeba uwzglêdniæ kierunek œwiecenia S³oñca - tylko ze S³oñcem widaæ kolor
+        { // Ra: kolory podzieli³em przez 2, bo po zmianie ambient
+        // za jasne by³y
+        // trzeba uwzglêdniæ kierunek œwiecenia S³oñca - tylko ze S³oñcem widaæ
+        // kolor
         case 1:
             if (TestFlag(DamageFlag, 1))
             {
@@ -356,7 +360,8 @@ void TTraction::RenderDL(float mgn) // McZapkie: mgn to odleglosc od obserwatora
 }
 
 int TTraction::RaArrayPrepare()
-{ // przygotowanie tablic do skopiowania do VBO (zliczanie wierzcho³ków)
+{ // przygotowanie tablic do skopiowania do VBO
+    // (zliczanie wierzcho³ków)
     // if (bVisible) //o ile w ogóle widaæ
     switch (Wires)
     {
@@ -492,8 +497,10 @@ void TTraction::RenderVBO(float mgn, int iPtr)
         // McZapkie-261102: kolor zalezy od materialu i zasniedzenia
         float r, g, b;
         switch (Material)
-        { // Ra: kolory podzieli³em przez 2, bo po zmianie ambient za jasne by³y
-        // trzeba uwzglêdniæ kierunek œwiecenia S³oñca - tylko ze S³oñcem widaæ kolor
+        { // Ra: kolory podzieli³em przez 2, bo po zmianie ambient
+        // za jasne by³y
+        // trzeba uwzglêdniæ kierunek œwiecenia S³oñca - tylko ze S³oñcem widaæ
+        // kolor
         case 1:
             if (TestFlag(DamageFlag, 1))
             {
@@ -615,7 +622,8 @@ void TTraction::Init()
 };
 
 void TTraction::ResistanceCalc(int d, double r, TTractionPowerSource *ps)
-{ //(this) jest przês³em zasilanym, o rezystancji (r), policzyæ rezystancjê zastêpcz¹ s¹siednich
+{ //(this) jest przês³em zasilanym, o rezystancji
+    //(r), policzyæ rezystancjê zastêpcz¹ s¹siednich
     if (d >= 0)
     { // pod¹¿anie we wskazanym kierunku
         TTraction *t = hvNext[d], *p;
@@ -646,7 +654,8 @@ void TTraction::ResistanceCalc(int d, double r, TTractionPowerSource *ps)
         }
     }
     else
-    { // pod¹¿anie w obu kierunkach, mo¿na by rekurencj¹, ale szkoda zasobów
+    { // pod¹¿anie w obu kierunkach, mo¿na by rekurencj¹, ale szkoda
+        // zasobów
         r = 0.5 * fResistivity *
             Length3(vParametric); // powiedzmy, ¿e w zasilanym przêœle jest po³owa
         if (fResistance[0] == 0.0)
@@ -661,7 +670,8 @@ void TTraction::PowerSet(TTractionPowerSource *ps)
     if (ps->bSection)
         psSection = ps; // ustalenie sekcji zasilania
     else
-    { // ustalenie punktu zasilania (nie ma jeszcze po³¹czeñ miêdzy przês³ami)
+    { // ustalenie punktu zasilania (nie ma jeszcze po³¹czeñ miêdzy
+        // przês³ami)
         psPowered = ps; // ustawienie bezpoœredniego zasilania dla przês³a
         psPower[0] = psPower[1] = ps; // a to chyba nie jest dobry pomys³, bo nawet zasilane przês³o
         // powinno mieæ wskazania na inne
@@ -670,37 +680,48 @@ void TTraction::PowerSet(TTractionPowerSource *ps)
 };
 
 double TTraction::VoltageGet(double u, double i)
-{ // pobranie napiêcia na przêœle po pod³¹czeniu do niego rezystancji (res) - na razie jest to pr¹d
+{ // pobranie napiêcia na przêœle po
+    // pod³¹czeniu do niego rezystancji
+    // (res) - na razie jest to pr¹d
     if (!psSection)
         if (!psPowered)
-            return NominalVoltage; // jak nie ma zasilacza, to napiêcie podane w przêœle
-    // na pocz¹tek mo¿na za³o¿yæ, ¿e wszystkie podstacje maj¹ to samo napiêcie i nie p³ynie pr¹d
+            return NominalVoltage; // jak nie ma zasilacza, to napiêcie podane w
+    // przêœle
+    // na pocz¹tek mo¿na za³o¿yæ, ¿e wszystkie podstacje maj¹ to samo napiêcie i
+    // nie p³ynie pr¹d
     // pomiêdzy nimi
     // dla danego przês³a mamy 3 Ÿród³a zasilania
     // 1. zasilacz psPower[0] z rezystancj¹ fResistance[0] oraz jego wewnêtrzn¹
     // 2. zasilacz psPower[1] z rezystancj¹ fResistance[1] oraz jego wewnêtrzn¹
-    // 3. zasilacz psPowered z jego wewnêtrzn¹ rezystancj¹ dla przêse³ zasilanych bezpoœrednio
-    double res = (i != 0.0) ? fabs(u / i) : 10000.0;
+    // 3. zasilacz psPowered z jego wewnêtrzn¹ rezystancj¹ dla przêse³ zasilanych
+    // bezpoœrednio
+    double res = (i != 0.0) ? (u / i) : 10000.0;
     if (psPowered)
-        return psPowered->CurrentGet(res) *
-               res; // yB: dla zasilanego nie baw siê w gwiazdy, tylko bierz bezpoœrednio
+        return psPowered->CurrentGet(res) * res; // yB: dla zasilanego nie baw siê w
+    // gwiazdy, tylko bierz
+    // bezpoœrednio
     double r0t, r1t, r0g, r1g;
     double u0, u1, i0, i1;
     r0t = fResistance[0]; //œredni pomys³, ale lepsze ni¿ nic
     r1t = fResistance[1]; // bo nie uwzglêdnia spadków z innych pojazdów
     if (psPower[0] && psPower[1])
-    { // gdy przês³o jest zasilane z obu stron - mamy trójk¹t: res, r0t, r1t
-        // yB: Gdy wywali podstacja, to zaczyna siê robiæ nieciekawie - napiêcie w sekcji na jednym
+    { // gdy przês³o jest zasilane z obu stron -
+        // mamy trójk¹t: res, r0t, r1t
+        // yB: Gdy wywali podstacja, to zaczyna siê robiæ nieciekawie - napiêcie w
+        // sekcji na jednym
         // koñcu jest równe zasilaniu,
-        // yB: a na drugim koñcu jest równe 0. Kolejna sprawa to rozró¿nienie uszynienia sieci na
+        // yB: a na drugim koñcu jest równe 0. Kolejna sprawa to rozró¿nienie
+        // uszynienia sieci na
         // podstacji/od³¹czniku (czyli
-        // yB: potencja³ masy na sieci) od braku zasilania (czyli od³¹czenie Ÿród³a od sieci i brak
+        // yB: potencja³ masy na sieci) od braku zasilania (czyli od³¹czenie Ÿród³a
+        // od sieci i brak
         // jego wp³ywu na napiêcie).
         if ((r0t > 0.0) && (r1t > 0.0))
         { // rezystancje w mianowniku nie mog¹ byæ zerowe
             r0g = res + r0t + (res * r0t) / r1t; // przeliczenie z trójk¹ta na gwiazdê
             r1g = res + r1t + (res * r1t) / r0t;
-            // pobierane s¹ pr¹dy dla ka¿dej rezystancji, a suma jest mno¿ona przez rezystancjê
+            // pobierane s¹ pr¹dy dla ka¿dej rezystancji, a suma jest mno¿ona przez
+            // rezystancjê
             // pojazdu w celu uzyskania napiêcia
             i0 = psPower[0]->CurrentGet(r0g); // oddzielnie dla sprawdzenia
             i1 = psPower[1]->CurrentGet(r1g);

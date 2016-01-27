@@ -20,15 +20,19 @@ Modu³ zarz¹dzaj¹cy plikami oraz wyszukiwaniem obiektów wg nazw.
 1. Ma przydzielony z góry (EU07.INI) obszar pamiêci (rzêdu 16MB).
 2. W przypadku przepe³nienia dostêpnej pamiêci wyst¹pi b³¹d wczytywania.
 3. Obszar ten bêdzie zu¿ywany na rekordy obiektów oraz ci¹gi tekstowe z nazwami.
-4. Rekordy bêd¹ sortowane w ramach typu (tekstury, dŸwiêki, modele, node, eventy).
-5. Pierwszy etap wyszukiwania to 5 bitów z pierwszego bajtu i 3 z drugiego (256).
+4. Rekordy bêd¹ sortowane w ramach typu (tekstury, dŸwiêki, modele, node,
+eventy).
+5. Pierwszy etap wyszukiwania to 5 bitów z pierwszego bajtu i 3 z drugiego
+(256).
 6. Dla plików istnieje mo¿liwoœæ wczytania ich w innym terminie.
 7. Mo¿liwoœæ wczytania plików w oddzielnym watku (np. tekstur).
 
 Obs³ugiwane pliki:
-1. Tekstury, mo¿na wczytywaæ póŸniej, rekord przechowuje numer podany przez kartê graficzn¹.
+1. Tekstury, mo¿na wczytywaæ póŸniej, rekord przechowuje numer podany przez
+kartê graficzn¹.
 2. DŸwiêki, mo¿na wczytaæ póŸniej.
-3. Modele, mo¿na wczytaæ póŸniej o ile nie maj¹ animacji eventami i nie dotycz¹ pojazdów.
+3. Modele, mo¿na wczytaæ póŸniej o ile nie maj¹ animacji eventami i nie dotycz¹
+pojazdów.
 
 Obiekty sortowane wg nazw, mo¿na dodawaæ i usuwaæ komórki scenerii:
 4. Tory, drogi, rzeki - wyszukiwanie w celu sprawdzenia zajetoœci.
@@ -40,12 +44,14 @@ Obiekty sortowane wg nazw, mo¿na dodawaæ i usuwaæ komórki scenerii:
 
 void ItemRecord::TreeAdd(ItemRecord *r, int c)
 { // dodanie rekordu do drzewa - ustalenie w której ga³êzi
-    // zapisaæ w (iFlags) ile znaków jest zgodnych z nadrzêdnym, ¿eby nie sprawdzaæ wszystkich od
+    // zapisaæ w (iFlags) ile znaków jest zgodnych z nadrzêdnym, ¿eby nie
+    // sprawdzaæ wszystkich od
     // zera
     if ((cName[c] && r->cName[c]) ? cName[c] == r->cName[c] : false)
         TreeAdd(r, c + 1); // ustawiæ wg kolejnego znaku, chyba ¿e zero
     else if ((unsigned char)(cName[c]) < (unsigned char)(r->cName[c]))
-    { // zero jest najmniejsze - doczepiamy jako (rNext)
+    { // zero jest najmniejsze - doczepiamy
+        // jako (rNext)
         if (!rNext)
             rNext = r;
         else
@@ -61,7 +67,8 @@ void ItemRecord::TreeAdd(ItemRecord *r, int c)
 };
 
 void ItemRecord::ListGet(ItemRecord *r, int *&n)
-{ // rekurencyjne wype³nianie posortowanej listy na podstawie drzewa
+{ // rekurencyjne wype³nianie posortowanej
+    // listy na podstawie drzewa
     if (rPrev)
         rPrev->ListGet(r, n); // dodanie wszystkich wczeœniejszych
     *n++ = this - r; // dodanie swojego indeksu do tabeli

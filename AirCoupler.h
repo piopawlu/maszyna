@@ -44,7 +44,8 @@ class TAirCoupler
         bxOn = true;
         Update();
     };
-    //  inline bool Active() { if ((pModelOn)||(pModelOff)) return true; return false;};
+    //  inline bool Active() { if ((pModelOn)||(pModelOff)) return true; return
+    //  false;};
     int GetStatus();
     void Init(AnsiString asName, TModel3d *pModel);
     void Load(TQueryParserComp *Parser, TModel3d *pModel);

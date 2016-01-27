@@ -29,7 +29,8 @@ typedef enum
 } TLightState;
 
 class TAnimVocaloidFrame
-{ // ramka animacji typu Vocaloid Motion Data z programu MikuMikuDance
+{ // ramka animacji typu Vocaloid Motion Data z
+    // programu MikuMikuDance
   public:
     char cBone[15]; // nazwa koœci, mo¿e byæ po japoñsku
     int iFrame; // numer ramki
@@ -41,7 +42,8 @@ class TAnimVocaloidFrame
 class TEvent;
 
 class TAnimContainer
-{ // opakowanie submodelu, okreœlaj¹ce animacjê egzemplarza - obs³ugiwane jako lista
+{ // opakowanie submodelu, okreœlaj¹ce animacjê egzemplarza
+    // - obs³ugiwane jako lista
     friend class TAnimModel;
 
   private:
@@ -60,9 +62,11 @@ class TAnimContainer
     float4x4 *mAnim; // macierz do animacji kwaternionowych
     // dla kinematyki odwróconej u¿ywane s¹ kwaterniony
     float fLength; // d³ugoœæ koœci dla IK
-    int iAnim; // animacja: +1-obrót Eulera, +2-przesuw, +4-obrót kwaternionem, +8-IK
+    int iAnim; // animacja: +1-obrót Eulera, +2-przesuw, +4-obrót kwaternionem,
+    // +8-IK
     //+0x80000000: animacja z eventem, wykonywana poza wyœwietlaniem
-    //+0x100: pierwszy stopieñ IK - obróciæ w stronê pierwszego potomnego (dziecka)
+    //+0x100: pierwszy stopieñ IK - obróciæ w stronê pierwszego potomnego
+    //(dziecka)
     //+0x200: drugi stopieñ IK - dostosowaæ do pozycji potomnego potomnego (wnuka)
     union
     { // mog¹ byæ animacje klatkowe ró¿nego typu, wskaŸniki u¿ywa AnimModel
@@ -71,14 +75,16 @@ class TAnimContainer
     TEvent *evDone; // ewent wykonywany po zakoñczeniu animacji, np. zapór, obrotnicy
   public:
     TAnimContainer *pNext;
-    TAnimContainer *acAnimNext; // lista animacji z eventem, które musz¹ byæ przeliczane równie¿ bez
+    TAnimContainer *acAnimNext; // lista animacji z eventem, które musz¹ byæ
+    // przeliczane równie¿ bez
     // wyœwietlania
     TAnimContainer();
     ~TAnimContainer();
     bool Init(TSubModel *pNewSubModel);
     // std::string inline GetName() { return
     // std::string(pSubModel?pSubModel->asName.c_str():""); };
-    // std::string inline GetName() { return std::string(pSubModel?pSubModel->pName:"");
+    // std::string inline GetName() { return
+    // std::string(pSubModel?pSubModel->pName:"");
     // };
     char *__fastcall NameGet()
     {
@@ -142,7 +148,8 @@ class TAnimModel
     TAnimAdvanced *pAdvanced;
     void Advanced();
     TLightState lsLights[iMaxNumLights];
-    float fDark; // poziom zapalanie œwiat³a (powinno byæ chyba powi¹zane z danym œwiat³em?)
+    float fDark; // poziom zapalanie œwiat³a (powinno byæ chyba powi¹zane z danym
+    // œwiat³em?)
     float fOnTime, fOffTime; // by³y sta³ymi, teraz mog¹ byæ zmienne dla ka¿dego egzemplarza
   private:
     void RaAnimate(); // przeliczenie animacji egzemplarza

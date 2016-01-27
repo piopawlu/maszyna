@@ -26,7 +26,8 @@ namespace Math3D
 // definition of the scalar type
 typedef double scalar_t;
 // inline pass-throughs to various basic math functions
-// written in this style to allow for easy substitution with more efficient versions
+// written in this style to allow for easy substitution with more efficient
+// versions
 inline scalar_t SINE_FUNCTION(scalar_t x)
 {
     return sin(x);
@@ -93,7 +94,8 @@ class vector3
     //	const scalar_t& operator[] (int i) const { return e[i]; }
     //	scalar_t& operator() (int i) { return e[i]; }
 
-    // Provides access to the underlying array; useful for passing this class off to C APIs
+    // Provides access to the underlying array; useful for passing this class off
+    // to C APIs
     const scalar_t *readArray(void)
     {
         return &x;
@@ -134,8 +136,10 @@ class matrix4x4
     }
 
     // When defining matrices in C arrays, it is easiest to define them with
-    // the column increasing fastest.  However, some APIs (OpenGL in particular) do this
-    // backwards, hence the "constructor" from C matrices, or from OpenGL matrices.
+    // the column increasing fastest.  However, some APIs (OpenGL in particular)
+    // do this
+    // backwards, hence the "constructor" from C matrices, or from OpenGL
+    // matrices.
     // Note that matrices are stored internally in OpenGL format.
     void C_Matrix(scalar_t *initArray)
     {

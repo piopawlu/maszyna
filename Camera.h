@@ -45,7 +45,8 @@ class TCamera
     void OnCursorMove(double x, double y);
     void Update();
     vector3 GetDirection();
-    // vector3 inline GetCrossPos() { return Pos+GetDirection()*CrossDist+CrossPos; };
+    // vector3 inline GetCrossPos() { return
+    // Pos+GetDirection()*CrossDist+CrossPos; };
 
     bool SetMatrix();
     void SetCabMatrix(vector3 &p);

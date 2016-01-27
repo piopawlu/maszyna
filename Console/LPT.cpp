@@ -33,8 +33,8 @@ bool TLPT::Connect(int port)
     }
     else
         return false; // MessageBox(NULL,"ERROR","B³¹d przy ³adowaniu pliku",MB_OK);
-    address =
-        port; //&0xFFFFFC; //ostatnie 2 bity maj¹ byæ zerowe -> a niech sobie OUT-uj¹, gdzie chc¹
+    address = port; //&0xFFFFFC; //ostatnie 2 bity maj¹ byæ zerowe -> a niech
+    // sobie OUT-uj¹, gdzie chc¹
     switch (address) // nie dotyczy 0x3BC
     {
     case 0x0378:

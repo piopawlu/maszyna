@@ -23,10 +23,11 @@ class TMemCell
     double fValue2;
     TCommandType eCommand;
     bool bCommand; // czy zawiera komendê dla zatrzymanego AI
-    TEvent *OnSent; // event dodawany do kolejki po wys³aniu komendy zatrzymuj¹cej sk³ad
+    TEvent *OnSent; // event dodawany do kolejki po wys³aniu komendy zatrzymuj¹cej
+    // sk³ad
   public:
-    AnsiString
-        asTrackName; // McZapkie-100302 - zeby nazwe toru na ktory jest Putcommand wysylane pamietac
+    AnsiString asTrackName; // McZapkie-100302 - zeby nazwe toru na ktory jest
+    // Putcommand wysylane pamietac
     TMemCell(vector3 *p);
     ~TMemCell();
     void Init();

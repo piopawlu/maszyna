@@ -24,7 +24,8 @@ TAirCoupler::~TAirCoupler()
 }
 
 int TAirCoupler::GetStatus()
-{ // zwraca 1, jeœli istnieje model prosty, 2 gdy skoœny
+{ // zwraca 1, jeœli istnieje model prosty, 2 gdy
+    // skoœny
     int x = 0;
     if (pModelOn)
         x = 1;

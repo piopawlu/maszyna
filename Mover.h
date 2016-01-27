@@ -11,12 +11,16 @@ http://mozilla.org/MPL/2.0/.
 #define MoverH
 //---------------------------------------------------------------------------
 #include "Mover.hpp"
-// Ra: Niestety "_mover.hpp" siê nieprawid³owo generuje - przek³ada sobie TCoupling na sam koniec.
-// Przy wszelkich poprawkach w "_mover.pas" trzeba skopiowaæ rêcznie "_mover.hpp" do "mover.hpp" i
+// Ra: Niestety "_mover.hpp" siê nieprawid³owo generuje - przek³ada sobie
+// TCoupling na sam koniec.
+// Przy wszelkich poprawkach w "_mover.pas" trzeba skopiowaæ rêcznie
+// "_mover.hpp" do "mover.hpp" i
 // poprawiæ b³êdy! Tak a¿ do wydzielnia TCoupling z Pascala do C++...
-// Docelowo obs³ugê sprzêgów (³¹czenie, roz³¹czanie, obliczanie odleg³oœci, przesy³ komend)
+// Docelowo obs³ugê sprzêgów (³¹czenie, roz³¹czanie, obliczanie odleg³oœci,
+// przesy³ komend)
 // trzeba przenieœæ na poziom DynObj.cpp.
-// Obs³ugê silniników te¿ trzeba wydzieliæ do osobnego modu³u, bo ka¿dy osobno mo¿e mieæ poœlizg.
+// Obs³ugê silniników te¿ trzeba wydzieliæ do osobnego modu³u, bo ka¿dy osobno
+// mo¿e mieæ poœlizg.
 #include "dumb3d.h"
 using namespace Math3D;
 
@@ -28,17 +32,21 @@ enum TProblem // lista problemów taboru, które uniemo¿liwiaj¹ jazdê
 };
 
 class TMoverParameters : public T_MoverParameters
-{ // Ra: wrapper na kod pascalowy, przejmuj¹cy jego funkcje
+{ // Ra: wrapper na kod pascalowy, przejmuj¹cy
+    // jego funkcje
   public:
     vector3 vCoulpler[2]; // powtórzenie wspó³rzêdnych sprzêgów z DynObj :/
     vector3 DimHalf; // po³owy rozmiarów do obliczeñ geometrycznych
     // int WarningSignal; //0: nie trabi, 1,2: trabi syren¹ o podanym numerze
     unsigned char WarningSignal; // tymczasowo 8bit, ze wzglêdu na funkcje w MTools
     double fBrakeCtrlPos; // p³ynna nastawa hamulca zespolonego
-    bool bPantKurek3; // kurek trójdrogowy (pantografu): true=po³¹czenie z ZG, false=po³¹czenie z
+    bool bPantKurek3; // kurek trójdrogowy (pantografu): true=po³¹czenie z ZG,
+    // false=po³¹czenie z
     // ma³¹ sprê¿ark¹
-    int iProblem; // flagi problemów z taborem, aby AI nie musia³o porównywaæ; 0=mo¿e jechaæ
-    int iLights[2]; // bity zapalonych œwiate³ tutaj, ¿eby da³o siê liczyæ pobór pr¹du
+    int iProblem; // flagi problemów z taborem, aby AI nie musia³o porównywaæ;
+    // 0=mo¿e jechaæ
+    int iLights[2]; // bity zapalonych œwiate³ tutaj, ¿eby da³o siê liczyæ pobór
+    // pr¹du
   private:
     double CouplerDist(Byte Coupler);
 
@@ -132,7 +140,8 @@ class TMoverParameters : public T_MoverParameters
     // double GetExternalCommand(AnsiString &Command);
     // bool RunCommand(AnsiString command, double CValue1, double CValue2);
     // bool RunInternalCommand(void);
-    // void PutCommand(AnsiString NewCommand, double NewValue1, double NewValue2, const
+    // void PutCommand(AnsiString NewCommand, double NewValue1, double NewValue2,
+    // const
     // TLocation
     //	&NewLocation);
     // bool DirectionBackward(void);
@@ -164,12 +173,14 @@ class TMoverParameters : public T_MoverParameters
     // void ComputeTotalForce(double dt, double dt1, bool FullVer);
     // double ComputeMovement(double dt, double dt1, const TTrackShape &Shape,
     // TTrackParam &Track
-    //	, TTractionParam &ElectricTraction, const TLocation &NewLoc, TRotation &NewRot);
+    //	, TTractionParam &ElectricTraction, const TLocation &NewLoc, TRotation
+    //&NewRot);
     // double FastComputeMovement(double dt, const TTrackShape &Shape, TTrackParam
     // &Track, const
     //	TLocation &NewLoc, TRotation &NewRot);
     // bool ChangeOffsetH(double DeltaOffset);
-    //__fastcall T_MoverParameters(double VelInitial, AnsiString TypeNameInit, AnsiString NameInit,
+    //__fastcall T_MoverParameters(double VelInitial, AnsiString TypeNameInit,
+    // AnsiString NameInit,
     // int LoadInitial
     //	, AnsiString LoadTypeInitial, int Cab);
     // bool LoadChkFile(AnsiString chkpath);

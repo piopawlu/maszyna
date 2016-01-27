@@ -46,6 +46,18 @@ struct DaneRozkaz
     };
 };
 
+struct DaneRozkaz2
+{ // struktura komunikacji z EU07.EXE
+    int iSygn; // sygnatura 'EU07'
+    int iComm; // rozkaz/status (kod ramki)
+    union
+    {
+        float fPar[496];
+        int iPar[496];
+        char cString[1984]; // upakowane stringi
+    };
+};
+
 typedef int TGroundNodeType;
 
 struct TGroundVertex
@@ -54,14 +66,17 @@ struct TGroundVertex
     vector3 Normal;
     float tu, tv;
     void HalfSet(const TGroundVertex &v1, const TGroundVertex &v2)
-    { // wyliczenie wspó³rzêdnych i mapowania punktu na œrodku odcinka v1<->v2
+    { // wyliczenie wspó³rzêdnych i
+        // mapowania punktu na œrodku odcinka
+        // v1<->v2
         Point = 0.5 * (v1.Point + v2.Point);
         Normal = 0.5 * (v1.Normal + v2.Normal);
         tu = 0.5 * (v1.tu + v2.tu);
         tv = 0.5 * (v1.tv + v2.tv);
     }
     void SetByX(const TGroundVertex &v1, const TGroundVertex &v2, double x)
-    { // wyliczenie wspó³rzêdnych i mapowania punktu na odcinku v1<->v2
+    { // wyliczenie wspó³rzêdnych i mapowania punktu na
+        // odcinku v1<->v2
         double i = (x - v1.Point.x) / (v2.Point.x - v1.Point.x); // parametr równania
         double j = 1.0 - i;
         Point = j * v1.Point + i * v2.Point;
@@ -70,7 +85,8 @@ struct TGroundVertex
         tv = j * v1.tv + i * v2.tv;
     }
     void SetByZ(const TGroundVertex &v1, const TGroundVertex &v2, double z)
-    { // wyliczenie wspó³rzêdnych i mapowania punktu na odcinku v1<->v2
+    { // wyliczenie wspó³rzêdnych i mapowania punktu na
+        // odcinku v1<->v2
         double i = (z - v1.Point.z) / (v2.Point.z - v1.Point.z); // parametr równania
         double j = 1.0 - i;
         Point = j * v1.Point + i * v2.Point;
@@ -121,14 +137,16 @@ class TGroundNode : public Resource
     };
     double fSquareRadius; // kwadrat widocznoœci do
     double fSquareMinRadius; // kwadrat widocznoœci od
-    // TGroundNode *nMeshGroup; //Ra: obiekt grupuj¹cy trójk¹ty w TSubRect dla tekstury
+    // TGroundNode *nMeshGroup; //Ra: obiekt grupuj¹cy trójk¹ty w TSubRect dla
+    // tekstury
     int iVersion; // wersja siatki (do wykonania rekompilacji)
     // union ?
     GLuint DisplayListID; // numer siatki DisplayLists
     bool PROBLEND;
     int iVboPtr; // indeks w buforze VBO
     GLuint TextureID; // g³ówna (jedna) tekstura obiektu
-    int iFlags; // tryb przezroczystoœci: 0x10-nieprz.,0x20-przezroczysty,0x30-mieszany
+    int iFlags; // tryb przezroczystoœci:
+    // 0x10-nieprz.,0x20-przezroczysty,0x30-mieszany
     int Ambient[4], Diffuse[4], Specular[4]; // oœwietlenie
     bool bVisible;
     TGroundNode *nNext; // lista wszystkich w scenerii, ostatni na pocz¹tku
@@ -174,12 +192,13 @@ class TSubRect : public Resource, public CMesh
   protected:
     TTrack *tTrackAnim; // obiekty do przeliczenia animacji
     TGroundNode *nRootMesh; // obiekty renderuj¹ce wg tekstury (wtórne, lista po nNext2)
-    TGroundNode *nMeshed; // lista obiektów dla których istniej¹ obiekty renderuj¹ce grupowo
+    TGroundNode *nMeshed; // lista obiektów dla których istniej¹ obiekty
+    // renderuj¹ce grupowo
   public:
-    TGroundNode
-        *nRootNode; // wszystkie obiekty w sektorze, z wyj¹tkiem renderuj¹cych i pojazdów (nNext2)
-    TGroundNode
-        *nRenderHidden; // lista obiektów niewidocznych, "renderowanych" równie¿ z ty³u (nNext3)
+    TGroundNode *nRootNode; // wszystkie obiekty w sektorze, z wyj¹tkiem
+    // renderuj¹cych i pojazdów (nNext2)
+    TGroundNode *nRenderHidden; // lista obiektów niewidocznych, "renderowanych"
+    // równie¿ z ty³u (nNext3)
     TGroundNode *nRenderRect; // z poziomu sektora - nieprzezroczyste (nNext3)
     TGroundNode *nRenderRectAlpha; // z poziomu sektora - przezroczyste (nNext3)
     TGroundNode *nRenderWires; // z poziomu sektora - druty i inne linie (nNext3)
@@ -193,7 +212,8 @@ class TSubRect : public Resource, public CMesh
     TSubRect();
     virtual ~TSubRect();
     virtual void Release(); // zwalnianie VBO sektora
-    void NodeAdd(TGroundNode *Node); // dodanie obiektu do sektora na etapie rozdzielania na sektory
+    void NodeAdd(TGroundNode *Node); // dodanie obiektu do sektora na etapie
+    // rozdzielania na sektory
     void RaNodeAdd(TGroundNode *Node); // dodanie obiektu do listy renderowania
     void Sort(); // optymalizacja obiektów w sektorze (sortowanie wg tekstur)
     TTrack *__fastcall FindTrack(vector3 *Point, int &iConnection, TTrack *Exclude);
@@ -238,13 +258,17 @@ class TGroundRect : public TSubRect
     virtual ~TGroundRect();
 
     TSubRect *__fastcall SafeGetRect(int iCol, int iRow)
-    { // pobranie wskaŸnika do ma³ego kwadratu, utworzenie jeœli trzeba
+    { // pobranie wskaŸnika do ma³ego
+        // kwadratu, utworzenie jeœli
+        // trzeba
         if (!pSubRects)
             Init(); // utworzenie ma³ych kwadratów
         return pSubRects + iRow * iNumSubRects + iCol; // zwrócenie w³aœciwego
     };
     TSubRect *__fastcall FastGetRect(int iCol, int iRow)
-    { // pobranie wskaŸnika do ma³ego kwadratu, bez tworzenia jeœli nie ma
+    { // pobranie wskaŸnika do ma³ego
+        // kwadratu, bez tworzenia jeœli
+        // nie ma
         return (pSubRects ? pSubRects + iRow * iNumSubRects + iCol : NULL);
     };
     void Optimize()
@@ -327,11 +351,13 @@ class TGround
     bool RenderAlphaVBO(vector3 pPosition);
     bool CheckQuery();
     //    GetRect(double x, double z) { return
-    //    &(Rects[int(x/fSubRectSize+fHalfNumRects)][int(z/fSubRectSize+fHalfNumRects)]); };
+    //    &(Rects[int(x/fSubRectSize+fHalfNumRects)][int(z/fSubRectSize+fHalfNumRects)]);
+    //    };
     /*
         int GetRowFromZ(double z) { return (z/fRectSize+fHalfNumRects); };
         int GetColFromX(double x) { return (x/fRectSize+fHalfNumRects); };
-        int GetSubRowFromZ(double z) { return (z/fSubRectSize+fHalfNumSubRects); };
+        int GetSubRowFromZ(double z) { return (z/fSubRectSize+fHalfNumSubRects);
+       };
        int GetSubColFromX(double x) { return (x/fSubRectSize+fHalfNumSubRects); };
        */
     /*
@@ -386,6 +412,9 @@ class TGround
     void WyslijWolny(const AnsiString &t);
     void WyslijNamiary(TGroundNode *t);
     void WyslijParam(int nr, int fl);
+    void WyslijUszkodzenia(const AnsiString &t, char fl);
+    void WyslijPojazdy(int nr); // -> skladanie wielu pojazdow
+    void WyslijObsadzone(); // -> skladanie wielu pojazdow
     void RadioStop(vector3 pPosition);
     TDynamicObject *__fastcall DynamicNearest(vector3 pPosition, double distance = 20.0,
                                               bool mech = false);

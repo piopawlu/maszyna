@@ -56,12 +56,17 @@ class TWorld
     GLuint light; // numer tekstury dla smugi
     TSky Clouds;
     TEvent *KeyEvents[10]; // eventy wyzwalane z klawiaury
-    TMoverParameters *mvControlled; // wskaŸnik na cz³on silnikowy, do wyœwietlania jego parametrów
-    int iCheckFPS; // kiedy znów sprawdziæ FPS, ¿eby wy³¹czaæ optymalizacji od razu do zera
+    TMoverParameters *mvControlled; // wskaŸnik na cz³on silnikowy, do
+    // wyœwietlania jego parametrów
+    int iCheckFPS; // kiedy znów sprawdziæ FPS, ¿eby wy³¹czaæ optymalizacji od
+    // razu do zera
     double fTime50Hz; // bufor czasu dla komunikacji z PoKeys
     double fTimeBuffer; // bufor czasu aktualizacji dla sta³ego kroku fizyki
     double fMaxDt; //[s] krok czasowy fizyki (0.01 dla normalnych warunków)
     int iPause; // wykrywanie zmian w zapauzowaniu
+    double VelPrev; // poprzednia prêdkoœæ
+    int tprev; // poprzedni czas
+    double Acc; // przyspieszenie styczne
   public:
     void ModifyTGA(const AnsiString &dir = "");
     void CreateE3D(const AnsiString &dir = "", bool dyn = false);

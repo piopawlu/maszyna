@@ -30,7 +30,8 @@ http://mozilla.org/MPL/2.0/.
 //---------------------------------------------------------------------------
 
 TEventLauncher::TEventLauncher()
-{ // ustawienie pocz¹tkowych wartoœci dla wszystkich zmiennych
+{ // ustawienie pocz¹tkowych wartoœci dla
+    // wszystkich zmiennych
     iKey = 0;
     DeltaTime = -1;
     UpdatedTime = 0;
@@ -89,7 +90,8 @@ bool TEventLauncher::Load(cParser *parser)
     *parser >> token;
     asEvent2Name = AnsiString(token.c_str()); // drugi event
     if ((asEvent2Name == "end") || (asEvent2Name == "condition"))
-    { // drugiego eventu mo¿e nie byæ, bo s¹ z tym problemy, ale ciii...
+    { // drugiego eventu mo¿e nie byæ, bo s¹ z
+        // tym problemy, ale ciii...
         str = asEvent2Name; // rozpoznane s³owo idzie do dalszego przetwarzania
         asEvent2Name = "none"; // a drugiego eventu nie ma
     }
@@ -180,7 +182,8 @@ bool TEventLauncher::Render()
 }
 
 bool TEventLauncher::IsGlobal()
-{ // sprawdzenie, czy jest globalnym wyzwalaczem czasu
+{ // sprawdzenie, czy jest globalnym wyzwalaczem
+    // czasu
     if (DeltaTime == 0)
         if (iHour >= 0)
             if (iMinute >= 0)

@@ -32,7 +32,8 @@ potrzeby mo¿e byæ ich wiêcej.
 Oddzielne wejœcia s¹ wprowadzone po to, by mo¿na by³o u¿ywaæ wiêcej ni¿ 32
 bity do sterowania. Podzia³ na wejœcia jest równie¿ ze wzglêdów organizacyjnych,
 np. sterowanie œwiat³ami mo¿e mieæ oddzielny numer wejœcia ni¿ prze³¹czanie
-radia, poniewa¿ nie ma potrzeby ich uzale¿niaæ (tzn. badaæ wspóln¹ maskê bitow¹).
+radia, poniewa¿ nie ma potrzeby ich uzale¿niaæ (tzn. badaæ wspóln¹ maskê
+bitow¹).
 
 Do ka¿dego wejœcia podpiêty jest skrypt binarny, charakterystyczny dla danej
 konstrukcji pojazdu. Sprawdza on zale¿noœci (w tym uszkodzenia) za pomoc¹
@@ -42,8 +43,10 @@ korzystania z masek innych wejœæ. Skrypt mo¿e te¿ wysy³aæ maski na inne wejœcia,
 ale nale¿y unikaæ rekurencji.
 
 Definiowanie wejœæ oraz przeznaczenia ich masek jest w gestii konstruktora
-skryptu. Ka¿dy pojazd mo¿e mieæ inny schemat wejœæ i masek, ale w miarê mo¿liwoœci
-nale¿y d¹¿yæ do unifikacji. Skrypty mog¹ równie¿ u¿ywaæ dodatkowych masek bitowych.
+skryptu. Ka¿dy pojazd mo¿e mieæ inny schemat wejœæ i masek, ale w miarê
+mo¿liwoœci
+nale¿y d¹¿yæ do unifikacji. Skrypty mog¹ równie¿ u¿ywaæ dodatkowych masek
+bitowych.
 Maski bitowe odpowiadaj¹ stanom prze³¹czników, czujników, styczników itd.
 
 Dzia³anie jest nastêpuj¹ce:
@@ -56,10 +59,12 @@ Dzia³anie jest nastêpuj¹ce:
 /*******************************/
 
 /* //kod do przetrawienia:
-//aby siê nie w³¹czacz wygaszacz ekranu, co jakiœ czas naciska siê wirtualnie ScrollLock
+//aby siê nie w³¹czacz wygaszacz ekranu, co jakiœ czas naciska siê wirtualnie
+ScrollLock
 
 [DllImport("user32.dll")]
-static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr
+dwExtraInfo);
 
 private static void PressScrollLock()
 {//przyciska i zwalnia ScrollLock
@@ -70,7 +75,8 @@ private static void PressScrollLock()
 };
 
 [DllImport("user32.dll")]
-private static extern bool SystemParametersInfo(int uAction,int uParam,int &lpvParam,int flags);
+private static extern bool SystemParametersInfo(int uAction,int uParam,int
+&lpvParam,int flags);
 
 public static Int32 GetScreenSaverTimeout()
 {
@@ -108,8 +114,10 @@ int Console::iMode = 0;
 int Console::iConfig = 0;
 TPoKeys55 *Console::PoKeys55[2] = {NULL, NULL};
 TLPT *Console::LPT = NULL;
-int Console::iSwitch[8]; // bistabilne w kabinie, za³¹czane z [Shift], wy³¹czane bez
-int Console::iButton[8]; // monostabilne w kabinie, za³¹czane podczas trzymania klawisza
+int Console::iSwitch[8]; // bistabilne w kabinie, za³¹czane z [Shift], wy³¹czane
+// bez
+int Console::iButton[8]; // monostabilne w kabinie, za³¹czane podczas trzymania
+// klawisza
 
 Console::Console()
 {
@@ -211,7 +219,9 @@ void Console::BitsClear(int mask, int entry)
 };
 
 void Console::BitsUpdate(int mask)
-{ // aktualizacja stanu interfejsu informacji zwrotnej; (mask) - zakres zmienianych bitów
+{ // aktualizacja stanu interfejsu informacji
+    // zwrotnej; (mask) - zakres zmienianych
+    // bitów
     switch (iMode)
     {
     case 1: // sterowanie œwiate³kami klawiatury: CA/SHP+opory
@@ -240,7 +250,8 @@ void Console::BitsUpdate(int mask)
         break;
     case 4: // PoKeys55 wg Marcela - wersja druga z koñca 2012
         if (PoKeys55[0])
-        { // pewnie trzeba bêdzie to dodatkowo buforowaæ i oczekiwaæ na potwierdzenie
+        { // pewnie trzeba bêdzie to dodatkowo buforowaæ i
+            // oczekiwaæ na potwierdzenie
             if (mask & 0x0001) // b0 gdy SHP
                 PoKeys55[0]->Write(0x40, 23 - 1, iBits & 0x0001 ? 1 : 0);
             if (mask & 0x0002) // b1 gdy zmieniony CA
@@ -293,7 +304,8 @@ void Console::ValueSet(int x, double y)
 };
 
 void Console::Update()
-{ // funkcja powinna byæ wywo³ywana regularnie, np. raz w ka¿dej ramce ekranowej
+{ // funkcja powinna byæ wywo³ywana regularnie, np. raz w
+    // ka¿dej ramce ekranowej
     if (iMode == 4)
         if (PoKeys55[0])
             if (PoKeys55[0]->Update((Global::iPause & 8) > 0))
@@ -349,7 +361,8 @@ void Console::OnKeyDown(int k)
     }
 };
 void Console::OnKeyUp(int k)
-{ // puszczenie klawisza w zasadzie nie ma znaczenia dla iSwitch, ale zeruje iButton
+{ // puszczenie klawisza w zasadzie nie ma
+    // znaczenia dla iSwitch, ale zeruje iButton
     if ((k & 0x20000) == 0) // monostabilne tylko bez [Ctrl]
         if (k & 0x10000) // jeœli [Shift]
             iButton[4 + (char(k) >> 5)] &= ~(1 << (k & 31)); // wy³¹cz monostabilny dodatkowy
