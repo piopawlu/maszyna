@@ -271,22 +271,16 @@ PyObject *TTrain::GetTrainState()
 
     PyDict_SetItemString(dict, "direction", PyGetInt(DynamicObject->MoverParameters->ActiveDir));
     PyDict_SetItemString(dict, "cab", PyGetInt(DynamicObject->MoverParameters->ActiveCab));
-    PyDict_SetItemString(dict, "slipping_wheels",
-                         PyGetBool(DynamicObject->MoverParameters->SlippingWheels));
-    PyDict_SetItemString(dict, "converter",
-                         PyGetBool(DynamicObject->MoverParameters->ConverterFlag));
-    PyDict_SetItemString(dict, "main_ctrl_actual_pos",
-                         PyGetInt(DynamicObject->MoverParameters->MainCtrlActualPos));
-    PyDict_SetItemString(dict, "scnd_ctrl_actual_pos",
-                         PyGetInt(DynamicObject->MoverParameters->ScndCtrlActualPos));
+    PyDict_SetItemString(dict, "slipping_wheels", PyGetBool(DynamicObject->MoverParameters->SlippingWheels));
+    PyDict_SetItemString(dict, "converter", PyGetBool(DynamicObject->MoverParameters->ConverterFlag));
+    PyDict_SetItemString(dict, "main_ctrl_actual_pos", PyGetInt(DynamicObject->MoverParameters->MainCtrlActualPos));
+    PyDict_SetItemString(dict, "scnd_ctrl_actual_pos", PyGetInt(DynamicObject->MoverParameters->ScndCtrlActualPos));
     PyDict_SetItemString(dict, "fuse", PyGetBool(DynamicObject->MoverParameters->FuseFlag));
-    PyDict_SetItemString(dict, "converter_overload",
-                         PyGetBool(DynamicObject->MoverParameters->ConvOvldFlag));
+    PyDict_SetItemString(dict, "converter_overload", PyGetBool(DynamicObject->MoverParameters->ConvOvldFlag));
     PyDict_SetItemString(dict, "voltage", PyGetFloat(DynamicObject->MoverParameters->Voltage));
     PyDict_SetItemString(dict, "velocity", PyGetFloat(DynamicObject->MoverParameters->Vel));
     PyDict_SetItemString(dict, "im", PyGetFloat(DynamicObject->MoverParameters->Im));
-    PyDict_SetItemString(dict, "compress",
-                         PyGetBool(DynamicObject->MoverParameters->CompressorFlag));
+    PyDict_SetItemString(dict, "compress", PyGetBool(DynamicObject->MoverParameters->CompressorFlag));
     PyDict_SetItemString(dict, "hours", PyGetInt(GlobalTime->hh));
     PyDict_SetItemString(dict, "minutes", PyGetInt(GlobalTime->mm));
     PyDict_SetItemString(dict, "seconds", PyGetInt(GlobalTime->mr));
@@ -373,6 +367,13 @@ PyObject *TTrain::GetTrainState()
     PyDict_SetItemString(dict, "car_no", PyGetInt(iCarNo));
     PyDict_SetItemString(dict, "power_no", PyGetInt(iPowerNo));
     PyDict_SetItemString(dict, "unit_no", PyGetInt(iUnitNo));
+	PyDict_SetItemString(dict, "universal3", PyGetBool(LampkaUniversal3_st));
+	PyDict_SetItemString(dict, "ca", PyGetBool(TestFlag(mvOccupied->SecuritySystem.Status, s_CAalarm)));
+	PyDict_SetItemString(dict, "shp", PyGetBool(TestFlag(mvOccupied->SecuritySystem.Status, s_SHPalarm)));
+	PyDict_SetItemString(dict, "manual_brake", PyGetBool(mvOccupied->ManualBrakePos > 0));
+	PyDict_SetItemString(dict, "pantpress", PyGetFloat(mvControlled->PantPress));
+	PyDict_SetItemString(dict, "trainnumber", PyGetString(DynamicObject->Mechanik->TrainName().c_str()));
+	
     return dict;
 }
 

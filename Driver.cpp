@@ -5515,7 +5515,7 @@ AnsiString TController::Relation()
 };
 
 AnsiString TController::TrainName()
-{ // zwraca relacjê poci¹gu
+{ // zwraca numer poci¹gu
     return TrainParams->TrainName;
 };
 
