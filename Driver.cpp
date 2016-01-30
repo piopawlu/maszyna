@@ -2272,7 +2272,12 @@ bool TController::IncBrake()
     switch (mvOccupied->BrakeSystem)
     {
     case Individual:
-        OK = mvOccupied->IncLocalBrakeLevel(1 + floor(0.5 + fabs(AccDesired)));
+		if (mvOccupied->LocalBrake == ManualBrake)
+			{
+			OK = mvOccupied->IncManualBrakeLevel(1 + floor(0.5 + fabs(AccDesired)));
+			}
+		else
+			OK = mvOccupied->IncLocalBrakeLevel(1 + floor(0.5 + fabs(AccDesired)));
         break;
     case Pneumatic:
         if ((mvOccupied->Couplers[0].Connected == NULL) &&
@@ -2346,7 +2351,12 @@ bool TController::DecBrake()
     switch (mvOccupied->BrakeSystem)
     {
     case Individual:
-        OK = mvOccupied->DecLocalBrakeLevel(1 + floor(0.5 + fabs(AccDesired)));
+		if (mvOccupied->LocalBrake == ManualBrake)
+			{
+			OK = mvOccupied->DecManualBrakeLevel(1 + floor(0.5 + fabs(AccDesired)));
+			}
+		else
+			OK = mvOccupied->DecLocalBrakeLevel(1 + floor(0.5 + fabs(AccDesired)));
         break;
     case Pneumatic:
         if (mvOccupied->BrakeCtrlPos > 0)
