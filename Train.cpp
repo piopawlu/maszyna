@@ -368,8 +368,8 @@ PyObject *TTrain::GetTrainState()
     PyDict_SetItemString(dict, "power_no", PyGetInt(iPowerNo));
     PyDict_SetItemString(dict, "unit_no", PyGetInt(iUnitNo));
 	PyDict_SetItemString(dict, "universal3", PyGetBool(LampkaUniversal3_st));
-	PyDict_SetItemString(dict, "ca", PyGetBool(TestFlag(mvOccupied->SecuritySystem.Status, s_CAalarm)));
-	PyDict_SetItemString(dict, "shp", PyGetBool(TestFlag(mvOccupied->SecuritySystem.Status, s_SHPalarm)));
+	PyDict_SetItemString(dict, "ca", PyGetBool(TestFlag(mvOccupied->SecuritySystem.Status, s_aware)));
+	PyDict_SetItemString(dict, "shp", PyGetBool(TestFlag(mvOccupied->SecuritySystem.Status, s_active)));
 	PyDict_SetItemString(dict, "manual_brake", PyGetBool(mvOccupied->ManualBrakePos > 0));
 	PyDict_SetItemString(dict, "pantpress", PyGetFloat(mvControlled->PantPress));
 	PyDict_SetItemString(dict, "trainnumber", PyGetString(DynamicObject->Mechanik->TrainName().c_str()));
