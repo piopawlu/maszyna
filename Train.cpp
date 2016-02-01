@@ -6098,14 +6098,14 @@ void TTrain::SetLights()
     TDynamicObject *p = DynamicObject->GetFirstDynamic(mvOccupied->ActiveCab < 0 ? 1 : 0);
     bool kier = (DynamicObject->DirectionGet() * mvOccupied->ActiveCab > 0);
     int xs = (kier ? 0 : 1);
-    if (kier ? p->NextC(4) : p->PrevC(4)) // jesli jest nastepny, to tylko przod
+    if (kier ? p->NextC(1) : p->PrevC(1)) // jesli jest nastepny, to tylko przod
     {
         p->RaLightsSet(mvOccupied->Lights[xs][mvOccupied->LightsPos - 1] * (1 - xs),
                        mvOccupied->Lights[1 - xs][mvOccupied->LightsPos - 1] * xs);
         p = (kier ? p->NextC(4) : p->PrevC(4));
         while (p)
         {
-            if (kier ? p->NextC(4) : p->PrevC(4))
+            if (kier ? p->NextC(1) : p->PrevC(1))
             {
                 p->RaLightsSet(0, 0);
             }
