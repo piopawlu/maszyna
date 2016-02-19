@@ -2649,11 +2649,8 @@ bool TTrain::Update()
         // Ra 2014-09: napiêcia i pr¹dy musz¹ byæ ustalone najpierw, bo wysy³ane s¹
         // ewentualnie na
         // PoKeys
-        if ((mvControlled->EngineType != DieselElectric) ||
-            (mvControlled->EngineType !=
-             ElectricInductionMotor)) // Ra 2014-09: czy taki rozdzia³ ma sens?
-            fHVoltage =
-                mvControlled->RunningTraction.TractionVoltage; // Winger czy to nie jest zle?
+        if ((mvControlled->EngineType != DieselElectric) && (mvControlled->EngineType != ElectricInductionMotor)) // Ra 2014-09: czy taki rozdzia³ ma sens?
+            fHVoltage = mvControlled->RunningTraction.TractionVoltage; // Winger czy to nie jest zle?
         // *mvControlled->Mains);
         else
             fHVoltage = mvControlled->Voltage;
