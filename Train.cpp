@@ -271,22 +271,16 @@ PyObject *TTrain::GetTrainState()
 
     PyDict_SetItemString(dict, "direction", PyGetInt(DynamicObject->MoverParameters->ActiveDir));
     PyDict_SetItemString(dict, "cab", PyGetInt(DynamicObject->MoverParameters->ActiveCab));
-    PyDict_SetItemString(dict, "slipping_wheels",
-                         PyGetBool(DynamicObject->MoverParameters->SlippingWheels));
-    PyDict_SetItemString(dict, "converter",
-                         PyGetBool(DynamicObject->MoverParameters->ConverterFlag));
-    PyDict_SetItemString(dict, "main_ctrl_actual_pos",
-                         PyGetInt(DynamicObject->MoverParameters->MainCtrlActualPos));
-    PyDict_SetItemString(dict, "scnd_ctrl_actual_pos",
-                         PyGetInt(DynamicObject->MoverParameters->ScndCtrlActualPos));
+    PyDict_SetItemString(dict, "slipping_wheels", PyGetBool(DynamicObject->MoverParameters->SlippingWheels));
+    PyDict_SetItemString(dict, "converter", PyGetBool(DynamicObject->MoverParameters->ConverterFlag));
+    PyDict_SetItemString(dict, "main_ctrl_actual_pos", PyGetInt(DynamicObject->MoverParameters->MainCtrlActualPos));
+    PyDict_SetItemString(dict, "scnd_ctrl_actual_pos", PyGetInt(DynamicObject->MoverParameters->ScndCtrlActualPos));
     PyDict_SetItemString(dict, "fuse", PyGetBool(DynamicObject->MoverParameters->FuseFlag));
-    PyDict_SetItemString(dict, "converter_overload",
-                         PyGetBool(DynamicObject->MoverParameters->ConvOvldFlag));
+    PyDict_SetItemString(dict, "converter_overload", PyGetBool(DynamicObject->MoverParameters->ConvOvldFlag));
     PyDict_SetItemString(dict, "voltage", PyGetFloat(DynamicObject->MoverParameters->Voltage));
     PyDict_SetItemString(dict, "velocity", PyGetFloat(DynamicObject->MoverParameters->Vel));
     PyDict_SetItemString(dict, "im", PyGetFloat(DynamicObject->MoverParameters->Im));
-    PyDict_SetItemString(dict, "compress",
-                         PyGetBool(DynamicObject->MoverParameters->CompressorFlag));
+    PyDict_SetItemString(dict, "compress", PyGetBool(DynamicObject->MoverParameters->CompressorFlag));
     PyDict_SetItemString(dict, "hours", PyGetInt(GlobalTime->hh));
     PyDict_SetItemString(dict, "minutes", PyGetInt(GlobalTime->mm));
     PyDict_SetItemString(dict, "seconds", PyGetInt(GlobalTime->mr));
@@ -373,6 +367,13 @@ PyObject *TTrain::GetTrainState()
     PyDict_SetItemString(dict, "car_no", PyGetInt(iCarNo));
     PyDict_SetItemString(dict, "power_no", PyGetInt(iPowerNo));
     PyDict_SetItemString(dict, "unit_no", PyGetInt(iUnitNo));
+	PyDict_SetItemString(dict, "universal3", PyGetBool(LampkaUniversal3_st));
+	PyDict_SetItemString(dict, "ca", PyGetBool(TestFlag(mvOccupied->SecuritySystem.Status, s_aware)));
+	PyDict_SetItemString(dict, "shp", PyGetBool(TestFlag(mvOccupied->SecuritySystem.Status, s_active)));
+	PyDict_SetItemString(dict, "manual_brake", PyGetBool(mvOccupied->ManualBrakePos > 0));
+	PyDict_SetItemString(dict, "pantpress", PyGetFloat(mvControlled->PantPress));
+	PyDict_SetItemString(dict, "trainnumber", PyGetString(DynamicObject->Mechanik->TrainName().c_str()));
+	
     return dict;
 }
 
@@ -2648,11 +2649,8 @@ bool TTrain::Update()
         // Ra 2014-09: napiêcia i pr¹dy musz¹ byæ ustalone najpierw, bo wysy³ane s¹
         // ewentualnie na
         // PoKeys
-        if ((mvControlled->EngineType != DieselElectric) ||
-            (mvControlled->EngineType !=
-             ElectricInductionMotor)) // Ra 2014-09: czy taki rozdzia³ ma sens?
-            fHVoltage =
-                mvControlled->RunningTraction.TractionVoltage; // Winger czy to nie jest zle?
+        if ((mvControlled->EngineType != DieselElectric) && (mvControlled->EngineType != ElectricInductionMotor)) // Ra 2014-09: czy taki rozdzia³ ma sens?
+            fHVoltage = mvControlled->RunningTraction.TractionVoltage; // Winger czy to nie jest zle?
         // *mvControlled->Mains);
         else
             fHVoltage = mvControlled->Voltage;
@@ -4119,13 +4117,19 @@ bool TTrain::Update()
             {
                 dsbBuzzer->GetStatus(&stat);
                 if (!(stat & DSBSTATUS_PLAYING))
+				{
                     dsbBuzzer->Play(0, 0, DSBPLAY_LOOPING);
+					Console::BitsSet(1 << 14); // ustawienie bitu 16 na PoKeys
+				}
             }
             else
             {
                 dsbBuzzer->GetStatus(&stat);
                 if (stat & DSBSTATUS_PLAYING)
-                    dsbBuzzer->Stop();
+				{
+                     dsbBuzzer->Stop();
+					Console::BitsClear(1 << 14); // ustawienie bitu 16 na PoKeys
+				}
             }
         }
         else // wylaczone
@@ -4134,7 +4138,10 @@ bool TTrain::Update()
             btLampkaSHP.TurnOff();
             dsbBuzzer->GetStatus(&stat);
             if (stat & DSBSTATUS_PLAYING)
-                dsbBuzzer->Stop();
+			{
+                 dsbBuzzer->Stop();
+				Console::BitsClear(1 << 14); // ustawienie bitu 16 na PoKeys
+			}
         }
 
         //******************************************
@@ -5442,6 +5449,8 @@ bool TTrain::InitializeCab(int NewCabNo, AnsiString asFileName)
                 // ggEngageRatio.Clear();
                 ggMainGearStatus.Clear();
                 ggIgnitionKey.Clear();
+				// Jeœli ustawiamy now¹ wartoœæ dla PoKeys wolna jest 15
+				// Numer 14 jest u¿ywany dla buczka SHP w innym miejscu
                 btLampkaPoslizg.Clear(6);
                 btLampkaStyczn.Clear(5);
                 btLampkaNadmPrzetw.Clear(
@@ -6097,14 +6106,14 @@ void TTrain::SetLights()
     TDynamicObject *p = DynamicObject->GetFirstDynamic(mvOccupied->ActiveCab < 0 ? 1 : 0);
     bool kier = (DynamicObject->DirectionGet() * mvOccupied->ActiveCab > 0);
     int xs = (kier ? 0 : 1);
-    if (kier ? p->NextC(4) : p->PrevC(4)) // jesli jest nastepny, to tylko przod
+    if (kier ? p->NextC(1) : p->PrevC(1)) // jesli jest nastepny, to tylko przod
     {
         p->RaLightsSet(mvOccupied->Lights[xs][mvOccupied->LightsPos - 1] * (1 - xs),
                        mvOccupied->Lights[1 - xs][mvOccupied->LightsPos - 1] * xs);
         p = (kier ? p->NextC(4) : p->PrevC(4));
         while (p)
         {
-            if (kier ? p->NextC(4) : p->PrevC(4))
+            if (kier ? p->NextC(1) : p->PrevC(1))
             {
                 p->RaLightsSet(0, 0);
             }

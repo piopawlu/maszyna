@@ -205,6 +205,7 @@ void Console::BitsSet(int mask, int entry)
         int old = iBits; // poprzednie stany
         iBits |= mask;
         BitsUpdate(old ^ iBits); // 1 dla bitów zmienionych
+		WriteLog("PoKeys::BitsSet: mask: " + AnsiString(mask) + " iBits: " + AnsiString(iBits));
     }
 };
 
@@ -280,6 +281,8 @@ void Console::BitsUpdate(int mask)
                 PoKeys55[0]->Write(0x40, 52 - 1, iBits & 0x1000 ? 1 : 0);
             if (mask & 0x2000) // b13 Pr¹d na silnikach do odbijania w haslerze
                 PoKeys55[0]->Write(0x40, 53 - 1, iBits & 0x2000 ? 1 : 0);
+			if (mask & 0x4000) // b14 Brzêczyk SHP lub CA
++				PoKeys55[0]->Write(0x40, 16 - 1, iBits & 0x4000 ? 1 : 0);
         }
         break;
     }
