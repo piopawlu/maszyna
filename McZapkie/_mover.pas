@@ -4346,7 +4346,7 @@ begin
         begin
 
          dtrans:=(Hamulec as TLSt).GetEDBCP;
-         if ((dtrans<0.25) and (LocHandle.GetCP<0.25) and (AnPos<0.01)) or ((ShuntModeAllow) and (LocalBrakePos=0)) then
+         if ((dtrans<0.25) and (LocHandle.GetCP<0.25) and (AnPos<0.01)) or ((dtrans<0.25) and (ShuntModeAllow) and (LocalBrakePos=0)) then
            DynamicBrakeFlag:=false
          else if (((BrakePress>0.25) and (dtrans>0.25) or (LocHandle.GetCP>0.25))) or (AnPos>0.02) then
            DynamicBrakeFlag:=true;
@@ -5251,6 +5251,7 @@ begin
  //if (DoorBlocked=true) and (Vel<5.0) then
  DoorBlockedFlag:=false;
  if (DoorBlocked=true) and (Vel>=5.0) then
+ //and (DoorSignalling=true)
   DoorBlockedFlag:=true
 end;
 
@@ -5957,6 +5958,7 @@ begin
   OK:=true;
   AutoRelayFlag:=(AutoRelayType=1);
   Sand:=SandCapacity;
+  //DoorBlocked := DoorSignalling;
   if (Pos('o',AxleArangement)>0) and (EngineType=ElectricSeriesMotor) then
    OK:=(RList[1].Bn*RList[1].Mn=NPoweredAxles); {test poprawnosci ilosci osi indywidualnie napedzanych}
   if (Pos(LoadType,LoadAccepted)=0) and (LoadType<>'') then
