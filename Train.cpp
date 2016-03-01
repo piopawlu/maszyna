@@ -999,6 +999,8 @@ void TTrain::OnKeyDown(int cKey)
                     {
                         mvOccupied->LightsPos = 1;
                     }
+					dsbSwitch->SetVolume(DSBVOLUME_MAX);
+                    dsbSwitch->Play(0, 0, 0);
                     SetLights();
                 }
             }
@@ -2209,6 +2211,8 @@ if
                     {
                         mvOccupied->LightsPos = mvOccupied->LightsPosNo;
                     }
+					dsbSwitch->SetVolume(DSBVOLUME_MAX);
+                    dsbSwitch->Play(0, 0, 0);
                     SetLights();
                 }
             }
