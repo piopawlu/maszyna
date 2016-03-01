@@ -485,6 +485,7 @@ void TTrain::OnKeyDown(int cKey)
                 if (mvOccupied->BatterySwitch(true)) // bateria potrzebna np. do zapalenia œwiate³
                 {
                     dsbSwitch->Play(0, 0, 0);
+					SetLights();
                     if (TestFlag(mvOccupied->SecuritySystem.SystemType,
                                  2)) // Ra: znowu w kabinie jest coœ, co byæ nie powinno!
                     {
@@ -5291,7 +5292,7 @@ bool TTrain::LoadMMediaFile(AnsiString asFileName)
                 str = Parser->GetNextSymbol().LowerCase();
                 dsbDoorClose = TSoundsManager::GetFromName(str.c_str(), true);
             }
-            else if (str == AnsiString("dooropen:")) // wotwarcie drzwi:
+            else if (str == AnsiString("dooropen:")) // otwarcie drzwi:
             {
                 str = Parser->GetNextSymbol().LowerCase();
                 dsbDoorOpen = TSoundsManager::GetFromName(str.c_str(), true);
