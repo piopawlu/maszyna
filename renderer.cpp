@@ -43,14 +43,17 @@ opengl_camera::visible( TDynamicObject const *Dynamic ) const {
 }
 
 bool
-opengl_renderer::Init( GLFWwindow *Window ) {
+opengl_renderer::Init(GLFWwindow *Window) {
 
-    if( false == Init_caps() ) {
+	if (false == Init_caps()) {
 
-        return false;
-    }
+		return false;
+	}
 
-    m_window = Window;
+	m_window = Window;
+
+	m_shader = gl_program({ gl_shader("fixedpipeline.vert"), gl_shader("fixedpipeline.frag") });
+	glUseProgram(m_shader);
 
     glClearDepth( 1.0f );
     glClearColor( 51.0f / 255.0f, 102.0f / 255.0f, 85.0f / 255.0f, 1.0f ); // initial background Color

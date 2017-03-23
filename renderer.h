@@ -15,6 +15,7 @@ http://mozilla.org/MPL/2.0/.
 #include "dumb3d.h"
 #include "frustum.h"
 #include "ground.h"
+#include "shader.h"
 
 struct opengl_light {
 
@@ -193,6 +194,7 @@ private:
     std::string m_debuginfo;
     GLFWwindow *m_window{ nullptr };
     texture_manager::size_type m_glaretextureid{ -1 };
+	gl_program m_shader;
 };
 
 extern opengl_renderer GfxRenderer;
