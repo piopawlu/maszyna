@@ -29,7 +29,7 @@ using namespace Mtable;
 
 double TSubModel::fSquareDist = 0;
 size_t TSubModel::iInstance; // numer renderowanego egzemplarza obiektu
-texture_manager::size_type *TSubModel::ReplacableSkinId = NULL;
+texture_manager::size_type const *TSubModel::ReplacableSkinId = NULL;
 int TSubModel::iAlpha = 0x30300030; // maska do testowania flag tekstur wymiennych
 TModel3d *TSubModel::pRoot; // Ra: tymczasowo wskaźnik na model widoczny z submodelu
 std::string *TSubModel::pasText;
@@ -44,7 +44,7 @@ std::string *TSubModel::pasText;
 
 TSubModel::TSubModel()
 {
-	ZeroMemory(this, sizeof(TSubModel)); // istotne przy zapisywaniu wersji binarnej
+	::SecureZeroMemory(this, sizeof(TSubModel)); // istotne przy zapisywaniu wersji binarnej
 	FirstInit();
 };
 
@@ -320,8 +320,10 @@ int TSubModel::Load(cParser &parser, TModel3d *Model, int Pos, bool dynamic)
         fCosFalloffAngle = cos(DegToRad(0.5 * fCosFalloffAngle));
         fCosHotspotAngle = cos(DegToRad(0.5 * fCosHotspotAngle));
         iNumVerts = 1;
-        iFlags |= 0x4010; // rysowane w cyklu nieprzezroczystych, macierz musi
-        // zostać bez zmiany
+/*
+        iFlags |= 0x4010; // rysowane w cyklu nieprzezroczystych, macierz musi zostać bez zmiany
+*/
+        iFlags |= 0x4030; // drawn both in solid (light point) and transparent (light glare) phases
     }
     else if (eType < TP_ROTATOR)
     {
@@ -967,9 +969,9 @@ void TSubModel::RaAnimation(TAnimType a)
 		if (iAnimOwner != iInstance)
 			break; // cudza animacja
 		glTranslatef(v_TransVector.x, v_TransVector.y, v_TransVector.z);
-		glRotatef(v_Angles.x, 1.0, 0.0, 0.0);
-		glRotatef(v_Angles.y, 0.0, 1.0, 0.0);
-		glRotatef(v_Angles.z, 0.0, 0.0, 1.0);
+		glRotatef(v_Angles.x, 1.0f, 0.0f, 0.0f);
+		glRotatef(v_Angles.y, 0.0f, 1.0f, 0.0f);
+		glRotatef(v_Angles.z, 0.0f, 0.0f, 1.0f);
 		break;
 	case at_SecondsJump: // sekundy z przeskokiem
 		glRotatef(floor(GlobalTime->mr) * 6.0, 0.0, 1.0, 0.0);
@@ -999,11 +1001,13 @@ void TSubModel::RaAnimation(TAnimType a)
 		break;
 	case at_Billboard: // obrót w pionie do kamery
 	{
+/*
 		matrix4x4 mat; // potrzebujemy współrzędne przesunięcia środka układu
 					   // współrzędnych submodelu
 		glGetDoublev(GL_MODELVIEW_MATRIX, mat.getArray()); // pobranie aktualnej matrycy
-		float3 gdzie = float3(mat[3][0], mat[3][1],
-			mat[3][2]); // początek układu współrzędnych submodelu względem kamery
+*/
+        matrix4x4 mat; mat.OpenGL_Matrix( OpenGLMatrices.data_array( GL_MODELVIEW ) );
+		float3 gdzie = float3(mat[3][0], mat[3][1], mat[3][2]); // początek układu współrzędnych submodelu względem kamery
 		glLoadIdentity(); // macierz jedynkowa
 		glTranslatef(gdzie.x, gdzie.y, gdzie.z); // początek układu zostaje bez
 												 // zmian
@@ -1020,9 +1024,8 @@ void TSubModel::RaAnimation(TAnimType a)
 		glRotated(-fmod(Global::fTimeAngleDeg, 360.0), 0.0, 1.0, 0.0); // obrót dobowy osi OX
 		break;
 	case at_IK11: // ostatni element animacji szkieletowej (podudzie, stopa)
-		glRotatef(v_Angles.z, 0.0, 1.0, 0.0); // obrót względem osi pionowej
-											  // (azymut)
-		glRotatef(v_Angles.x, 1.0, 0.0, 0.0); // obrót względem poziomu (deklinacja)
+		glRotatef(v_Angles.z, 0.0f, 1.0f, 0.0f); // obrót względem osi pionowej (azymut)
+		glRotatef(v_Angles.x, 1.0f, 0.0f, 0.0f); // obrót względem poziomu (deklinacja)
 		break;
 	case at_DigiClk: // animacja zegara cyfrowego
 	{ // ustawienie animacji w submodelach potomnych
@@ -1048,6 +1051,7 @@ void TSubModel::RaAnimation(TAnimType a)
 	}
 };
 
+#ifdef EU07_USE_OLD_RENDERCODE
 void TSubModel::RenderDL()
 { // główna procedura renderowania przez DL
     if( ( iVisible )
@@ -1228,6 +1232,7 @@ void TSubModel::RenderAlphaDL()
         if (iAlpha & iFlags & 0x2F000000)
             Next->RenderAlphaDL();
 }; // RenderAlpha
+#endif
 
 void TSubModel::RenderVBO()
 { // główna procedura renderowania przez VBO
@@ -1271,8 +1276,11 @@ void TSubModel::RenderVBO()
         }
         else if (eType == TP_FREESPOTLIGHT)
         { // wersja VBO
+/*
             matrix4x4 mat; // macierz opisuje układ renderowania względem kamery
             glGetDoublev(GL_MODELVIEW_MATRIX, mat.getArray());
+*/
+            matrix4x4 mat; mat.OpenGL_Matrix( OpenGLMatrices.data_array( GL_MODELVIEW ) );
             // kąt między kierunkiem światła a współrzędnymi kamery
             vector3 gdzie = mat * vector3(0, 0, 0); // pozycja punktu świecącego względem kamery
             fCosViewAngle = DotProduct(Normalize(mat * vector3(0, 0, 1) - gdzie), Normalize(gdzie));
@@ -2016,8 +2024,6 @@ void TSubModel::BinInit(TSubModel *s, float4x4 *m, float8 *v,
 		pName = "";
 	if (iTexture > 0)
 	{ // obsługa stałej tekstury
-	  // TextureID=TTexturesManager::GetTextureID(t->String(TextureID));
-	  // asTexture=AnsiString(t->String(iTexture));
 		pTexture = t->at(iTexture);
 		if (pTexture.find_last_of("/\\") == std::string::npos)
 			pTexture.insert(0, Global::asCurrentTexturePath);
@@ -2026,9 +2032,17 @@ void TSubModel::BinInit(TSubModel *s, float4x4 *m, float8 *v,
     }
 	else
 		TextureID = iTexture;
+
 	b_aAnim = b_Anim; // skopiowanie animacji do drugiego cyklu
-	iFlags &= ~0x0200; // wczytano z pliku binarnego (nie jest właścicielem
-					   // tablic)
+
+    if( (eType == TP_FREESPOTLIGHT) && (iFlags & 0x10)) {
+        // we've added light glare which needs to be rendered during transparent phase,
+        // but models converted to e3d before addition won't have the render flag set correctly for this
+        // so as a workaround we're doing it here manually
+        iFlags |= 0x20;
+    }
+	iFlags &= ~0x0200; // wczytano z pliku binarnego (nie jest właścicielem tablic)
+
 	iVboPtr = tVboPtr;
 	Vertices = v + iVboPtr;
 	// if (!iNumVerts) eType=-1; //tymczasowo zmiana typu, żeby się nie
@@ -2161,39 +2175,7 @@ void TModel3d::BreakHierarhy()
 	Error("Not implemented yet :(");
 };
 
-/*
-void TModel3d::Render(vector3 pPosition,double fAngle,GLuint
-ReplacableSkinId,int iAlpha)
-{
-//    glColor3f(1.0f,1.0f,1.0f);
-//    glColor3f(0.0f,0.0f,0.0f);
-glPushMatrix();
-
-glTranslated(pPosition.x,pPosition.y,pPosition.z);
-if (fAngle!=0)
-glRotatef(fAngle,0,1,0);
-/*
-matrix4x4 Identity;
-Identity.Identity();
-
-matrix4x4 CurrentMatrix;
-glGetdoublev(GL_MODELVIEW_MATRIX,CurrentMatrix.getArray());
-vector3 pos=vector3(0,0,0);
-pos=CurrentMatrix*pos;
-fSquareDist=SquareMagnitude(pos);
-* /
-fSquareDist=SquareMagnitude(pPosition-Global::GetCameraPosition());
-
-#ifdef _DEBUG
-if (Root)
-Root->Render(ReplacableSkinId,iAlpha);
-#else
-Root->Render(ReplacableSkinId,iAlpha);
-#endif
-glPopMatrix();
-};
-*/
-
+#ifdef EU07_USE_OLD_RENDERCODE
 void TModel3d::Render(double fSquareDistance, texture_manager::size_type *ReplacableSkinId, int iAlpha)
 {
 	iAlpha ^= 0x0F0F000F; // odwrócenie flag tekstur, aby wyłapać nieprzezroczyste
@@ -2214,42 +2196,8 @@ void TModel3d::RenderAlpha(double fSquareDistance, texture_manager::size_type *R
 		Root->RenderAlphaDL();
 	}
 };
-
-/*
-void TModel3d::RaRender(vector3 pPosition,double fAngle,GLuint
-*ReplacableSkinId,int
-iAlpha)
-{
-//    glColor3f(1.0f,1.0f,1.0f);
-//    glColor3f(0.0f,0.0f,0.0f);
-glPushMatrix(); //zapamiętanie matrycy przekształcenia
-glTranslated(pPosition.x,pPosition.y,pPosition.z);
-if (fAngle!=0)
-glRotatef(fAngle,0,1,0);
-/*
-matrix4x4 Identity;
-Identity.Identity();
-
-matrix4x4 CurrentMatrix;
-glGetdoublev(GL_MODELVIEW_MATRIX,CurrentMatrix.getArray());
-vector3 pos=vector3(0,0,0);
-pos=CurrentMatrix*pos;
-fSquareDist=SquareMagnitude(pos);
-*/
-/*
-fSquareDist=SquareMagnitude(pPosition-Global::GetCameraPosition()); //zmienna
-globalna!
-if (StartVBO())
-{//odwrócenie flag, aby wyłapać nieprzezroczyste
-Root->ReplacableSet(ReplacableSkinId,iAlpha^0x0F0F000F);
-Root->RaRender();
-EndVBO();
-}
-glPopMatrix(); //przywrócenie ustawień przekształcenia
-};
-*/
-
-void TModel3d::RaRender(double fSquareDistance, texture_manager::size_type *ReplacableSkinId, int iAlpha)
+#endif
+void TModel3d::RaRender(double fSquareDistance, texture_manager::size_type const *ReplacableSkinId, int iAlpha)
 { // renderowanie specjalne, np. kabiny
 	iAlpha ^= 0x0F0F000F; // odwrócenie flag tekstur, aby wyłapać nieprzezroczyste
 	if (iAlpha & iFlags & 0x1F1F001F) // czy w ogóle jest co robić w tym cyklu?
@@ -2265,7 +2213,7 @@ void TModel3d::RaRender(double fSquareDistance, texture_manager::size_type *Repl
 	}
 };
 
-void TModel3d::RaRenderAlpha(double fSquareDistance, texture_manager::size_type *ReplacableSkinId, int iAlpha)
+void TModel3d::RaRenderAlpha(double fSquareDistance, texture_manager::size_type const *ReplacableSkinId, int iAlpha)
 { // renderowanie specjalne, np. kabiny
 	if (iAlpha & iFlags & 0x2F2F002F) // czy w ogóle jest co robić w tym cyklu?
 	{
@@ -2279,30 +2227,10 @@ void TModel3d::RaRenderAlpha(double fSquareDistance, texture_manager::size_type 
 	}
 };
 
-/*
-void TModel3d::RaRenderAlpha(vector3 pPosition,double fAngle,GLuint
-*ReplacableSkinId,int
-iAlpha)
-{
-glPushMatrix();
-glTranslatef(pPosition.x,pPosition.y,pPosition.z);
-if (fAngle!=0)
-glRotatef(fAngle,0,1,0);
-fSquareDist=SquareMagnitude(pPosition-Global::GetCameraPosition()); //zmienna
-globalna!
-if (StartVBO())
-{Root->ReplacableSet(ReplacableSkinId,iAlpha);
-Root->RaRenderAlpha();
-EndVBO();
-}
-glPopMatrix();
-};
-*/
-
 //-----------------------------------------------------------------------------
 // 2011-03-16 cztery nowe funkcje renderowania z możliwością pochylania obiektów
 //-----------------------------------------------------------------------------
-
+#ifdef EU07_USE_OLD_RENDERCODE
 void TModel3d::Render(vector3 *vPosition, vector3 *vAngle, texture_manager::size_type *ReplacableSkinId, int iAlpha)
 { // nieprzezroczyste, Display List
 	glPushMatrix();
@@ -2337,7 +2265,8 @@ void TModel3d::RenderAlpha(vector3 *vPosition, vector3 *vAngle, texture_manager:
 	Root->RenderAlphaDL();
 	glPopMatrix();
 };
-void TModel3d::RaRender(vector3 *vPosition, vector3 *vAngle, texture_manager::size_type *ReplacableSkinId, int iAlpha)
+#endif
+void TModel3d::RaRender(vector3 *vPosition, vector3 *vAngle, texture_manager::size_type const *ReplacableSkinId, int iAlpha)
 { // nieprzezroczyste, VBO
 	glPushMatrix();
 	glTranslated(vPosition->x, vPosition->y, vPosition->z);
@@ -2357,7 +2286,7 @@ void TModel3d::RaRender(vector3 *vPosition, vector3 *vAngle, texture_manager::si
 	}
 	glPopMatrix();
 };
-void TModel3d::RaRenderAlpha(vector3 *vPosition, vector3 *vAngle, texture_manager::size_type *ReplacableSkinId,
+void TModel3d::RaRenderAlpha(vector3 *vPosition, vector3 *vAngle, texture_manager::size_type const *ReplacableSkinId,
 	int iAlpha)
 { // przezroczyste, VBO
 	glPushMatrix();
@@ -2378,6 +2307,7 @@ void TModel3d::RaRenderAlpha(vector3 *vPosition, vector3 *vAngle, texture_manage
 	}
 	glPopMatrix();
 };
+
 
 //-----------------------------------------------------------------------------
 // 2012-02 funkcje do tworzenia terenu z E3D

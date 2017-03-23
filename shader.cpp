@@ -50,11 +50,16 @@ gl_shader::gl_shader(std::string filename)
 	}
 }
 
+gl_shader::operator GLuint()
+{
+	return id;
+}
+
 gl_program::gl_program(std::vector<gl_shader> shaders)
 {
 	id = glCreateProgram();
 	for (auto s : shaders)
-		glAttachShader(id, s.id);
+		glAttachShader(id, s);
 	glLinkProgram(id);
 
 	GLint status;
@@ -67,7 +72,7 @@ gl_program::gl_program(std::vector<gl_shader> shaders)
 	}
 }
 
-void gl_program::use()
+gl_program::operator GLuint()
 {
-	glUseProgram(id);
+	return id;
 }
