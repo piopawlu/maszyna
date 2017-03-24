@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "shader.h"
+#include "Logs.h"
 
 inline bool strcend(std::string const &value, std::string const &ending)
 {
@@ -46,6 +47,7 @@ gl_shader::gl_shader(std::string filename)
 	{
 		GLchar info[512];
 		glGetShaderInfoLog(id, 512, 0, info);
+		WriteLog(info);
 		throw std::runtime_error("failed to compile " + filename + ": " + std::string(info));
 	}
 }
@@ -68,6 +70,7 @@ gl_program::gl_program(std::vector<gl_shader> shaders)
 	{
 		GLchar info[512];
 		glGetProgramInfoLog(id, 512, 0, info);
+		WriteLog(info);
 		throw std::runtime_error("failed to link program: " + std::string(info));
 	}
 }

@@ -52,8 +52,12 @@ opengl_renderer::Init(GLFWwindow *Window) {
 
 	m_window = Window;
 
-	m_shader = gl_program({ gl_shader("fixedpipeline.vert"), gl_shader("fixedpipeline.frag") });
-	glUseProgram(m_shader);
+	if (GLEW_VERSION_2_1)
+	{
+		WriteLog("using fixed pipeline shaders.");
+		m_shader = gl_program({ gl_shader("fixedpipeline.vert"), gl_shader("fixedpipeline.frag") });
+		glUseProgram(m_shader);
+	}
 
     glClearDepth( 1.0f );
     glClearColor( 51.0f / 255.0f, 102.0f / 255.0f, 85.0f / 255.0f, 1.0f ); // initial background Color
@@ -164,7 +168,11 @@ opengl_renderer::Render() {
 
         if( !Global::bWireFrame ) {
             // bez nieba w trybie rysowania linii
+			if (GLEW_VERSION_2_1)
+				glUseProgram(0);
             World.Environment.render();
+			if (GLEW_VERSION_2_1)
+				glUseProgram(m_shader);
         }
 
         World.Ground.Render( World.Camera.Pos );
@@ -175,7 +183,11 @@ opengl_renderer::Render() {
         m_drawtime = std::max( 20.0f, 0.95f * m_drawtime + std::chrono::duration_cast<std::chrono::milliseconds>( ( std::chrono::steady_clock::now() - timestart ) ).count());
     }
 
+	if (GLEW_VERSION_2_1)
+		glUseProgram(0);
     UILayer.render();
+	if (GLEW_VERSION_2_1)
+		glUseProgram(m_shader);
 
     glfwSwapBuffers( m_window );
     return true; // for now always succeed
@@ -781,6 +793,8 @@ opengl_renderer::Update_Lights( light_array const &Lights ) {
 
     auto renderlight = m_lights.begin();
 
+	GLint spotlights = 0;
+
     for( auto const &scenelight : Lights.data ) {
 
         if( renderlight == m_lights.end() ) {
@@ -828,7 +842,14 @@ opengl_renderer::Update_Lights( light_array const &Lights ) {
         renderlight->apply_angle();
 
         ++renderlight;
+		spotlights++;
     }
+
+	if (GLEW_VERSION_2_1)
+	{
+		GLuint pos = glGetUniformLocation(m_shader, "spotlights_count");
+		glUniform1i(pos, spotlights);
+	}
 
     while( renderlight != m_lights.end() ) {
         // if we went through all scene lights and there's still opengl lights remaining, kill these
