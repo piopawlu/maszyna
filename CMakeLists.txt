@@ -64,6 +64,7 @@ set(SOURCES
 "shader.cpp"
 "frustum.cpp"
 "uilayer.cpp"
+"openglmatrixstack.cpp"
 )
 
 if (WIN32)

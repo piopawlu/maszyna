@@ -1406,21 +1406,21 @@ TWorld::Render_Cab() {
         }
 #endif
 
+#ifdef EU07_USE_OLD_RENDERCODE
         if( Global::bUseVBO ) {
             // renderowanie z użyciem VBO. NOTE: needs update, and eventual merge into single render path down the road
             dynamic->mdKabina->RaRender( 0.0, dynamic->Material()->replacable_skins, dynamic->Material()->textures_alpha );
             dynamic->mdKabina->RaRenderAlpha( 0.0, dynamic->Material()->replacable_skins, dynamic->Material()->textures_alpha );
         }
         else {
-        // renderowanie z Display List
-#ifdef EU07_USE_OLD_RENDERCODE
+            // renderowanie z Display List
             dynamic->mdKabina->Render( 0.0, dynamic->ReplacableSkinID, dynamic->iAlpha );
             dynamic->mdKabina->RenderAlpha( 0.0, dynamic->ReplacableSkinID, dynamic->iAlpha );
-#else
-            GfxRenderer.Render( dynamic->mdKabina, dynamic->Material(), 0.0 );
-            GfxRenderer.Render_Alpha( dynamic->mdKabina, dynamic->Material(), 0.0 );
-#endif
         }
+#else
+        GfxRenderer.Render( dynamic->mdKabina, dynamic->Material(), 0.0 );
+        GfxRenderer.Render_Alpha( dynamic->mdKabina, dynamic->Material(), 0.0 );
+#endif
 #ifdef EU07_USE_OLD_LIGHTING_MODEL
         // przywrócenie standardowych, bo zawsze są zmieniane
         glLightfv( GL_LIGHT0, GL_AMBIENT, Global::ambientDayLight );
@@ -2381,11 +2381,21 @@ world_environment::render() {
     GfxRenderer.Bind( 0 );
 
     ::glDisable( GL_LIGHTING );
-    ::glDisable( GL_FOG );
     ::glDisable( GL_DEPTH_TEST );
     ::glDepthMask( GL_FALSE );
     ::glPushMatrix();
     ::glTranslatef( Global::pCameraPosition.x, Global::pCameraPosition.y, Global::pCameraPosition.z );
+
+    // setup fog
+    if( Global::fFogEnd > 0 ) {
+        // fog setup
+        ::glFogi( GL_FOG_MODE, GL_LINEAR );
+        ::glFogfv( GL_FOG_COLOR, Global::FogColor );
+        ::glFogf( GL_FOG_START, Global::fFogStart );
+        ::glFogf( GL_FOG_END, Global::fFogEnd );
+        ::glEnable( GL_FOG );
+    }
+    else { ::glDisable( GL_FOG ); }
 
     m_skydome.Render();
     m_stars.render();
@@ -2401,7 +2411,6 @@ world_environment::render() {
     ::glPopMatrix();
     ::glDepthMask( GL_TRUE );
     ::glEnable( GL_DEPTH_TEST );
-    ::glEnable( GL_FOG );
     ::glEnable( GL_LIGHTING );
 }
 
