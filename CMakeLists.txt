@@ -65,6 +65,7 @@ set(SOURCES
 "frustum.cpp"
 "uilayer.cpp"
 "openglmatrixstack.cpp"
+"moon.cpp"
 )
 
 if (WIN32)

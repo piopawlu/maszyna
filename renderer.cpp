@@ -50,13 +50,9 @@ opengl_renderer::Init(GLFWwindow *Window) {
 
 	m_window = Window;
 
-	if (GLEW_VERSION_2_1)
-	{
-		WriteLog("using fixed pipeline shaders.");
-		m_shader = gl_program({ gl_shader("fixedpipeline.vert"), gl_shader("fixedpipeline.frag") });
-		glUseProgram(m_shader);
-		glEnable(GL_FRAMEBUFFER_SRGB);
-	}
+	WriteLog("using fixed pipeline shaders.");
+	m_shader = gl_program({ gl_shader("fixedpipeline.vert"), gl_shader("fixedpipeline.frag") });
+	glUseProgram(m_shader);
 
     glClearDepth( 1.0f );
     glClearColor( 51.0f / 255.0f, 102.0f / 255.0f, 85.0f / 255.0f, 1.0f ); // initial background Color
@@ -147,8 +143,10 @@ opengl_renderer::Render() {
         m_camera.update_frustum();
 
 		glUseProgram(0);
+		glDisable(GL_FRAMEBUFFER_SRGB);
 		Render( &World.Environment );
 		glUseProgram(m_shader);
+		glEnable(GL_FRAMEBUFFER_SRGB);
         World.Ground.Render( World.Camera.Pos );
 
         World.Render_Cab();
@@ -157,11 +155,10 @@ opengl_renderer::Render() {
         m_drawtime = std::max( 20.0f, 0.95f * m_drawtime + std::chrono::duration_cast<std::chrono::milliseconds>( ( std::chrono::steady_clock::now() - timestart ) ).count());
     }
 
-	if (GLEW_VERSION_2_1)
-		glUseProgram(0);
+	glEnable(GL_FRAMEBUFFER_SRGB);
+	glUseProgram(0);
     UILayer.render();
-	if (GLEW_VERSION_2_1)
-		glUseProgram(m_shader);
+	glUseProgram(m_shader);
 
     glfwSwapBuffers( m_window );
     return true; // for now always succeed

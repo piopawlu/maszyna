@@ -93,7 +93,7 @@ simulation_time::update( double const Deltatime ) {
         ++m_time.wSecond;
         milliseconds -= 1000;
     }
-    m_time.wMilliseconds = milliseconds;
+    m_time.wMilliseconds = (WORD)milliseconds;
     while( m_time.wSecond >= 60 ) {
 
         ++m_time.wMinute;
