@@ -55,6 +55,7 @@ opengl_renderer::Init(GLFWwindow *Window) {
 		WriteLog("using fixed pipeline shaders.");
 		m_shader = gl_program({ gl_shader("fixedpipeline.vert"), gl_shader("fixedpipeline.frag") });
 		glUseProgram(m_shader);
+		glEnable(GL_FRAMEBUFFER_SRGB);
 	}
 
     glClearDepth( 1.0f );
