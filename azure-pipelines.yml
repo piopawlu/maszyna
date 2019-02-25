@@ -32,7 +32,7 @@ jobs:
         artifactName: binaries
       displayName: 'Publish binaries'
 
-  - job: windows-x64
+  - job: windows_x64
     pool:
       vmImage: 'windows-2019'
     displayName: 'Windows VS2019 x86-64'
@@ -54,7 +54,7 @@ jobs:
         artifactName: symbols
       displayName: 'Publish symbols'
 
-  - job: windows-x32
+  - job: windows_x32
     pool:
       vmImage: 'windows-2019'
     displayName: 'Windows VS2019 x86'
