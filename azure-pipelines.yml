@@ -6,9 +6,6 @@
 trigger:
 - devops
 
-pool:
-  vmImage: 'Ubuntu-16.04'
-
 jobs:
   - job: ubuntu1604
     pool:
