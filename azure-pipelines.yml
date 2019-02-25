@@ -28,7 +28,7 @@ jobs:
       displayName: 'Build'
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: 'build/bin/*'
+        pathtoPublish: 'build/bin'
         artifactName: binaries
       displayName: 'Publish binaries'
 
@@ -40,17 +40,17 @@ jobs:
     - script: |
         mkdir build
         cd build
-        cmake .. -A x64
+        cmake .. -G "Visual Studio 16 2019" -A x64
         cmake --build . --config RelWithDebInfo
       displayName: 'Build'
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: 'build/bin/*.exe'
+        pathtoPublish: 'build/bin'
         artifactName: binaries
       displayName: 'Publish binaries'
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: 'build/pdb/*.pdb'
+        pathtoPublish: 'build/pdb'
         artifactName: symbols
       displayName: 'Publish symbols'
 
@@ -62,16 +62,16 @@ jobs:
     - script: |
         mkdir build
         cd build
-        cmake .. -T v142_xp
+        cmake .. -G "Visual Studio 16 2019" -A Win32 -T v142_xp
         cmake --build . --config RelWithDebInfo
       displayName: 'Build'
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: 'build/bin/*.exe'
+        pathtoPublish: 'build/bin'
         artifactName: binaries
       displayName: 'Publish binaries'
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: 'build/pdb/*.pdb'
+        pathtoPublish: 'build/pdb'
         artifactName: symbols
       displayName: 'Publish symbols'
