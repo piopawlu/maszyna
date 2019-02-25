@@ -21,7 +21,7 @@ steps:
 
 - task: CMake@1
   inputs:
-    cmakeArgs: -DCMAKE_BUILD_TYPE=Release
+    cmakeArgs: .. -DCMAKE_BUILD_TYPE=Release
   displayName: 'Build'
 
 - script: |
