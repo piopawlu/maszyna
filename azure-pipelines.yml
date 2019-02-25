@@ -34,13 +34,13 @@ jobs:
 
   - job: windows_x64
     pool:
-      vmImage: 'windows-2019'
+      vmImage: 'vs2017-win2016'
     displayName: 'Windows VS2019 x86-64'
     steps:
     - script: |
         mkdir build
         cd build
-        cmake .. -G "Visual Studio 16 2019" -A x64
+        cmake .. -A x64
         cmake --build . --config RelWithDebInfo
       displayName: 'Build'
     - task: PublishBuildArtifacts@1
@@ -56,13 +56,13 @@ jobs:
 
   - job: windows_x32
     pool:
-      vmImage: 'windows-2019'
+      vmImage: 'vs2017-win2016'
     displayName: 'Windows VS2019 x86'
     steps:
     - script: |
         mkdir build
         cd build
-        cmake .. -G "Visual Studio 16 2019" -A Win32 -T v142_xp
+        cmake .. -A Win32 -T v141_xp
         cmake --build . --config RelWithDebInfo
       displayName: 'Build'
     - task: PublishBuildArtifacts@1
