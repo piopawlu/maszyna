@@ -19,9 +19,11 @@ steps:
     sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100
   displayName: 'Install dependencies'
 
-- task: CMake@1
-  inputs:
-    cmakeArgs: .. -DCMAKE_BUILD_TYPE=Release
+- script: |
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    cmake --build .
   displayName: 'Build'
 
 - script: |
