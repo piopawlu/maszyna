@@ -4,14 +4,21 @@
 # https://aka.ms/yaml
 
 trigger:
-- master
+- devops
 
 pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- script: sudo apt-get install -y libgl-dev libglew-dev libglfw3-dev python2.7-dev libpng16-dev libglm-dev libopenal-dev libluajit-5.1-dev libserialport-dev libsndfile1-dev
+  displayName: 'Install dependencies'
+
+- script: |
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    cmake --build .
+  displayName: 'Build'
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
