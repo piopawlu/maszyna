@@ -10,7 +10,9 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
-- script: sudo apt-get install -y libgl-dev libglew-dev libglfw3-dev python2.7-dev libpng16-dev libglm-dev libopenal-dev libluajit-5.1-dev libserialport-dev libsndfile1-dev
+- script: |
+    sudo apt-get update -y
+    sudo apt-get install -y libgl-dev libglew-dev libglfw3-dev python2.7-dev libpng16-dev libglm-dev libopenal-dev libluajit-5.1-dev libserialport-dev libsndfile1-dev
   displayName: 'Install dependencies'
 
 - script: |
