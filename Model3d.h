@@ -138,7 +138,6 @@ public: // chwilowo
     std::uintptr_t iAnimOwner{ 0 }; // roboczy numer egzemplarza, który ustawił animację
     TAnimType b_aAnim{ TAnimType::at_None }; // kody animacji oddzielnie, bo zerowane
 	std::shared_ptr<float4x4> mAnimMatrix; // macierz do animacji kwaternionowych
-    TSubModel **smLetter{ nullptr }; // wskaźnik na tablicę submdeli do generoania tekstu (docelowo zapisać do E3D)
     TSubModel *Parent{ nullptr }; // nadrzędny, np. do wymnażania macierzy
     int iVisible { 1 }; // roboczy stan widoczności
     float fVisible { 1.f }; // visibility level
@@ -150,12 +149,11 @@ private:
 	void RaAnimation(glm::mat4 &m, TAnimType a);
 
 public:
-	static size_t iInstance; // identyfikator egzemplarza, który aktualnie renderuje model
-	static material_handle const *ReplacableSkinId;
-	static int iAlpha; // maska bitowa dla danego przebiegu
-	static float fSquareDist;
-	static TModel3d *pRoot;
-	static std::string *pasText; // tekst dla wyświetlacza (!!!! do przemyślenia)
+	thread_local static size_t iInstance; // identyfikator egzemplarza, który aktualnie renderuje model
+	thread_local static material_handle const *ReplacableSkinId;
+	thread_local static int iAlpha; // maska bitowa dla danego przebiegu
+	thread_local static float fSquareDist;
+	thread_local static TModel3d *pRoot;
     TSubModel() = default;
 	~TSubModel();
 	int Load(cParser &Parser, TModel3d *Model, /*int Pos,*/ bool dynamic);
@@ -240,6 +238,8 @@ private:
 	int iSubModelsCount; // Ra: używane do tworzenia binarnych
 	std::string asBinary; // nazwa pod którą zapisać model binarny
     std::string m_filename;
+
+	std::mutex m_mutex;
 
 public:
     TModel3d();

@@ -785,8 +785,8 @@ void opengl_texture::reset_unit_cache()
     m_activeunit = -1;
 }
 
-std::array<GLuint, gl::MAX_TEXTURES + 2> opengl_texture::units = { 0 };
-GLint opengl_texture::m_activeunit = -1;
+thread_local std::array<GLuint, gl::MAX_TEXTURES + 2> opengl_texture::units = { 0 };
+thread_local GLint opengl_texture::m_activeunit = -1;
 
 std::unordered_map<GLint, int> opengl_texture::precompressed_formats =
 {
@@ -873,8 +873,12 @@ opengl_texture::create() {
     // as a placeholder until it can be loaded again
     if( id == -1 ) {
 
-        ::glGenTextures( 1, &id );
-        ::glBindTexture( target, id );
+		std::lock_guard<std::mutex> lock(m_mutex);
+		if (id != -1) // check again after locking mutex
+			return true;
+
+		::glGenTextures( 1, const_cast<GLuint*>(&id) );
+		::glBindTexture( target, id );
 
         // analyze specified texture traits
         for( auto const &trait : traits ) {
@@ -1048,8 +1052,8 @@ opengl_texture::release() {
 	        data_state = resource_state::good;
         }
     }
-    // release opengl resources
-    ::glDeleteTextures( 1, &id );
+	// release opengl resources
+	::glDeleteTextures( 1, const_cast<GLuint*>(&id) );
     id = -1;
     is_ready = false;
 
@@ -1252,8 +1256,8 @@ texture_manager::delete_textures() {
     for( auto const &texture : m_textures ) {
         // usunięcie wszyskich tekstur (bez usuwania struktury)
         if( ( texture.first->id > 0 )
-         && ( texture.first->id != -1 ) ) {
-            ::glDeleteTextures( 1, &(texture.first->id) );
+		 && ( texture.first->id != -1 ) ) {
+			::glDeleteTextures( 1, const_cast<GLuint*>(&(texture.first->id)) );
         }
         delete texture.first;
     }

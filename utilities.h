@@ -390,7 +390,7 @@ private:
 // members
     mutable std::mutex m_mutex;
     std::condition_variable m_condition;
-    bool m_spurious { true };
+	std::atomic<bool> m_spurious { true };
 };
 
 } // threading

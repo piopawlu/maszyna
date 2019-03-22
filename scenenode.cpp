@@ -198,24 +198,24 @@ shape_node::import( cParser &Input, scene::node_data const &Nodedata ) {
         m_data.material != null_handle ?
             GfxRenderer.Material( m_data.material ).textures[0] :
             null_handle );
-    auto const &texture = (
+	const opengl_texture* texture = (
         texturehandle ?
-            GfxRenderer.Texture( texturehandle ) :
-            opengl_texture() ); // dirty workaround for lack of better api
+	        &GfxRenderer.Texture( texturehandle ) :
+	        nullptr );
     bool const clamps = (
-        texturehandle ?
-            texture.traits.find( 's' ) != std::string::npos :
+	    texture ?
+	        texture->traits.find( 's' ) != std::string::npos :
             false );
     bool const clampt = (
-        texturehandle ?
-            texture.traits.find( 't' ) != std::string::npos :
+	    texture ?
+	        texture->traits.find( 't' ) != std::string::npos :
             false );
 
     // remainder of legacy 'problend' system -- geometry assigned a texture with '@' in its name is treated as translucent, opaque otherwise
-    if( texturehandle != null_handle ) {
+	if( texture ) {
         m_data.translucent = (
-            ( ( texture.name.find( '@' ) != std::string::npos )
-           && ( true == texture.has_alpha ) ) ?
+		    ( ( texture->name.find( '@' ) != std::string::npos )
+		   && ( true == texture->has_alpha ) ) ?
                 true :
                 false );
     }

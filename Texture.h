@@ -49,7 +49,7 @@ struct opengl_texture {
     static void reset_unit_cache();
 
 // members
-    GLuint id{ (GLuint)-1 }; // associated GL resource
+	volatile GLuint id{ (GLuint)-1 }; // associated GL resource
     bool has_alpha{ false }; // indicates the texture has alpha channel
     bool is_ready{ false }; // indicates the texture was processed and is ready for use
     std::string traits; // requested texture attributes: wrapping modes etc
@@ -59,7 +59,7 @@ struct opengl_texture {
     GLint components_hint = 0; // components that material wants
 
 	GLenum target = GL_TEXTURE_2D;
-    static std::array<GLuint, gl::MAX_TEXTURES + 2> units;
+	thread_local static std::array<GLuint, gl::MAX_TEXTURES + 2> units;
 
 private:
 // methods
@@ -79,7 +79,7 @@ private:
 	int samples = 1;
 
     std::vector<unsigned char> data; // texture data (stored GL-style, bottom-left origin)
-    resource_state data_state{ resource_state::none }; // current state of texture data
+	resource_state data_state{ resource_state::none }; // current state of texture data
     int data_width{ 0 },
         data_height{ 0 },
         data_mapcount{ 0 };
@@ -98,7 +98,9 @@ private:
     static std::unordered_map<GLint, GLint> drivercompressed_formats;
     static std::unordered_map<GLint, std::unordered_map<GLint, GLint>> mapping;
 
-    static GLint m_activeunit;
+	thread_local static GLint m_activeunit;
+
+	std::mutex m_mutex;
 };
 
 typedef int texture_handle;

@@ -39,4 +39,5 @@ public:
 
 // members
     lightrecord_array data;
+	std::mutex mutex;
 };

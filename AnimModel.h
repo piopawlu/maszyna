@@ -162,7 +162,6 @@ private:
     glm::vec3 vAngle; // bazowe obroty egzemplarza względem osi
     material_data m_materialdata;
 
-    std::string asText; // tekst dla wyświetlacza znakowego
     // TODO: wrap into a light state struct, remove fixed element count
     int iNumLights { 0 };
     std::array<TSubModel *, iMaxNumLights> LightsOn {}; // Ra: te wskaźniki powinny być w ramach TModel3d

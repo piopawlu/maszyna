@@ -245,6 +245,8 @@ opengl_vbogeometrybank::replace_( gfx::geometry_handle const &Geometry ) {
 
 void opengl_vbogeometrybank::setup_buffer()
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
 	if( !m_buffer ) {
         // if there's no buffer, we'll have to make one
         // NOTE: this isn't exactly optimal in terms of ensuring the gfx card doesn't stall waiting for the data
@@ -304,12 +306,16 @@ opengl_vbogeometrybank::draw_( gfx::geometry_handle const &Geometry)
 	if( chunkrecord.size == 0 )
 		return;
     auto const &chunk = gfx::geometry_bank::chunk( Geometry );
-    if( false == chunkrecord.is_good ) {
-        // we may potentially need to upload new buffer data before we can draw it
-		m_buffer->upload(gl::buffer::ARRAY_BUFFER, chunk.vertices.data(),
-		                 chunkrecord.offset * sizeof( gfx::basic_vertex ),
-		                 chunkrecord.size * sizeof( gfx::basic_vertex ));
-        chunkrecord.is_good = true;
+	if (!chunkrecord.is_good) {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		if (!chunkrecord.is_good) // check again after locking mutex
+		{
+			// we may potentially need to upload new buffer data before we can draw it
+			m_buffer->upload(gl::buffer::ARRAY_BUFFER, chunk.vertices.data(),
+			                 chunkrecord.offset * sizeof( gfx::basic_vertex ),
+			                 chunkrecord.size * sizeof( gfx::basic_vertex ));
+			chunkrecord.is_good = true;
+		}
     }
 
     // ...render...
@@ -324,8 +330,11 @@ void opengl_vbogeometrybank::draw_(const std::vector<gfx::geometry_handle>::iter
 
     setup_buffer();
 
-    m_offsets.clear();
-    m_counts.clear();
+	// these could be defined in class scope to don't waste time on reallocating
+	// but it won't be thread safe :/
+	std::vector<GLint> m_offsets;
+	std::vector<GLsizei> m_counts;
+
     GLenum type = 0;
     bool coalesce = false;
 
@@ -335,11 +344,15 @@ void opengl_vbogeometrybank::draw_(const std::vector<gfx::geometry_handle>::iter
         auto &chunkrecord = m_chunkrecords.at(Geometry.chunk - 1);
         auto const &chunk = gfx::geometry_bank::chunk( Geometry );
 		if( false == chunkrecord.is_good ) {
-            // we may potentially need to upload new buffer data before we can draw it
-			m_buffer->upload(gl::buffer::ARRAY_BUFFER, chunk.vertices.data(),
-			                 chunkrecord.offset * sizeof( gfx::basic_vertex ),
-			                 chunkrecord.size * sizeof( gfx::basic_vertex ));
-            chunkrecord.is_good = true;
+			std::lock_guard<std::mutex> lock(m_mutex);
+			if (!chunkrecord.is_good) // check again after locking mutex
+			{
+				// we may potentially need to upload new buffer data before we can draw it
+				m_buffer->upload(gl::buffer::ARRAY_BUFFER, chunk.vertices.data(),
+				                 chunkrecord.offset * sizeof( gfx::basic_vertex ),
+				                 chunkrecord.size * sizeof( gfx::basic_vertex ));
+				chunkrecord.is_good = true;
+			}
         }
 
         if (!type)

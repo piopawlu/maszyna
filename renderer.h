@@ -134,7 +134,6 @@ class opengl_renderer
 
 	// main draw call. returns false on error
 	bool Render();
-	void SwapBuffers();
 	inline float Framerate()
 	{
 		return m_framerate;
@@ -228,6 +227,7 @@ class opengl_renderer
 	using section_sequence = std::vector<scene::basic_section *>;
 	using distancecell_pair = std::pair<double, scene::basic_cell *>;
 	using cell_sequence = std::vector<distancecell_pair>;
+	using opengllight_array = std::vector<opengl_light>;
 
 	struct renderpass_config
 	{
@@ -246,6 +246,11 @@ class opengl_renderer
 		bool main = false;
 		GLFWwindow *window = nullptr;
 
+		std::thread render_thread;
+		std::mutex mutex;
+		std::condition_variable cv;
+		std::atomic_bool cv_flag = false;
+
 		glm::mat4 camera_transform;
 
 		std::unique_ptr<gl::framebuffer> msaa_fb;
@@ -259,11 +264,24 @@ class opengl_renderer
 
 		std::unique_ptr<gl::framebuffer> main2_fb;
 		std::unique_ptr<opengl_texture> main2_tex;
+
+		std::unique_ptr<gl::ubo> scene_ubo;
+		std::unique_ptr<gl::ubo> model_ubo;
+		std::unique_ptr<gl::ubo> light_ubo;
+		gl::scene_ubs scene_ubs;
+		gl::model_ubs model_ubs;
+		gl::light_ubs light_ubs;
+
+		opengl_light sunlight;
+		opengllight_array lights;
+		bool blendingenabled;
+
+		renderpass_config renderpass; // parameters for current render pass
+		section_sequence sectionqueue; // list of sections in current render pass
+		cell_sequence cellqueue;
 	};
 
-	viewport_config *m_current_viewport = nullptr;
-
-	typedef std::vector<opengl_light> opengllight_array;
+	thread_local static viewport_config *m_vp; // current viewport in thread
 
 	// methods
     std::unique_ptr<gl::program> make_shader(std::string v, std::string f);
@@ -274,6 +292,8 @@ class opengl_renderer
     void setup_shadow_map(opengl_texture *tex, renderpass_config conf);
     void setup_env_map(gl::cubemap *tex);
 	void setup_environment_light(TEnvironmentType const Environment = e_flat);
+	void render_thread(viewport_config &vp);
+	void render_main();
 	// runs jobs needed to generate graphics for specified render pass
 	void Render_pass(viewport_config &vp, rendermode const Mode);
 	// creates dynamic environment cubemap
@@ -318,8 +338,7 @@ class opengl_renderer
 	gfx::geometrybank_manager m_geometry;
 	material_manager m_materials;
 	texture_manager m_textures;
-	opengl_light m_sunlight;
-	opengllight_array m_lights;
+
 	/*
 	    float m_sunandviewangle; // cached dot product of sunlight and camera vectors
     */
@@ -353,9 +372,6 @@ class opengl_renderer
 
 	float m_fogrange = 2000.0f;
 
-	renderpass_config m_renderpass; // parameters for current render pass
-	section_sequence m_sectionqueue; // list of sections in current render pass
-	cell_sequence m_cellqueue;
     renderpass_config m_colorpass; // parametrs of most recent color pass
 	renderpass_config m_shadowpass; // parametrs of most recent shadowmap pass
 	renderpass_config m_cabshadowpass; // parameters of most recent cab shadowmap pass
@@ -381,13 +397,6 @@ class opengl_renderer
     std::vector<std::function<void(scene::basic_node *)>> m_node_pick_requests;
 
 	std::unique_ptr<gl::shader> m_vertex_shader;
-
-	std::unique_ptr<gl::ubo> scene_ubo;
-	std::unique_ptr<gl::ubo> model_ubo;
-	std::unique_ptr<gl::ubo> light_ubo;
-	gl::scene_ubs scene_ubs;
-	gl::model_ubs model_ubs;
-	gl::light_ubs light_ubs;
 
 	std::unordered_map<std::string, std::shared_ptr<gl::program>> m_shaders;
 
@@ -434,8 +443,6 @@ class opengl_renderer
     std::unique_ptr<gl::program> m_depth_pointer_shader;
 
 	material_handle m_invalid_material;
-
-    bool m_blendingenabled;
 
 	bool m_widelines_supported;
 

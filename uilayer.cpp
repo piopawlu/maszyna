@@ -413,6 +413,6 @@ void ui_layer::render_background()
     ImGui::Begin("Logo", nullptr,
                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
                      ImGuiWindowFlags_NoBringToFrontOnFocus);
-    ImGui::Image(reinterpret_cast<void *>(tex.id), size, ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image(reinterpret_cast<void *>(tex.id), size, ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
 }

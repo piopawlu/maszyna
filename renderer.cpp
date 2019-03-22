@@ -88,18 +88,7 @@ bool opengl_renderer::Init(GLFWwindow *Window)
 	Global.DayLight.diffuse[1] = 242.0f / 255.0f;
 	Global.DayLight.diffuse[2] = 231.0f / 255.0f;
 	Global.DayLight.is_directional = true;
-	m_sunlight.id = opengl_renderer::sunlight;
 
-	// create dynamic light pool
-	for (int idx = 0; idx < Global.DynamicLightCount; ++idx)
-	{
-		opengl_light light;
-		light.id = 1 + idx;
-
-		light.is_directional = false;
-
-		m_lights.emplace_back(light);
-	}
 	// preload some common textures
 	WriteLog("Loading common gfx data...");
 	m_glaretexture = Fetch_Texture("fx/lightglare");
@@ -136,20 +125,6 @@ bool opengl_renderer::Init(GLFWwindow *Window)
 		return false;
 	}
 
-	scene_ubo = std::make_unique<gl::ubo>(sizeof(gl::scene_ubs), 0);
-	model_ubo = std::make_unique<gl::ubo>(sizeof(gl::model_ubs), 1, GL_STREAM_DRAW);
-	light_ubo = std::make_unique<gl::ubo>(sizeof(gl::light_ubs), 2);
-
-	// better initialize with 0 to not crash driver/whole system
-	// when we forget
-	memset(&light_ubs, 0, sizeof(light_ubs));
-	memset(&model_ubs, 0, sizeof(model_ubs));
-	memset(&scene_ubs, 0, sizeof(scene_ubs));
-
-	light_ubo->update(light_ubs);
-	model_ubo->update(model_ubs);
-	scene_ubo->update(scene_ubs);
-
 	int samples = 1 << Global.iMultisampling;
 	if (!Global.gfx_usegles && samples > 1)
 		glEnable(GL_MULTISAMPLE);
@@ -170,7 +145,7 @@ bool opengl_renderer::Init(GLFWwindow *Window)
 
 	if (!init_viewport(default_viewport))
 		return false;
-	glfwMakeContextCurrent(m_window);
+
 	gl::buffer::unbind();
 
 	if (Global.gfx_shadowmap_enabled)
@@ -301,7 +276,7 @@ bool opengl_renderer::AddViewport(const global_settings::extraviewport_config &c
 	vp.draw_range = conf.draw_range;
 
 	bool ret = init_viewport(vp);
-	glfwMakeContextCurrent(m_window);
+
 	gl::buffer::unbind();
 
 	return ret;
@@ -350,9 +325,21 @@ bool opengl_renderer::init_viewport(viewport_config &vp)
 
 	int samples = 1 << Global.iMultisampling;
 
-	model_ubo->bind_uniform();
-	scene_ubo->bind_uniform();
-	light_ubo->bind_uniform();
+	vp.scene_ubo = std::make_unique<gl::ubo>(sizeof(gl::scene_ubs), 0);
+	vp.model_ubo = std::make_unique<gl::ubo>(sizeof(gl::model_ubs), 1, GL_STREAM_DRAW);
+	vp.light_ubo = std::make_unique<gl::ubo>(sizeof(gl::light_ubs), 2);
+
+	memset(&vp.light_ubs, 0, sizeof(vp.light_ubs));
+	memset(&vp.model_ubs, 0, sizeof(vp.model_ubs));
+	memset(&vp.scene_ubs, 0, sizeof(vp.scene_ubs));
+
+	vp.light_ubo->update(vp.light_ubs);
+	vp.model_ubo->update(vp.model_ubs);
+	vp.scene_ubo->update(vp.scene_ubs);
+
+	vp.model_ubo->bind_uniform();
+	vp.scene_ubo->bind_uniform();
+	vp.light_ubo->bind_uniform();
 
 	if (!Global.gfx_skippipeline)
 	{
@@ -401,6 +388,21 @@ bool opengl_renderer::init_viewport(viewport_config &vp)
 			return false;
 	}
 
+	vp.sunlight.id = opengl_renderer::sunlight;
+
+	// create dynamic light pool
+	for (int idx = 0; idx < Global.DynamicLightCount; ++idx)
+	{
+		opengl_light light;
+		light.id = 1 + idx;
+
+		light.is_directional = false;
+
+		vp.lights.emplace_back(light);
+	}
+
+	glfwMakeContextCurrent(m_window);
+
 	return true;
 }
 
@@ -436,30 +438,17 @@ bool opengl_renderer::Render()
 			glBeginQuery(GL_TIME_ELAPSED, m_gltimequery);
 	}
 
-	// fetch simulation data
-	if (simulation::is_ready)
-	{
-		m_sunlight = Global.DayLight;
-		// quantize sun angle to reduce shadow crawl
-		auto const quantizationstep{0.004f};
-		m_sunlight.direction = glm::normalize(quantizationstep * glm::roundEven(m_sunlight.direction * (1.f / quantizationstep)));
-	}
 	// generate new frame
-	m_renderpass.draw_mode = rendermode::none; // force setup anew
+	m_vp = &(*m_viewports.front());
+	m_vp->renderpass.draw_mode = rendermode::none; // force setup anew
 	m_debugstats = debug_stats();
 
-	for (auto &viewport : m_viewports) {
-		Render_pass(*viewport, rendermode::color);
-	}
+	render_main();
 
-	glfwMakeContextCurrent(m_window);
-	gl::buffer::unbind();
-	m_current_viewport = &(*m_viewports.front());
-
-	m_drawcount = m_cellqueue.size();
+	m_drawcount = m_vp->cellqueue.size();
 	m_debugtimestext.clear();
-	m_debugtimestext += "cpu: " + to_string(Timer::subsystem.gfx_color.average(), 2) + " ms (" + std::to_string(m_cellqueue.size()) + " sectors)\n" +=
-	    "cpu swap: " + to_string(Timer::subsystem.gfx_swap.average(), 2) + " ms\n" += "uilayer: " + to_string(Timer::subsystem.gfx_gui.average(), 2) + "ms\n" +=
+	m_debugtimestext += "cpu: " + to_string(Timer::subsystem.gfx_total.average(), 2) + " ms (" + std::to_string(m_vp->cellqueue.size()) + " sectors)\n" +=
+	    "uilayer: " + to_string(Timer::subsystem.gfx_gui.average(), 2) + "ms\n" +=
 	    "mainloop total: " + to_string(Timer::subsystem.mainloop_total.average(), 2) + "ms\n";
 
 	if (!Global.gfx_usegles)
@@ -485,20 +474,6 @@ bool opengl_renderer::Render()
 	return true; // for now always succeed
 }
 
-void opengl_renderer::SwapBuffers()
-{
-	Timer::subsystem.gfx_swap.start();
-
-	for (auto &viewport : m_viewports) {
-		if (viewport->window)
-			glfwSwapBuffers(viewport->window);
-	}
-
-	// swapbuffers() could unbind current buffers so we prepare for it on our end
-	gfx::opengl_vbogeometrybank::reset();
-	Timer::subsystem.gfx_swap.stop();
-}
-
 void opengl_renderer::draw_debug_ui()
 {
 	if (!debug_ui_active)
@@ -521,21 +496,104 @@ void opengl_renderer::draw_debug_ui()
 	ImGui::End();
 }
 
+thread_local opengl_renderer::viewport_config *opengl_renderer::m_vp = nullptr;
+
+void opengl_renderer::render_thread(viewport_config &vp)
+{
+	glfwMakeContextCurrent(vp.window);
+	m_vp = &vp;
+
+	while (true) {
+		if (!vp.cv_flag)
+		{
+			std::unique_lock<std::mutex> lock(vp.mutex);
+			while (!vp.cv_flag)
+				vp.cv.wait(lock);
+		}
+
+		{
+			Render_pass(vp, rendermode::color);
+			glfwSwapBuffers(vp.window);
+		}
+
+		{
+			std::lock_guard<std::mutex> lock(vp.mutex);
+			vp.cv_flag = false;
+		}
+		vp.cv.notify_all();
+	}
+}
+
+void opengl_renderer::render_main()
+{
+	viewport_config &vp = *m_vp;
+
+	if (simulation::is_ready) {
+		setup_shadow_map(nullptr, m_vp->renderpass);
+		setup_env_map(nullptr);
+
+		if (Global.gfx_shadowmap_enabled)
+		{
+			glDebug("render shadowmap start");
+			Timer::subsystem.gfx_shadows.start();
+
+			Render_pass(vp, rendermode::shadows);
+			if (!FreeFlyModeFlag && Global.render_cab)
+				Render_pass(vp, rendermode::cabshadows);
+
+			Timer::subsystem.gfx_shadows.stop();
+			glDebug("render shadowmap end");
+		}
+
+		if (Global.gfx_envmap_enabled)
+		{
+			// potentially update environmental cube map
+			Render_reflections(vp);
+		}
+	}
+
+	for (auto &viewport : m_viewports) {
+		if (viewport->main)
+			continue;
+
+		if (!viewport->render_thread.joinable())
+			viewport->render_thread = std::thread(&opengl_renderer::render_thread, this, std::ref(*viewport));
+
+		{
+			std::lock_guard<std::mutex> lock(viewport->mutex);
+			viewport->cv_flag = true;
+		}
+
+		viewport->cv.notify_all();
+	}
+
+	Render_pass(vp, rendermode::color);
+	glfwSwapBuffers(vp.window);
+
+	for (auto &viewport : m_viewports) {
+		if (viewport->main)
+			continue;
+
+		if (viewport->cv_flag)
+		{
+			std::unique_lock<std::mutex> lock(viewport->mutex);
+			while (viewport->cv_flag)
+				viewport->cv.wait(lock);
+		}
+	}
+}
+
 // runs jobs needed to generate graphics for specified render pass
 void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 {
-	setup_pass(vp, m_renderpass, Mode);
-	switch (m_renderpass.draw_mode)
+	setup_pass(vp, vp.renderpass, Mode);
+
+	switch (m_vp->renderpass.draw_mode)
 	{
 
 	case rendermode::color:
 	{
 		glDebug("rendermode::color");
-
-		glDebug("context switch");
-		glfwMakeContextCurrent(vp.window);
-		gl::buffer::unbind();
-		m_current_viewport = &vp;
 
 		if (!simulation::is_ready)
 		{
@@ -547,12 +605,8 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 			break;
 		}
 
-		scene_ubs.time = Timer::GetTime();
-		scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
-		scene_ubo->update(scene_ubs);
-		scene_ubo->bind_uniform();
-
-		m_colorpass = m_renderpass;
+		if (vp.main)
+			m_colorpass = m_vp->renderpass;
 
 		if (!Global.gfx_usegles)
 		{
@@ -562,30 +616,8 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 
-		setup_shadow_map(nullptr, m_renderpass);
+		setup_shadow_map(nullptr, m_vp->renderpass);
 		setup_env_map(nullptr);
-
-		if (Global.gfx_shadowmap_enabled && vp.main)
-		{
-			glDebug("render shadowmap start");
-			Timer::subsystem.gfx_shadows.start();
-
-			Render_pass(vp, rendermode::shadows);
-			if (!FreeFlyModeFlag && Global.render_cab)
-				Render_pass(vp, rendermode::cabshadows);
-			setup_pass(vp, m_renderpass, Mode); // restore draw mode. TBD, TODO: render mode stack
-
-			Timer::subsystem.gfx_shadows.stop();
-			glDebug("render shadowmap end");
-		}
-
-		if (Global.gfx_envmap_enabled && vp.main)
-		{
-			// potentially update environmental cube map
-			if (Render_reflections(vp))
-				setup_pass(vp, m_renderpass, Mode); // restore color pass settings
-			setup_env_map(m_env_tex.get());
-		}
 
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -619,7 +651,6 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 
 		glEnable(GL_DEPTH_TEST);
 
-		Timer::subsystem.gfx_color.start();
 		setup_matrices();
 		setup_drawing(true);
 
@@ -631,12 +662,13 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 			future = glm::translate(mv, -glm::vec3(vehicle->get_future_movement())) * glm::inverse(mv);
 		}
 
-		model_ubs.future = glm::mat4();
+		vp.model_ubs.future = glm::mat4();
 
 		glDebug("render environment");
 
-		scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
-		scene_ubo->update(scene_ubs);
+		vp.scene_ubs.time = Timer::GetTime();
+		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
+		vp.scene_ubo->update(vp.scene_ubs);
 		Render(&simulation::Environment);
 
 		// opaque parts...
@@ -656,7 +688,7 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 
 		glDebug("render opaque region");
 
-		model_ubs.future = future;
+		vp.model_ubs.future = future;
 
 		if (Global.gfx_shadowmap_enabled)
 			setup_shadow_map(m_shadow_tex.get(), m_shadowpass);
@@ -675,7 +707,7 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 		if (false == FreeFlyModeFlag && Global.render_cab)
 		{
 			glDebug("render translucent cab");
-			model_ubs.future = glm::mat4();
+			vp.model_ubs.future = glm::mat4();
 			if (Global.gfx_shadowmap_enabled)
 				setup_shadow_map(m_cabshadows_tex.get(), m_cabshadowpass);
 			// cache shadow colour in case we need to account for cab light
@@ -690,9 +722,7 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 			Render_cab(vehicle, vehicle->InteriorLightLevel, true);
 		}
 
-		Timer::subsystem.gfx_color.stop();
-
-		setup_shadow_map(nullptr, m_renderpass);
+		setup_shadow_map(nullptr, m_vp->renderpass);
 		setup_env_map(nullptr);
 
 		if (!Global.gfx_usegles)
@@ -706,8 +736,8 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 				vp.msaa_fb->blit_to(vp.main_fb.get(), vp.width, vp.height, GL_COLOR_BUFFER_BIT, GL_COLOR_ATTACHMENT0);
 				vp.msaa_fb->blit_to(vp.main_fb.get(), vp.width, vp.height, GL_COLOR_BUFFER_BIT, GL_COLOR_ATTACHMENT1);
 
-				model_ubs.param[0].x = m_framerate / (1.0 / Global.gfx_postfx_motionblur_shutter);
-				model_ubo->update(model_ubs);
+				vp.model_ubs.param[0].x = m_framerate / (1.0 / Global.gfx_postfx_motionblur_shutter);
+				vp.model_ubo->update(vp.model_ubs);
 				m_pfx_motionblur->apply({vp.main_tex.get(), vp.main_texv.get()}, vp.main2_fb.get());
 			}
 			else
@@ -724,21 +754,21 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 			opengl_texture::reset_unit_cache();
 		}
 
-		if (!Global.gfx_usegles && !Global.gfx_shadergamma)
-			glDisable(GL_FRAMEBUFFER_SRGB);
-
-		glDebug("uilayer render");
-		Timer::subsystem.gfx_gui.start();
-
 		if (vp.main) {
+			glDebug("uilayer render");
+
+			if (!Global.gfx_usegles && !Global.gfx_shadergamma)
+				glDisable(GL_FRAMEBUFFER_SRGB);
+
+			Timer::subsystem.gfx_gui.start();
 			draw_debug_ui();
 			Application.render_ui();
+
+			Timer::subsystem.gfx_gui.stop();
 		}
 
-		Timer::subsystem.gfx_gui.stop();
-
 		// restore binding
-		scene_ubo->bind_uniform();
+		vp.scene_ubo->bind_uniform();
 
 		glDebug("rendermode::color end");
 		break;
@@ -763,15 +793,15 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 		setup_matrices();
 		setup_drawing(false);
 
-		scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
-		scene_ubo->update(scene_ubs);
+		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
+		vp.scene_ubo->update(vp.scene_ubs);
 		Render(simulation::Region);
 
 		// setup_drawing(true);
 		// glDepthMask(GL_TRUE);
 		// Render_Alpha(simulation::Region);
 
-		m_shadowpass = m_renderpass;
+		m_shadowpass = m_vp->renderpass;
 
 		glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -798,12 +828,12 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 		setup_matrices();
 		setup_drawing(false);
 
-		scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
-		scene_ubo->update(scene_ubs);
+		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
+		vp.scene_ubo->update(vp.scene_ubs);
 
 		Render_cab(simulation::Train->Dynamic(), 0.0f, false);
 		Render_cab(simulation::Train->Dynamic(), 0.0f, true);
-		m_cabshadowpass = m_renderpass;
+		m_cabshadowpass = m_vp->renderpass;
 
 		glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -830,21 +860,21 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 		setup_env_map(m_empty_cubemap.get());
 
 		setup_matrices();
-		setup_shadow_map(nullptr, m_renderpass);
+		setup_shadow_map(nullptr, m_vp->renderpass);
 
 		// render
 		setup_drawing(true);
 
-		scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
-		scene_ubo->update(scene_ubs);
+		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
+		vp.scene_ubo->update(vp.scene_ubs);
 		Render(&simulation::Environment);
 
 		// opaque parts...
 		setup_drawing(false);
 		setup_shadow_map(m_shadow_tex.get(), m_shadowpass);
 
-		scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
-		scene_ubo->update(scene_ubs);
+		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
+		vp.scene_ubo->update(vp.scene_ubs);
 		Render(simulation::Region);
 
 		m_env_fb->unbind();
@@ -870,8 +900,8 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 		setup_matrices();
 		setup_drawing(false);
 
-		scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
-		scene_ubo->update(scene_ubs);
+		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
+		vp.scene_ubo->update(vp.scene_ubs);
 		if (simulation::Train != nullptr) {
 			Render_cab(simulation::Train->Dynamic(), 0.0f);
 			Render(simulation::Train->Dynamic());
@@ -897,8 +927,8 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 		setup_matrices();
 		setup_drawing(false);
 
-		scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
-		scene_ubo->update(scene_ubs);
+		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
+		vp.scene_ubo->update(vp.scene_ubs);
 		Render(simulation::Region);
 
 		break;
@@ -921,13 +951,13 @@ bool opengl_renderer::Render_reflections(viewport_config &vp)
 	auto const timestamp = time.wMilliseconds + time.wSecond * 1000 + time.wMinute * 1000 * 60 + time.wHour * 1000 * 60 * 60;
 
 	if ((timestamp - m_environmentupdatetime < Global.ReflectionUpdatesPerSecond)
-	        && (glm::length(m_renderpass.pass_camera.position() - m_environmentupdatelocation) < 1000.0))
+	        && (glm::length(vp.renderpass.pass_camera.position() - m_environmentupdatelocation) < 1000.0))
 	{
 		// run update every 5+ mins of simulation time, or at least 1km from the last location
 		return false;
 	}
 	m_environmentupdatetime = timestamp;
-	m_environmentupdatelocation = m_renderpass.pass_camera.position();
+	m_environmentupdatelocation = vp.renderpass.pass_camera.position();
 
 	glViewport(0, 0, gl::ENVMAP_SIZE, gl::ENVMAP_SIZE);
 	for (m_environmentcubetextureface = 0; m_environmentcubetextureface < 6; ++m_environmentcubetextureface)
@@ -1054,6 +1084,12 @@ void opengl_renderer::setup_pass(viewport_config &Viewport, renderpass_config &C
 	}
 	}
 
+	// fetch simulation data
+	Viewport.sunlight = Global.DayLight;
+	// quantize sun angle to reduce shadow crawl
+	auto const quantizationstep{0.004f};
+	Viewport.sunlight.direction = glm::normalize(quantizationstep * glm::roundEven(Viewport.sunlight.direction * (1.f / quantizationstep)));
+
 	Config.draw_range *= Viewport.draw_range;
 
 	// setup camera
@@ -1111,7 +1147,7 @@ void opengl_renderer::setup_pass(viewport_config &Viewport, renderpass_config &C
 		bounding_box(frustumchunkmin, frustumchunkmax, std::begin(frustumchunkshapepoints), std::end(frustumchunkshapepoints));
 		auto const frustumchunkcentre = (frustumchunkmin + frustumchunkmax) * 0.5f;
 		// ...cap the vertical angle to keep shadows from getting too long...
-		auto const lightvector = glm::normalize(glm::vec3{m_sunlight.direction.x, std::min(m_sunlight.direction.y, -0.2f), m_sunlight.direction.z});
+		auto const lightvector = glm::normalize(glm::vec3{Viewport.sunlight.direction.x, std::min(Viewport.sunlight.direction.y, -0.2f), Viewport.sunlight.direction.z});
 		// ...place the light source at the calculated centre and setup world space light view matrix...
 		camera.position() = worldview.pass_camera.position() + glm::dvec3{frustumchunkcentre};
 		viewmatrix *= glm::lookAt(camera.position(), camera.position() + glm::dvec3{lightvector}, glm::dvec3{0.f, 1.f, 0.f});
@@ -1137,7 +1173,7 @@ void opengl_renderer::setup_pass(viewport_config &Viewport, renderpass_config &C
 		                -Global.shadowtune.width, Global.shadowtune.width,
 		                -Global.shadowtune.width, Global.shadowtune.width,
 		                -Global.shadowtune.depth, Global.shadowtune.depth );
-				camera.position() = Global.pCamera.Pos - glm::dvec3{ m_sunlight.direction };
+				camera.position() = Global.pCamera.Pos - glm::dvec3{ Viewport.sunlight.direction };
 				if( camera.position().y - Global.pCamera.Pos.y < 0.1 ) {
 					camera.position().y = Global.pCamera.Pos.y + 0.1;
 		        }
@@ -1163,7 +1199,7 @@ void opengl_renderer::setup_pass(viewport_config &Viewport, renderpass_config &C
 	{
 		// fixed size cube large enough to enclose a vehicle compartment
 		// modelview
-		auto const lightvector = glm::normalize(glm::vec3{m_sunlight.direction.x, std::min(m_sunlight.direction.y, -0.2f), m_sunlight.direction.z});
+		auto const lightvector = glm::normalize(glm::vec3{Viewport.sunlight.direction.x, std::min(Viewport.sunlight.direction.y, -0.2f), Viewport.sunlight.direction.z});
 		camera.position() = Global.pCamera.Pos - glm::dvec3{lightvector};
 		viewmatrix *= glm::lookAt(camera.position(), glm::dvec3{Global.pCamera.Pos}, glm::dvec3{0.f, 1.f, 0.f});
 		// projection
@@ -1224,11 +1260,11 @@ void opengl_renderer::setup_pass(viewport_config &Viewport, renderpass_config &C
 void opengl_renderer::setup_matrices()
 {
 	::glMatrixMode(GL_PROJECTION);
-	OpenGLMatrices.load_matrix(m_renderpass.pass_camera.projection());
+	OpenGLMatrices.load_matrix(m_vp->renderpass.pass_camera.projection());
 
 	// trim modelview matrix just to rotation, since rendering is done in camera-centric world space
 	::glMatrixMode(GL_MODELVIEW);
-	OpenGLMatrices.load_matrix(glm::mat4(glm::mat3(m_renderpass.pass_camera.modelview())));
+	OpenGLMatrices.load_matrix(glm::mat4(glm::mat3(m_vp->renderpass.pass_camera.modelview())));
 }
 
 void opengl_renderer::setup_drawing(bool const Alpha)
@@ -1237,16 +1273,16 @@ void opengl_renderer::setup_drawing(bool const Alpha)
 	{
 		glEnable(GL_BLEND);
 		glDepthMask(GL_FALSE);
-		m_blendingenabled = true;
+		m_vp->blendingenabled = true;
 	}
 	else
 	{
 		glDisable(GL_BLEND);
 		glDepthMask(GL_TRUE);
-		m_blendingenabled = false;
+		m_vp->blendingenabled = false;
 	}
 
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::color:
 	case rendermode::reflections:
@@ -1273,9 +1309,13 @@ void opengl_renderer::setup_drawing(bool const Alpha)
 	}
 }
 
+std::mutex mtx;
+
 // configures shadow texture unit for specified shadow map and conersion matrix
 void opengl_renderer::setup_shadow_map(opengl_texture *tex, renderpass_config conf)
 {
+	std::lock_guard<std::mutex> lock(mtx);
+
 	if (tex)
 		tex->bind(gl::MAX_TEXTURES + 0);
 	else
@@ -1303,10 +1343,10 @@ void opengl_renderer::setup_shadow_map(opengl_texture *tex, renderpass_config co
 			);
 		glm::mat4 depthproj = conf.pass_camera.projection();
 		glm::mat4 depthcam = conf.pass_camera.modelview();
-		glm::mat4 worldcam = m_renderpass.pass_camera.modelview();
+		glm::mat4 worldcam = m_vp->renderpass.pass_camera.modelview();
 
-		scene_ubs.lightview = coordmove * depthproj * depthcam * glm::inverse(worldcam);
-		scene_ubo->update(scene_ubs);
+		m_vp->scene_ubs.lightview = coordmove * depthproj * depthcam * glm::inverse(worldcam);
+		m_vp->scene_ubo->update(m_vp->scene_ubs);
 	}
 }
 
@@ -1333,19 +1373,19 @@ void opengl_renderer::setup_environment_light(TEnvironmentType const Environment
 	{
 	case e_flat:
 	{
-		m_sunlight.apply_intensity();
+		m_vp->sunlight.apply_intensity();
 		//            m_environment = Environment;
 		break;
 	}
 	case e_canyon:
 	{
-		m_sunlight.apply_intensity(0.4f);
+		m_vp->sunlight.apply_intensity(0.4f);
 		//            m_environment = Environment;
 		break;
 	}
 	case e_tunnel:
 	{
-		m_sunlight.apply_intensity(0.2f);
+		m_vp->sunlight.apply_intensity(0.2f);
 		//            m_environment = Environment;
 		break;
 	}
@@ -1379,8 +1419,8 @@ bool opengl_renderer::Render(world_environment *Environment)
 	::glDisable(GL_DEPTH_TEST);
 	::glPushMatrix();
 
-	model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
-	model_ubo->update(model_ubs);
+	m_vp->model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
+	m_vp->model_ubo->update(m_vp->model_ubs);
 
 	// skydome
 	// drawn with 500m radius to blend in if the fog range is low
@@ -1442,10 +1482,10 @@ bool opengl_renderer::Render(world_environment *Environment)
 		glm::vec4 color(suncolor.x, suncolor.y, suncolor.z, clamp(1.5f - Global.Overcast, 0.f, 1.f) * fogfactor);
 		auto const sunvector = Environment->m_sun.getDirection();
 
-		model_ubs.param[0] = color;
-		model_ubs.param[1] = glm::vec4(glm::vec3(modelview * glm::vec4(sunvector, 1.0f)), 0.00463f);
-		model_ubs.param[2] = glm::vec4(0.0f, 1.0f, 1.0f, 0.0f);
-		model_ubo->update(model_ubs);
+		m_vp->model_ubs.param[0] = color;
+		m_vp->model_ubs.param[1] = glm::vec4(glm::vec3(modelview * glm::vec4(sunvector, 1.0f)), 0.00463f);
+		m_vp->model_ubs.param[2] = glm::vec4(0.0f, 1.0f, 1.0f, 0.0f);
+		m_vp->model_ubo->update(m_vp->model_ubs);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 	// moon
@@ -1509,10 +1549,10 @@ bool opengl_renderer::Render(world_environment *Environment)
 			moonu = 0.0f;
 		}
 
-		model_ubs.param[0] = color;
-		model_ubs.param[1] = glm::vec4(glm::vec3(modelview * glm::vec4(moonvector, 1.0f)), 0.00451f);
-		model_ubs.param[2] = glm::vec4(moonu, moonv, 0.333f, 0.0f);
-		model_ubo->update(model_ubs);
+		m_vp->model_ubs.param[0] = color;
+		m_vp->model_ubs.param[1] = glm::vec4(glm::vec3(modelview * glm::vec4(moonvector, 1.0f)), 0.00451f);
+		m_vp->model_ubs.param[2] = glm::vec4(moonu, moonv, 0.333f, 0.0f);
+		m_vp->model_ubo->update(m_vp->model_ubs);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 
@@ -1521,8 +1561,8 @@ bool opengl_renderer::Render(world_environment *Environment)
 	::glPopMatrix();
 	::glEnable(GL_DEPTH_TEST);
 
-	m_sunlight.apply_angle();
-	m_sunlight.apply_intensity();
+	m_vp->sunlight.apply_angle();
+	m_vp->sunlight.apply_intensity();
 
 	return true;
 }
@@ -1592,7 +1632,7 @@ void opengl_renderer::Bind_Material(material_handle const Material, TSubModel *s
 	{
 		auto &material = m_materials.material(Material);
 
-		memcpy(&model_ubs.param[0], &material.params[0], sizeof(model_ubs.param));
+		memcpy(&m_vp->model_ubs.param[0], &material.params[0], sizeof(m_vp->model_ubs.param));
 
 		for (size_t i = 0; i < material.params_state.size(); i++)
 		{
@@ -1611,25 +1651,25 @@ void opengl_renderer::Bind_Material(material_handle const Material, TSubModel *s
 			}
 
 			for (size_t j = 0; j < entry.size; j++)
-				model_ubs.param[entry.location][entry.offset + j] = src[j];
+				m_vp->model_ubs.param[entry.location][entry.offset + j] = src[j];
 		}
 
-		if (m_blendingenabled)
+		if (m_vp->blendingenabled)
 		{
-			model_ubs.opacity = -1.0f;
+			m_vp->model_ubs.opacity = -1.0f;
 		}
 		else
 		{
 			if (!std::isnan(material.opacity))
-				model_ubs.opacity = material.opacity;
+				m_vp->model_ubs.opacity = material.opacity;
 			else
-				model_ubs.opacity = 0.5f;
+				m_vp->model_ubs.opacity = 0.5f;
 		}
 
 		if (sm)
-			model_ubs.alpha_mult = sm->fVisible;
+			m_vp->model_ubs.alpha_mult = sm->fVisible;
 		else
-			model_ubs.alpha_mult = 1.0f;
+			m_vp->model_ubs.alpha_mult = 1.0f;
 
 		if (GLAD_GL_ARB_multi_bind)
 		{
@@ -1722,13 +1762,13 @@ void opengl_renderer::Update_AnimModel(TAnimModel *model)
 void opengl_renderer::Render(scene::basic_region *Region)
 {
 
-	m_sectionqueue.clear();
-	m_cellqueue.clear();
+	m_vp->sectionqueue.clear();
+	m_vp->cellqueue.clear();
 	// build a list of region sections to render
-	glm::vec3 const cameraposition{m_renderpass.pass_camera.position()};
+	glm::vec3 const cameraposition{m_vp->renderpass.pass_camera.position()};
 	auto const camerax = static_cast<int>(std::floor(cameraposition.x / scene::EU07_SECTIONSIZE + scene::EU07_REGIONSIDESECTIONCOUNT / 2));
 	auto const cameraz = static_cast<int>(std::floor(cameraposition.z / scene::EU07_SECTIONSIZE + scene::EU07_REGIONSIDESECTIONCOUNT / 2));
-	int const segmentcount = 2 * static_cast<int>(std::ceil(m_renderpass.draw_range * Global.fDistanceFactor / scene::EU07_SECTIONSIZE));
+	int const segmentcount = 2 * static_cast<int>(std::ceil(m_vp->renderpass.draw_range * Global.fDistanceFactor / scene::EU07_SECTIONSIZE));
 	int const originx = camerax - segmentcount / 2;
 	int const originz = cameraz - segmentcount / 2;
 
@@ -1753,44 +1793,44 @@ void opengl_renderer::Render(scene::basic_region *Region)
 				break;
 			}
 			auto *section{Region->m_sections[row * scene::EU07_REGIONSIDESECTIONCOUNT + column]};
-			if ((section != nullptr) && (m_renderpass.pass_camera.visible(section->m_area)))
+			if ((section != nullptr) && (m_vp->renderpass.pass_camera.visible(section->m_area)))
 			{
-				m_sectionqueue.emplace_back(section);
+				m_vp->sectionqueue.emplace_back(section);
 			}
 		}
 	}
 
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::color:
 	{
 		Update_Lights(simulation::Lights);
 
-		Render(std::begin(m_sectionqueue), std::end(m_sectionqueue));
+		Render(std::begin(m_vp->sectionqueue), std::end(m_vp->sectionqueue));
 		// draw queue is filled while rendering sections
-		if (EditorModeFlag && m_current_viewport->main)
+		if (EditorModeFlag && m_vp->main)
 		{
 			// when editor mode is active calculate world position of the cursor
 			// at this stage the z-buffer is filled with only ground geometry
 			get_mouse_depth();
 		}
-		Render(std::begin(m_cellqueue), std::end(m_cellqueue));
+		Render(std::begin(m_vp->cellqueue), std::end(m_vp->cellqueue));
 		break;
 	}
 	case rendermode::shadows:
 	case rendermode::pickscenery:
 	{
 		// these render modes don't bother with lights
-		Render(std::begin(m_sectionqueue), std::end(m_sectionqueue));
+		Render(std::begin(m_vp->sectionqueue), std::end(m_vp->sectionqueue));
 		// they can also skip queue sorting, as they only deal with opaque geometry
 		// NOTE: there's benefit from rendering front-to-back, but is it significant enough? TODO: investigate
-		Render(std::begin(m_cellqueue), std::end(m_cellqueue));
+		Render(std::begin(m_vp->cellqueue), std::end(m_vp->cellqueue));
 		break;
 	}
 	case rendermode::reflections:
 	{
 		// for the time being reflections render only terrain geometry
-		Render(std::begin(m_sectionqueue), std::end(m_sectionqueue));
+		Render(std::begin(m_vp->sectionqueue), std::end(m_vp->sectionqueue));
 		break;
 	}
 	case rendermode::pickcontrols:
@@ -1804,8 +1844,10 @@ void opengl_renderer::Render(scene::basic_region *Region)
 
 void opengl_renderer::Render(section_sequence::iterator First, section_sequence::iterator Last)
 {
+	// shuffle in hope of reducing multithread lock contention
+	std::shuffle(First, Last, Global.local_random_engine);
 
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::color:
 	case rendermode::reflections:
@@ -1814,7 +1856,7 @@ void opengl_renderer::Render(section_sequence::iterator First, section_sequence:
 	case rendermode::pickscenery:
 	{
 		// non-interactive scenery elements get neutral colour
-		model_ubs.param[0] = colors::none;
+		m_vp->model_ubs.param[0] = colors::none;
 		break;
 	}
 	default:
@@ -1828,7 +1870,7 @@ void opengl_renderer::Render(section_sequence::iterator First, section_sequence:
 		section->create_geometry();
 
 		// render shapes held by the section
-		switch (m_renderpass.draw_mode)
+		switch (m_vp->renderpass.draw_mode)
 		{
 		case rendermode::color:
 		case rendermode::reflections:
@@ -1839,7 +1881,7 @@ void opengl_renderer::Render(section_sequence::iterator First, section_sequence:
 			{
 				// since all shapes of the section share center point we can optimize out a few calls here
 				::glPushMatrix();
-				auto const originoffset{section->m_area.center - m_renderpass.pass_camera.position()};
+				auto const originoffset{section->m_area.center - m_vp->renderpass.pass_camera.position()};
 				::glTranslated(originoffset.x, originoffset.y, originoffset.z);
 				// render
 				for (auto const &shape : section->m_shapes)
@@ -1859,7 +1901,7 @@ void opengl_renderer::Render(section_sequence::iterator First, section_sequence:
 		}
 
 		// add the section's cells to the cell queue
-		switch (m_renderpass.draw_mode)
+		switch (m_vp->renderpass.draw_mode)
 		{
 		case rendermode::color:
 		case rendermode::shadows:
@@ -1867,10 +1909,10 @@ void opengl_renderer::Render(section_sequence::iterator First, section_sequence:
 		{
 			for (auto &cell : section->m_cells)
 			{
-				if ((true == cell.m_active) && (m_renderpass.pass_camera.visible(cell.m_area)))
+				if ((true == cell.m_active) && (m_vp->renderpass.pass_camera.visible(cell.m_area)))
 				{
 					// store visible cells with content as well as their current distance, for sorting later
-					m_cellqueue.emplace_back(glm::length2(m_renderpass.pass_camera.position() - cell.m_area.center), &cell);
+					m_vp->cellqueue.emplace_back(glm::length2(m_vp->renderpass.pass_camera.position() - cell.m_area.center), &cell);
 				}
 			}
 			break;
@@ -1886,7 +1928,7 @@ void opengl_renderer::Render(section_sequence::iterator First, section_sequence:
 		++First;
 	}
 
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::shadows:
 	{
@@ -1901,6 +1943,8 @@ void opengl_renderer::Render(section_sequence::iterator First, section_sequence:
 
 void opengl_renderer::Render(cell_sequence::iterator First, cell_sequence::iterator Last)
 {
+	// shuffle in hope of reducing multithread lock contention
+	std::shuffle(First, Last, Global.local_random_engine);
 
 	// cache initial iterator for the second sweep
 	auto first{First};
@@ -1912,13 +1956,13 @@ void opengl_renderer::Render(cell_sequence::iterator First, cell_sequence::itera
 		// przeliczenia animacji torów w sektorze
 		cell->RaAnimate(m_framestamp);
 
-		switch (m_renderpass.draw_mode)
+		switch (m_vp->renderpass.draw_mode)
 		{
 		case rendermode::color:
 		{
 			// since all shapes of the section share center point we can optimize out a few calls here
 			::glPushMatrix();
-			auto const originoffset{cell->m_area.center - m_renderpass.pass_camera.position()};
+			auto const originoffset{cell->m_area.center - m_vp->renderpass.pass_camera.position()};
 			::glTranslated(originoffset.x, originoffset.y, originoffset.z);
 
 			// render
@@ -1939,7 +1983,7 @@ void opengl_renderer::Render(cell_sequence::iterator First, cell_sequence::itera
 		{
 			// since all shapes of the section share center point we can optimize out a few calls here
 			::glPushMatrix();
-			auto const originoffset{cell->m_area.center - m_renderpass.pass_camera.position()};
+			auto const originoffset{cell->m_area.center - m_vp->renderpass.pass_camera.position()};
 			::glTranslated(originoffset.x, originoffset.y, originoffset.z);
 
 			// render
@@ -1959,18 +2003,18 @@ void opengl_renderer::Render(cell_sequence::iterator First, cell_sequence::itera
 			// same procedure like with regular render, but editor-enabled nodes receive custom colour used for picking
 			// since all shapes of the section share center point we can optimize out a few calls here
 			::glPushMatrix();
-			auto const originoffset{cell->m_area.center - m_renderpass.pass_camera.position()};
+			auto const originoffset{cell->m_area.center - m_vp->renderpass.pass_camera.position()};
 			::glTranslated(originoffset.x, originoffset.y, originoffset.z);
 			// render
 			// opaque non-instanced shapes
 			// non-interactive scenery elements get neutral colour
-			model_ubs.param[0] = colors::none;
+			m_vp->model_ubs.param[0] = colors::none;
 			for (auto const &shape : cell->m_shapesopaque)
 				Render(shape, false);
 			// tracks
 			for (auto *path : cell->m_paths)
 			{
-				model_ubs.param[0] = glm::vec4(pick_color(m_picksceneryitems.size() + 1), 1.0f);
+				m_vp->model_ubs.param[0] = glm::vec4(pick_color(m_picksceneryitems.size() + 1), 1.0f);
 				Render(path);
 			}
 			// post-render cleanup
@@ -1993,7 +2037,7 @@ void opengl_renderer::Render(cell_sequence::iterator First, cell_sequence::itera
 
 		auto const *cell = first->second;
 
-		switch (m_renderpass.draw_mode)
+		switch (m_vp->renderpass.draw_mode)
 		{
 		case rendermode::color:
 		case rendermode::shadows:
@@ -2019,7 +2063,7 @@ void opengl_renderer::Render(cell_sequence::iterator First, cell_sequence::itera
 			// same procedure like with regular render, but each node receives custom colour used for picking
 			for (auto *instance : cell->m_instancesopaque)
 			{
-				model_ubs.param[0] = glm::vec4(pick_color(m_picksceneryitems.size() + 1), 1.0f);
+				m_vp->model_ubs.param[0] = glm::vec4(pick_color(m_picksceneryitems.size() + 1), 1.0f);
 				Render(instance);
 			}
 			// vehicles aren't included in scenery picking for the time being
@@ -2049,16 +2093,16 @@ void opengl_renderer::Draw_Geometry(const gfx::geometrybank_handle &handle)
 
 void opengl_renderer::draw(const gfx::geometry_handle &handle)
 {
-	model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
-	model_ubo->update(model_ubs);
+	m_vp->model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
+	m_vp->model_ubo->update(m_vp->model_ubs);
 
 	m_geometry.draw(handle);
 }
 
 void opengl_renderer::draw(std::vector<gfx::geometrybank_handle>::iterator it, std::vector<gfx::geometrybank_handle>::iterator end)
 {
-	model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
-	model_ubo->update(model_ubs);
+	m_vp->model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
+	m_vp->model_ubo->update(m_vp->model_ubs);
 
 	Draw_Geometry(it, end);
 }
@@ -2070,17 +2114,17 @@ void opengl_renderer::Render(scene::shape_node const &Shape, bool const Ignorera
 	if (false == Ignorerange)
 	{
 		double distancesquared;
-		switch (m_renderpass.draw_mode)
+		switch (m_vp->renderpass.draw_mode)
 		{
 		case rendermode::shadows:
 		{
 			// 'camera' for the light pass is the light source, but we need to draw what the 'real' camera sees
-			distancesquared = Math3D::SquareMagnitude((data.area.center - m_renderpass.viewport_camera.position()) / (double)Global.ZoomFactor) / Global.fDistanceFactor;
+			distancesquared = Math3D::SquareMagnitude((data.area.center - m_vp->renderpass.viewport_camera.position()) / (double)Global.ZoomFactor) / Global.fDistanceFactor;
 			break;
 		}
 		default:
 		{
-			distancesquared = glm::length2((data.area.center - m_renderpass.pass_camera.position()) / (double)Global.ZoomFactor) / Global.fDistanceFactor;
+			distancesquared = glm::length2((data.area.center - m_vp->renderpass.pass_camera.position()) / (double)Global.ZoomFactor) / Global.fDistanceFactor;
 			break;
 		}
 		}
@@ -2091,7 +2135,7 @@ void opengl_renderer::Render(scene::shape_node const &Shape, bool const Ignorera
 	}
 
 	// setup
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::color:
 	case rendermode::reflections:
@@ -2117,24 +2161,23 @@ void opengl_renderer::Render(scene::shape_node const &Shape, bool const Ignorera
 
 void opengl_renderer::Render(TAnimModel *Instance)
 {
-
-	if (false == Instance->m_visible)
+	if (false == Instance->m_visible || !Instance->pModel)
 	{
 		return;
 	}
 
 	double distancesquared;
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::shadows:
 	{
 		// 'camera' for the light pass is the light source, but we need to draw what the 'real' camera sees
-		distancesquared = Math3D::SquareMagnitude((Instance->location() - m_renderpass.viewport_camera.position()) / (double)Global.ZoomFactor) / Global.fDistanceFactor;
+		distancesquared = Math3D::SquareMagnitude((Instance->location() - m_vp->renderpass.viewport_camera.position()) / (double)Global.ZoomFactor) / Global.fDistanceFactor;
 		break;
 	}
 	default:
 	{
-		distancesquared = Math3D::SquareMagnitude((Instance->location() - m_renderpass.pass_camera.position()) / (double)Global.ZoomFactor) / Global.fDistanceFactor;
+		distancesquared = Math3D::SquareMagnitude((Instance->location() - m_vp->renderpass.pass_camera.position()) / (double)Global.ZoomFactor) / Global.fDistanceFactor;
 		break;
 	}
 	}
@@ -2143,7 +2186,7 @@ void opengl_renderer::Render(TAnimModel *Instance)
 		return;
 	}
 
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::pickscenery:
 	{
@@ -2158,19 +2201,20 @@ void opengl_renderer::Render(TAnimModel *Instance)
 	}
 
 	Instance->RaAnimate(m_framestamp); // jednorazowe przeliczenie animacji
+
+	std::lock_guard<std::mutex> lock(Instance->pModel->m_mutex);
+
 	Instance->RaPrepare();
-	if (Instance->pModel)
-	{
-		// renderowanie rekurencyjne submodeli
-		Render(Instance->pModel, Instance->Material(), distancesquared, Instance->location() - m_renderpass.pass_camera.position(), Instance->vAngle);
-	}
+
+	// renderowanie rekurencyjne submodeli
+	Render(Instance->pModel, Instance->Material(), distancesquared, Instance->location() - m_vp->renderpass.pass_camera.position(), Instance->vAngle);
 }
 
 bool opengl_renderer::Render(TDynamicObject *Dynamic)
 {
 	glDebug("Render TDynamicObject");
 
-	Dynamic->renderme = m_renderpass.pass_camera.visible(Dynamic);
+	Dynamic->renderme = m_vp->renderpass.pass_camera.visible(Dynamic);
 	if (false == Dynamic->renderme)
 	{
 		return false;
@@ -2180,14 +2224,14 @@ bool opengl_renderer::Render(TDynamicObject *Dynamic)
 
 	// setup
 	TSubModel::iInstance = reinterpret_cast<std::uintptr_t>(Dynamic); //żeby nie robić cudzych animacji
-	glm::dvec3 const originoffset = Dynamic->vPosition - m_renderpass.pass_camera.position();
+	glm::dvec3 const originoffset = Dynamic->vPosition - m_vp->renderpass.pass_camera.position();
 	// lod visibility ranges are defined for base (x 1.0) viewing distance. for render we adjust them for actual range multiplier and zoom
 	float squaredistance;
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::shadows:
 	{
-		squaredistance = glm::length2(glm::vec3{glm::dvec3{Dynamic->vPosition - m_renderpass.viewport_camera.position()}} / Global.ZoomFactor) / Global.fDistanceFactor;
+		squaredistance = glm::length2(glm::vec3{glm::dvec3{Dynamic->vPosition - m_vp->renderpass.viewport_camera.position()}} / Global.ZoomFactor) / Global.fDistanceFactor;
 		break;
 	}
 	default:
@@ -2196,18 +2240,29 @@ bool opengl_renderer::Render(TDynamicObject *Dynamic)
 		break;
 	}
 	}
+
+	std::optional<std::lock_guard<std::mutex>> lowpoly_lock;
+	std::optional<std::lock_guard<std::mutex>> model_lock;
+	std::optional<std::lock_guard<std::mutex>> load_lock;
+	if (Dynamic->mdLowPolyInt)
+		lowpoly_lock.emplace(Dynamic->mdLowPolyInt->m_mutex);
+	if (Dynamic->mdModel)
+		model_lock.emplace(Dynamic->mdModel->m_mutex);
+	if (Dynamic->mdLoad)
+		load_lock.emplace(Dynamic->mdLoad->m_mutex);
+
 	Dynamic->ABuLittleUpdate(squaredistance); // ustawianie zmiennych submodeli dla wspólnego modelu
 
-	glm::mat4 future_stack = model_ubs.future;
+	glm::mat4 future_stack = m_vp->model_ubs.future;
 
 	glm::mat4 mv = OpenGLMatrices.data(GL_MODELVIEW);
-	model_ubs.future *= glm::translate(mv, glm::vec3(Dynamic->get_future_movement())) * glm::inverse(mv);
+	m_vp->model_ubs.future *= glm::translate(mv, glm::vec3(Dynamic->get_future_movement())) * glm::inverse(mv);
 
 	::glPushMatrix();
 	::glTranslated(originoffset.x, originoffset.y, originoffset.z);
 	::glMultMatrixd(Dynamic->mMatrix.getArray());
 
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 
 	case rendermode::color:
@@ -2215,7 +2270,7 @@ bool opengl_renderer::Render(TDynamicObject *Dynamic)
 		if (Dynamic->fShade > 0.0f)
 		{
 			// change light level based on light level of the occupied track
-			m_sunlight.apply_intensity(Dynamic->fShade);
+			m_vp->sunlight.apply_intensity(Dynamic->fShade);
 		}
 
 		// render
@@ -2233,7 +2288,7 @@ bool opengl_renderer::Render(TDynamicObject *Dynamic)
 		if (Dynamic->fShade > 0.0f)
 		{
 			// restore regular light level
-			m_sunlight.apply_intensity();
+			m_vp->sunlight.apply_intensity();
 		}
 		break;
 	}
@@ -2268,7 +2323,7 @@ bool opengl_renderer::Render(TDynamicObject *Dynamic)
 
 	::glPopMatrix();
 
-	model_ubs.future = future_stack;
+	m_vp->model_ubs.future = future_stack;
 
 	// TODO: check if this reset is needed. In theory each object should render all parts based on its own instance data anyway?
 	if (Dynamic->btnOn)
@@ -2301,11 +2356,11 @@ bool opengl_renderer::Render_cab(TDynamicObject const *Dynamic, float const Ligh
 		// setup shared by all render paths
 		::glPushMatrix();
 
-		auto const originoffset = Dynamic->GetPosition() - m_renderpass.pass_camera.position();
+		auto const originoffset = Dynamic->GetPosition() - m_vp->renderpass.pass_camera.position();
 		::glTranslated(originoffset.x, originoffset.y, originoffset.z);
 		::glMultMatrixd(Dynamic->mMatrix.readArray());
 
-		switch (m_renderpass.draw_mode)
+		switch (m_vp->renderpass.draw_mode)
 		{
 		case rendermode::color:
 		{
@@ -2313,13 +2368,13 @@ bool opengl_renderer::Render_cab(TDynamicObject const *Dynamic, float const Ligh
 			if (Dynamic->fShade > 0.0f)
 			{
 				// change light level based on light level of the occupied track
-				m_sunlight.apply_intensity(Dynamic->fShade);
+				m_vp->sunlight.apply_intensity(Dynamic->fShade);
 			}
 
 			// crude way to light the cabin, until we have something more complete in place
-			glm::vec3 old_ambient = light_ubs.ambient;
-			light_ubs.ambient += Dynamic->InteriorLight * Lightlevel;
-			light_ubo->update(light_ubs);
+			glm::vec3 old_ambient = m_vp->light_ubs.ambient;
+			m_vp->light_ubs.ambient += Dynamic->InteriorLight * Lightlevel;
+			m_vp->light_ubo->update(m_vp->light_ubs);
 
 			// render
 			if (true == Alpha)
@@ -2336,12 +2391,12 @@ bool opengl_renderer::Render_cab(TDynamicObject const *Dynamic, float const Ligh
 			if (Dynamic->fShade > 0.0f)
 			{
 				// change light level based on light level of the occupied track
-				m_sunlight.apply_intensity();
+				m_vp->sunlight.apply_intensity();
 			}
 
 			// restore ambient
-			light_ubs.ambient = old_ambient;
-			light_ubo->update(light_ubs);
+			m_vp->light_ubs.ambient = old_ambient;
+			m_vp->light_ubo->update(m_vp->light_ubs);
 
 			break;
 		}
@@ -2372,7 +2427,6 @@ bool opengl_renderer::Render_cab(TDynamicObject const *Dynamic, float const Ligh
 
 bool opengl_renderer::Render(TModel3d *Model, material_data const *Material, float const Squaredistance)
 {
-
 	auto alpha = (Material != nullptr ? Material->textures_alpha : 0x30300030);
 	alpha ^= 0x0F0F000F; // odwrócenie flag tekstur, aby wyłapać nieprzezroczyste
 	if (0 == (alpha & Model->iFlags & 0x1F1F001F))
@@ -2429,7 +2483,7 @@ void opengl_renderer::Render(TSubModel *Submodel)
 		++m_debugstats.submodels;
 		++m_debugstats.drawcalls;
 
-		glm::mat4 future_stack = model_ubs.future;
+		glm::mat4 future_stack = m_vp->model_ubs.future;
 
 		if (Submodel->iFlags & 0xC000)
 		{
@@ -2441,7 +2495,7 @@ void opengl_renderer::Render(TSubModel *Submodel)
 				Submodel->RaAnimation(Submodel->b_aAnim);
 
 				glm::mat4 mv = OpenGLMatrices.data(GL_MODELVIEW);
-				model_ubs.future *= (mv * Submodel->future_transform) * glm::inverse(mv);
+				m_vp->model_ubs.future *= (mv * Submodel->future_transform) * glm::inverse(mv);
 			}
 		}
 
@@ -2451,7 +2505,7 @@ void opengl_renderer::Render(TSubModel *Submodel)
 			if (Submodel->iAlpha & Submodel->iFlags & 0x1F)
 			{
 				// rysuj gdy element nieprzezroczysty
-				switch (m_renderpass.draw_mode)
+				switch (m_vp->renderpass.draw_mode)
 				{
 				case rendermode::color:
 				case rendermode::reflections:
@@ -2475,13 +2529,13 @@ void opengl_renderer::Render(TSubModel *Submodel)
 					// ...luminance
 					auto const isemissive { ( Submodel->f4Emision.a > 0.f ) && ( Global.fLuminance < Submodel->fLight ) };
 					if (isemissive)
-						model_ubs.emission = Submodel->f4Emision.a;
+						m_vp->model_ubs.emission = Submodel->f4Emision.a;
 
 					// main draw call
 					draw(Submodel->m_geometry);
 
 					// post-draw reset
-					model_ubs.emission = 0.0f;
+					m_vp->model_ubs.emission = 0.0f;
 					if (Submodel->fVisible < 1.0f)
 						setup_drawing(false);
 
@@ -2513,7 +2567,7 @@ void opengl_renderer::Render(TSubModel *Submodel)
 					m_pick_shader->bind();
 					// control picking applies individual colour for each submodel
 					m_pickcontrolsitems.emplace_back(Submodel);
-					model_ubs.param[0] = glm::vec4(pick_color(m_pickcontrolsitems.size()), 1.0f);
+					m_vp->model_ubs.param[0] = glm::vec4(pick_color(m_pickcontrolsitems.size()), 1.0f);
 					draw(Submodel->m_geometry);
 					break;
 				}
@@ -2527,7 +2581,7 @@ void opengl_renderer::Render(TSubModel *Submodel)
 		else if (Submodel->eType == TP_FREESPOTLIGHT)
 		{
 
-			switch (m_renderpass.draw_mode)
+			switch (m_vp->renderpass.draw_mode)
 			{
 			// spotlights are only rendered in colour mode(s)
 			case rendermode::color:
@@ -2569,10 +2623,10 @@ void opengl_renderer::Render(TSubModel *Submodel)
 						// material configuration:
 						// limit impact of dense fog on the lights
 						auto const lightrange { std::max<float>( 500, m_fogrange * 2 ) }; // arbitrary, visibility at least 750m
-						model_ubs.fog_density = 1.0 / lightrange;
+						m_vp->model_ubs.fog_density = 1.0 / lightrange;
 
 						// main draw call
-						model_ubs.emission = 1.0f;
+						m_vp->model_ubs.emission = 1.0f;
 
 						auto const lightcolor = glm::vec3(Submodel->DiffuseOverride.r < 0.f ? // -1 indicates no override
 						                           Submodel->f4Diffuse :
@@ -2584,21 +2638,21 @@ void opengl_renderer::Render(TSubModel *Submodel)
 						{
 							// fake fog halo
 							float const fogfactor{interpolate(2.f, 1.f, clamp<float>(Global.fFogEnd / 2000, 0.f, 1.f)) * std::max(1.f, Global.Overcast)};
-							model_ubs.param[1].x = pointsize * resolutionratio * fogfactor * 2.0f;
-							model_ubs.param[0] = glm::vec4(glm::vec3(lightcolor), Submodel->fVisible * std::min(1.f, lightlevel) * 0.5f);
+							m_vp->model_ubs.param[1].x = pointsize * resolutionratio * fogfactor * 2.0f;
+							m_vp->model_ubs.param[0] = glm::vec4(glm::vec3(lightcolor), Submodel->fVisible * std::min(1.f, lightlevel) * 0.5f);
 
 							glDepthMask(GL_FALSE);
 							draw(Submodel->m_geometry);
 							glDepthMask(GL_TRUE);
 						}
-						model_ubs.param[1].x = pointsize * resolutionratio * 2.0f;
-						model_ubs.param[0] = glm::vec4(glm::vec3(lightcolor), Submodel->fVisible * std::min(1.f, lightlevel));
+						m_vp->model_ubs.param[1].x = pointsize * resolutionratio * 2.0f;
+						m_vp->model_ubs.param[0] = glm::vec4(glm::vec3(lightcolor), Submodel->fVisible * std::min(1.f, lightlevel));
 
 						draw(Submodel->m_geometry);
 
 						// post-draw reset
-						model_ubs.emission = 0.0f;
-						model_ubs.fog_density = 1.0f / m_fogrange;
+						m_vp->model_ubs.emission = 0.0f;
+						m_vp->model_ubs.fog_density = 1.0f / m_fogrange;
 
 						glDisable(GL_BLEND);
 
@@ -2616,7 +2670,7 @@ void opengl_renderer::Render(TSubModel *Submodel)
 		else if (Submodel->eType == TP_STARS)
 		{
 
-			switch (m_renderpass.draw_mode)
+			switch (m_vp->renderpass.draw_mode)
 			{
 			// colour points are only rendered in colour mode(s)
 			case rendermode::color:
@@ -2627,7 +2681,7 @@ void opengl_renderer::Render(TSubModel *Submodel)
 					Bind_Material(Submodel->m_material, Submodel);
 
 					// main draw call
-					model_ubs.param[1].x = 2.0f * 2.0f;
+					m_vp->model_ubs.param[1].x = 2.0f * 2.0f;
 
 					draw(Submodel->m_geometry);
 				}
@@ -2645,7 +2699,7 @@ void opengl_renderer::Render(TSubModel *Submodel)
 
 		if (Submodel->iFlags & 0xC000)
 		{
-			model_ubs.future = future_stack;
+			m_vp->model_ubs.future = future_stack;
 			::glPopMatrix();
 		}
 	}
@@ -2672,13 +2726,13 @@ void opengl_renderer::Render(TTrack *Track)
 	++m_debugstats.paths;
 	++m_debugstats.drawcalls;
 
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	// single path pieces are rendererd in pick scenery mode only
 	case rendermode::pickscenery:
 	{
 		m_picksceneryitems.emplace_back(Track);
-		model_ubs.param[0] = glm::vec4(pick_color(m_picksceneryitems.size() + 1), 1.0f);
+		m_vp->model_ubs.param[0] = glm::vec4(pick_color(m_picksceneryitems.size() + 1), 1.0f);
 		m_pick_shader->bind();
 
 		draw(std::begin(Track->Geometry1), std::end(Track->Geometry1));
@@ -2699,7 +2753,7 @@ void opengl_renderer::Render(scene::basic_cell::path_sequence::const_iterator Fi
 {
 
 	// setup
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::shadows:
 	{
@@ -2732,7 +2786,7 @@ void opengl_renderer::Render(scene::basic_cell::path_sequence::const_iterator Fi
 		++m_debugstats.paths;
 		++m_debugstats.drawcalls;
 
-		switch (m_renderpass.draw_mode)
+		switch (m_vp->renderpass.draw_mode)
 		{
 		case rendermode::color:
 		case rendermode::reflections:
@@ -2783,7 +2837,7 @@ void opengl_renderer::Render(scene::basic_cell::path_sequence::const_iterator Fi
 			continue;
 		}
 
-		switch (m_renderpass.draw_mode)
+		switch (m_vp->renderpass.draw_mode)
 		{
 		case rendermode::color:
 		case rendermode::reflections:
@@ -2840,7 +2894,7 @@ void opengl_renderer::Render(scene::basic_cell::path_sequence::const_iterator Fi
 			continue;
 		}
 
-		switch (m_renderpass.draw_mode)
+		switch (m_vp->renderpass.draw_mode)
 		{
 		case rendermode::color:
 		case rendermode::reflections:
@@ -2879,7 +2933,7 @@ void opengl_renderer::Render(scene::basic_cell::path_sequence::const_iterator Fi
 	}
 
 	// post-render reset
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::shadows:
 	{
@@ -2898,10 +2952,10 @@ void opengl_renderer::Render(TMemCell *Memcell)
 {
 
 	::glPushMatrix();
-	auto const position = Memcell->location() - m_renderpass.pass_camera.position();
+	auto const position = Memcell->location() - m_vp->renderpass.pass_camera.position();
 	::glTranslated(position.x, position.y + 0.5, position.z);
 
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::color:
 	{
@@ -2966,10 +3020,10 @@ void opengl_renderer::Render_precipitation()
 
 	::glRotated(m_precipitationrotation, 0.0, 1.0, 0.0);
 
-	model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
-	model_ubs.param[0] = interpolate(0.5f * (Global.DayLight.diffuse + Global.DayLight.ambient), colors::white, 0.5f * clamp<float>(Global.fLuminance, 0.f, 1.f));
-	model_ubs.param[1].x = simulation::Environment.m_precipitation.get_textureoffset();
-	model_ubo->update(model_ubs);
+	m_vp->model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
+	m_vp->model_ubs.param[0] = interpolate(0.5f * (Global.DayLight.diffuse + Global.DayLight.ambient), colors::white, 0.5f * clamp<float>(Global.fLuminance, 0.f, 1.f));
+	m_vp->model_ubs.param[1].x = simulation::Environment.m_precipitation.get_textureoffset();
+	m_vp->model_ubo->update(m_vp->model_ubs);
 
 	// momentarily disable depth write, to allow vehicle cab drawn afterwards to mask it instead of leaving it 'inside'
 	::glDepthMask(GL_FALSE);
@@ -2984,13 +3038,15 @@ void opengl_renderer::Render_Alpha(scene::basic_region *Region)
 {
 
 	// sort the nodes based on their distance to viewer
-	std::sort(std::begin(m_cellqueue), std::end(m_cellqueue), [](distancecell_pair const &Left, distancecell_pair const &Right) { return (Left.first) < (Right.first); });
+	std::sort(std::begin(m_vp->cellqueue), std::end(m_vp->cellqueue), [](distancecell_pair const &Left, distancecell_pair const &Right) { return (Left.first) < (Right.first); });
 
-	Render_Alpha(std::rbegin(m_cellqueue), std::rend(m_cellqueue));
+	Render_Alpha(std::rbegin(m_vp->cellqueue), std::rend(m_vp->cellqueue));
 }
 
 void opengl_renderer::Render_Alpha(cell_sequence::reverse_iterator First, cell_sequence::reverse_iterator Last)
 {
+	// shuffle in hope of reducing multithread lock contention
+	std::shuffle(First, Last, Global.local_random_engine);
 
 	// NOTE: this method is launched only during color pass therefore we don't bother with mode test here
 	// first pass draws elements which we know are located in section banks, to reduce vbo switching
@@ -3005,7 +3061,7 @@ void opengl_renderer::Render_Alpha(cell_sequence::reverse_iterator First, cell_s
 			{
 				// since all shapes of the cell share center point we can optimize out a few calls here
 				::glPushMatrix();
-				auto const originoffset{cell->m_area.center - m_renderpass.pass_camera.position()};
+				auto const originoffset{cell->m_area.center - m_vp->renderpass.pass_camera.position()};
 				::glTranslated(originoffset.x, originoffset.y, originoffset.z);
 				// render
 				// NOTE: we can reuse the method used to draw opaque geometry
@@ -3058,7 +3114,7 @@ void opengl_renderer::Render_Alpha(cell_sequence::reverse_iterator First, cell_s
 			{
 				// since all shapes of the cell share center point we can optimize out a few calls here
 				::glPushMatrix();
-				auto const originoffset{cell->m_area.center - m_renderpass.pass_camera.position()};
+				auto const originoffset{cell->m_area.center - m_vp->renderpass.pass_camera.position()};
 				::glTranslated(originoffset.x, originoffset.y, originoffset.z);
 				Bind_Material(null_handle);
 				// render
@@ -3082,18 +3138,18 @@ void opengl_renderer::Render_Alpha(cell_sequence::reverse_iterator First, cell_s
 void opengl_renderer::Render_Alpha(TAnimModel *Instance)
 {
 
-	if (false == Instance->m_visible)
+	if (false == Instance->m_visible || !Instance->pModel)
 	{
 		return;
 	}
 
 	double distancesquared;
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::shadows:
 	default:
 	{
-		distancesquared = glm::length2((Instance->location() - m_renderpass.pass_camera.position()) / (double)Global.ZoomFactor) / Global.fDistanceFactor;
+		distancesquared = glm::length2((Instance->location() - m_vp->renderpass.pass_camera.position()) / (double)Global.ZoomFactor) / Global.fDistanceFactor;
 		break;
 	}
 	}
@@ -3102,19 +3158,21 @@ void opengl_renderer::Render_Alpha(TAnimModel *Instance)
 		return;
 	}
 
+	Instance->RaAnimate(m_framestamp); // jednorazowe przeliczenie animacji
+
+	std::lock_guard<std::mutex> lock(Instance->pModel->m_mutex);
+
 	Instance->RaPrepare();
-	if (Instance->pModel)
-	{
-		// renderowanie rekurencyjne submodeli
-		Render_Alpha(Instance->pModel, Instance->Material(), distancesquared, Instance->location() - m_renderpass.pass_camera.position(), Instance->vAngle);
-	}
+
+	// renderowanie rekurencyjne submodeli
+	Render_Alpha(Instance->pModel, Instance->Material(), distancesquared, Instance->location() - m_vp->renderpass.pass_camera.position(), Instance->vAngle);
 }
 
 void opengl_renderer::Render_Alpha(TTraction *Traction)
 {
 	glDebug("Render_Alpha TTraction");
 
-	auto const distancesquared { glm::length2( ( Traction->location() - m_renderpass.pass_camera.position() ) / (double)Global.ZoomFactor ) / Global.fDistanceFactor };
+	auto const distancesquared { glm::length2( ( Traction->location() - m_vp->renderpass.pass_camera.position() ) / (double)Global.ZoomFactor ) / Global.fDistanceFactor };
 	if ((distancesquared < Traction->m_rangesquaredmin) || (distancesquared >= Traction->m_rangesquaredmax))
 	{
 		return;
@@ -3138,9 +3196,9 @@ void opengl_renderer::Render_Alpha(TTraction *Traction)
 	// render
 
 	// McZapkie-261102: kolor zalezy od materialu i zasniedzenia
-	model_ubs.param[0] = glm::vec4(Traction->wire_color(), glm::min(1.0f, linealpha));
+	m_vp->model_ubs.param[0] = glm::vec4(Traction->wire_color(), glm::min(1.0f, linealpha));
 
-	if (m_renderpass.draw_mode == rendermode::shadows)
+	if (m_vp->renderpass.draw_mode == rendermode::shadows)
 		Bind_Material_Shadow(null_handle);
 	else
 		m_line_shader->bind();
@@ -3158,7 +3216,7 @@ void opengl_renderer::Render_Alpha(scene::lines_node const &Lines)
 
 	auto const &data{Lines.data()};
 
-	auto const distancesquared { glm::length2( ( data.area.center - m_renderpass.pass_camera.position() ) / (double)Global.ZoomFactor ) / Global.fDistanceFactor };
+	auto const distancesquared { glm::length2( ( data.area.center - m_vp->renderpass.pass_camera.position() ) / (double)Global.ZoomFactor ) / Global.fDistanceFactor };
 	if ((distancesquared < data.rangesquared_min) || (distancesquared >= data.rangesquared_max))
 	{
 		return;
@@ -3170,9 +3228,9 @@ void opengl_renderer::Render_Alpha(scene::lines_node const &Lines)
 	if (m_widelines_supported)
 		glLineWidth(clamp(0.5f * linealpha + data.line_width * data.area.radius / 1000.f, 1.f, 8.f));
 
-	model_ubs.param[0] = glm::vec4(glm::vec3(data.lighting.diffuse * m_sunlight.ambient), glm::min(1.0f, linealpha));
+	m_vp->model_ubs.param[0] = glm::vec4(glm::vec3(data.lighting.diffuse * m_vp->sunlight.ambient), glm::min(1.0f, linealpha));
 
-	if (m_renderpass.draw_mode == rendermode::shadows)
+	if (m_vp->renderpass.draw_mode == rendermode::shadows)
 		Bind_Material_Shadow(null_handle);
 	else
 		m_line_shader->bind();
@@ -3184,7 +3242,6 @@ void opengl_renderer::Render_Alpha(scene::lines_node const &Lines)
 
 bool opengl_renderer::Render_Alpha(TDynamicObject *Dynamic)
 {
-
 	if (false == Dynamic->renderme)
 	{
 		return false;
@@ -3192,10 +3249,10 @@ bool opengl_renderer::Render_Alpha(TDynamicObject *Dynamic)
 
 	// setup
 	TSubModel::iInstance = (size_t)Dynamic; //żeby nie robić cudzych animacji
-	glm::dvec3 const originoffset = Dynamic->vPosition - m_renderpass.pass_camera.position();
+	glm::dvec3 const originoffset = Dynamic->vPosition - m_vp->renderpass.pass_camera.position();
 	// lod visibility ranges are defined for base (x 1.0) viewing distance. for render we adjust them for actual range multiplier and zoom
 	float squaredistance;
-	switch (m_renderpass.draw_mode)
+	switch (m_vp->renderpass.draw_mode)
 	{
 	case rendermode::shadows:
 	default:
@@ -3204,12 +3261,23 @@ bool opengl_renderer::Render_Alpha(TDynamicObject *Dynamic)
 		break;
 	}
 	}
+
+	std::optional<std::lock_guard<std::mutex>> lowpoly_lock;
+	std::optional<std::lock_guard<std::mutex>> model_lock;
+	std::optional<std::lock_guard<std::mutex>> load_lock;
+	if (Dynamic->mdLowPolyInt)
+		lowpoly_lock.emplace(Dynamic->mdLowPolyInt->m_mutex);
+	if (Dynamic->mdModel)
+		model_lock.emplace(Dynamic->mdModel->m_mutex);
+	if (Dynamic->mdLoad)
+		load_lock.emplace(Dynamic->mdLoad->m_mutex);
+
 	Dynamic->ABuLittleUpdate(squaredistance); // ustawianie zmiennych submodeli dla wspólnego modelu
 
-	glm::mat4 future_stack = model_ubs.future;
+	glm::mat4 future_stack = m_vp->model_ubs.future;
 
 	glm::mat4 mv = OpenGLMatrices.data(GL_MODELVIEW);
-	model_ubs.future *= glm::translate(mv, glm::vec3(Dynamic->get_future_movement())) * glm::inverse(mv);
+	m_vp->model_ubs.future *= glm::translate(mv, glm::vec3(Dynamic->get_future_movement())) * glm::inverse(mv);
 
 	::glPushMatrix();
 
@@ -3219,7 +3287,7 @@ bool opengl_renderer::Render_Alpha(TDynamicObject *Dynamic)
 	if (Dynamic->fShade > 0.0f)
 	{
 		// change light level based on light level of the occupied track
-		m_sunlight.apply_intensity(Dynamic->fShade);
+		m_vp->sunlight.apply_intensity(Dynamic->fShade);
 	}
 
 	// render
@@ -3239,12 +3307,12 @@ bool opengl_renderer::Render_Alpha(TDynamicObject *Dynamic)
 	if (Dynamic->fShade > 0.0f)
 	{
 		// restore regular light level
-		m_sunlight.apply_intensity();
+		m_vp->sunlight.apply_intensity();
 	}
 
 	::glPopMatrix();
 
-	model_ubs.future = future_stack;
+	m_vp->model_ubs.future = future_stack;
 
 	if (Dynamic->btnOn)
 		Dynamic->TurnOff(); // przywrócenie domyślnych pozycji submodeli
@@ -3254,7 +3322,6 @@ bool opengl_renderer::Render_Alpha(TDynamicObject *Dynamic)
 
 bool opengl_renderer::Render_Alpha(TModel3d *Model, material_data const *Material, float const Squaredistance)
 {
-
 	auto alpha = (Material != nullptr ? Material->textures_alpha : 0x30300030);
 
 	if (0 == (alpha & Model->iFlags & 0x2F2F002F))
@@ -3299,7 +3366,6 @@ bool opengl_renderer::Render_Alpha(TModel3d *Model, material_data const *Materia
 
 void opengl_renderer::Render_Alpha(TSubModel *Submodel)
 {
-	// renderowanie przezroczystych przez DL
 	if ((Submodel->iVisible) && (TSubModel::fSquareDist >= Submodel->fSquareMinDist) && (TSubModel::fSquareDist < Submodel->fSquareMaxDist))
 	{
 
@@ -3307,7 +3373,7 @@ void opengl_renderer::Render_Alpha(TSubModel *Submodel)
 		++m_debugstats.submodels;
 		++m_debugstats.drawcalls;
 
-		glm::mat4 future_stack = model_ubs.future;
+		glm::mat4 future_stack = m_vp->model_ubs.future;
 
 		if (Submodel->iFlags & 0xC000)
 		{
@@ -3319,7 +3385,7 @@ void opengl_renderer::Render_Alpha(TSubModel *Submodel)
 				Submodel->RaAnimation(Submodel->b_aAnim);
 
 				glm::mat4 mv = OpenGLMatrices.data(GL_MODELVIEW);
-				model_ubs.future *= (mv * Submodel->future_transform) * glm::inverse(mv);
+				m_vp->model_ubs.future *= (mv * Submodel->future_transform) * glm::inverse(mv);
 			}
 		}
 
@@ -3329,7 +3395,7 @@ void opengl_renderer::Render_Alpha(TSubModel *Submodel)
 			if (Submodel->iAlpha & Submodel->iFlags & 0x2F)
 			{
 				// rysuj gdy element przezroczysty
-				switch (m_renderpass.draw_mode)
+				switch (m_vp->renderpass.draw_mode)
 				{
 				case rendermode::color:
 				{
@@ -3347,12 +3413,12 @@ void opengl_renderer::Render_Alpha(TSubModel *Submodel)
 
 					auto const isemissive { ( Submodel->f4Emision.a > 0.f ) && ( Global.fLuminance < Submodel->fLight ) };
 					if (isemissive)
-						model_ubs.emission = Submodel->f4Emision.a;
+						m_vp->model_ubs.emission = Submodel->f4Emision.a;
 
 					// main draw call
 					draw(Submodel->m_geometry);
 
-					model_ubs.emission = 0.0f;
+					m_vp->model_ubs.emission = 0.0f;
 					break;
 				}
 				case rendermode::cabshadows:
@@ -3414,7 +3480,7 @@ void opengl_renderer::Render_Alpha(TSubModel *Submodel)
 
 						m_billboard_shader->bind();
 						Bind_Texture(0, m_glaretexture);
-						model_ubs.param[0] = glm::vec4(glm::vec3(lightcolor), Submodel->fVisible * glarelevel);
+						m_vp->model_ubs.param[0] = glm::vec4(glm::vec3(lightcolor), Submodel->fVisible * glarelevel);
 
 						// main draw call
 						draw(m_billboardgeometry);
@@ -3430,39 +3496,13 @@ void opengl_renderer::Render_Alpha(TSubModel *Submodel)
 
 		if (Submodel->Child != nullptr)
 		{
-			if (Submodel->eType == TP_TEXT)
-			{ // tekst renderujemy w specjalny sposób, zamiast submodeli z łańcucha Child
-				int i, j = (int)Submodel->pasText->size();
-				TSubModel *p;
-				if (!Submodel->smLetter)
-				{ // jeśli nie ma tablicy, to ją stworzyć; miejsce nieodpowiednie, ale tymczasowo może być
-					Submodel->smLetter = new TSubModel *[256]; // tablica wskaźników submodeli dla wyświetlania tekstu
-					memset(Submodel->smLetter, 0, 256 * sizeof(TSubModel *)); // wypełnianie zerami
-					p = Submodel->Child;
-					while (p)
-					{
-						Submodel->smLetter[p->pName[0]] = p;
-						p = p->Next; // kolejny znak
-					}
-				}
-				for (i = 1; i <= j; ++i)
-				{
-					p = Submodel->smLetter[(*(Submodel->pasText))[i]]; // znak do wyświetlenia
-					if (p)
-					{ // na razie tylko jako przezroczyste
-						Render_Alpha(p);
-						if (p->fMatrix)
-							::glMultMatrixf(p->fMatrix->readArray()); // przesuwanie widoku
-					}
-				}
-			}
-			else if (Submodel->iAlpha & Submodel->iFlags & 0x002F0000)
+			if (Submodel->iAlpha & Submodel->iFlags & 0x002F0000)
 				Render_Alpha(Submodel->Child);
 		}
 
 		if (Submodel->iFlags & 0xC000)
 		{
-			model_ubs.future = future_stack;
+			m_vp->model_ubs.future = future_stack;
 			::glPopMatrix();
 		}
 	}
@@ -3733,8 +3773,10 @@ void opengl_renderer::Update_Lights(light_array &Lights)
 {
 	glDebug("Update_Lights");
 
+	std::lock_guard<std::mutex> lock(Lights.mutex);
+
 	// arrange the light array from closest to farthest from current position of the camera
-	auto const camera = m_renderpass.pass_camera.position();
+	auto const camera = m_vp->renderpass.pass_camera.position();
 	std::sort(std::begin(Lights.data), std::end(Lights.data), [&camera](light_array::light_record const &Left, light_array::light_record const &Right) {
 		// move lights which are off at the end...
 		if (Left.intensity == 0.f)
@@ -3749,7 +3791,7 @@ void opengl_renderer::Update_Lights(light_array &Lights)
 		return (glm::length2(camera - Left.position) * (1.f - Left.intensity)) < (glm::length2(camera - Right.position) * (1.f - Right.intensity));
 	});
 
-	auto renderlight = m_lights.begin();
+	auto renderlight = m_vp->lights.begin();
 	size_t light_i = 1;
 
 	glm::mat4 mv = OpenGLMatrices.data(GL_MODELVIEW);
@@ -3757,7 +3799,7 @@ void opengl_renderer::Update_Lights(light_array &Lights)
 	for (auto const &scenelight : Lights.data)
 	{
 
-		if (renderlight == m_lights.end())
+		if (renderlight == m_vp->lights.end())
 		{
 			// we ran out of lights to assign
 			break;
@@ -3791,7 +3833,7 @@ void opengl_renderer::Update_Lights(light_array &Lights)
 		renderlight->apply_intensity();
 		renderlight->apply_angle();
 
-		gl::light_element_ubs *l = &light_ubs.lights[light_i];
+		gl::light_element_ubs *l = &m_vp->light_ubs.lights[light_i];
 		l->pos = mv * glm::vec4(renderlight->position, 1.0f);
 		l->dir = mv * glm::vec4(renderlight->direction, 0.0f);
 		l->type = gl::light_element_ubs::SPOT;
@@ -3807,25 +3849,25 @@ void opengl_renderer::Update_Lights(light_array &Lights)
 		++renderlight;
 	}
 
-	light_ubs.ambient = m_sunlight.ambient * m_sunlight.factor;
-	light_ubs.lights[0].type = gl::light_element_ubs::DIR;
-	light_ubs.lights[0].dir = mv * glm::vec4(m_sunlight.direction, 0.0f);
-	light_ubs.lights[0].color = m_sunlight.diffuse * m_sunlight.factor;
-	light_ubs.lights[0].ambient = 0.0f;
-	light_ubs.lights[0].intensity = 1.0f;
-	light_ubs.lights_count = light_i;
+	m_vp->light_ubs.ambient = m_vp->sunlight.ambient * m_vp->sunlight.factor;
+	m_vp->light_ubs.lights[0].type = gl::light_element_ubs::DIR;
+	m_vp->light_ubs.lights[0].dir = mv * glm::vec4(m_vp->sunlight.direction, 0.0f);
+	m_vp->light_ubs.lights[0].color = m_vp->sunlight.diffuse * m_vp->sunlight.factor;
+	m_vp->light_ubs.lights[0].ambient = 0.0f;
+	m_vp->light_ubs.lights[0].intensity = 1.0f;
+	m_vp->light_ubs.lights_count = light_i;
 
-	light_ubs.fog_color = Global.FogColor;
+	m_vp->light_ubs.fog_color = Global.FogColor;
 	if (Global.fFogEnd > 0)
 	{
 		m_fogrange = Global.fFogEnd / std::max(1.f, Global.Overcast * 2.f);
-		model_ubs.fog_density = 1.0f / m_fogrange;
+		m_vp->model_ubs.fog_density = 1.0f / m_fogrange;
 	}
 	else
-		model_ubs.fog_density = 0.0f;
+	    m_vp->model_ubs.fog_density = 0.0f;
 
-	model_ubo->update(model_ubs);
-	light_ubo->update(light_ubs);
+	m_vp->model_ubo->update(m_vp->model_ubs);
+	m_vp->light_ubo->update(m_vp->light_ubs);
 }
 
 bool opengl_renderer::Init_caps()

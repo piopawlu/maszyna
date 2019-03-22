@@ -48,11 +48,9 @@ private:
 };
 
 struct subsystem_stopwatches {
-    stopwatch gfx_total;
-    stopwatch gfx_color;
+	stopwatch gfx_total;
     stopwatch gfx_shadows;
     stopwatch gfx_reflections;
-    stopwatch gfx_swap;
 	stopwatch gfx_gui;
     stopwatch sim_total;
     stopwatch sim_dynamics;

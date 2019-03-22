@@ -255,11 +255,7 @@ TAnimModel::TAnimModel( scene::node_data const &Nodedata ) : basic_node( Nodedat
 
 bool TAnimModel::Init(std::string const &asName, std::string const &asReplacableTexture)
 {
-    if( asReplacableTexture.substr( 0, 1 ) == "*" ) {
-        // od gwiazdki zaczynają się teksty na wyświetlaczach
-        asText = asReplacableTexture.substr( 1, asReplacableTexture.length() - 1 ); // zapamiętanie tekstu
-    }
-    else if( asReplacableTexture != "none" ) {
+	if( asReplacableTexture != "none" ) {
         m_materialdata.replacable_skins[ 1 ] = GfxRenderer.Fetch_Material( asReplacableTexture );
     }
     if( ( m_materialdata.replacable_skins[ 1 ] != null_handle )
@@ -479,10 +475,11 @@ void TAnimModel::RaAnimate( unsigned int const Framestamp ) {
 
 void TAnimModel::RaPrepare()
 { // ustawia światła i animacje we wzorcu modelu przed renderowaniem egzemplarza
+
     bool state; // stan światła
     for (int i = 0; i < iNumLights; ++i)
-    {
-        auto const lightmode { static_cast<int>( std::abs( lsLights[ i ] ) ) };
+	{
+		auto const lightmode { static_cast<int>( std::abs( lsLights[ i ] ) ) };
         switch( lightmode ) {
             case ls_On:
             case ls_Off:
@@ -521,24 +518,23 @@ void TAnimModel::RaPrepare()
             default: {
                 break;
             }
-        }
+		}
         if( lightmode >= ls_Dark ) {
             // crude as hell but for test will do :x
             if (LightsOn[i]) {
-                LightsOn[i]->iVisible = state;
+				LightsOn[i]->iVisible = state;
                 // TODO: set visibility for the entire submodel's children as well
                 LightsOn[i]->fVisible = m_lightopacities[i];
             }
             if (LightsOff[i])
-                LightsOff[i]->iVisible = !state;
+				LightsOff[i]->iVisible = !state;
         }
         // potentially modify freespot colors
         if( LightsOn[i] ) {
             LightsOn[i]->SetDiffuseOverride( m_lightcolors[i], true);
         }
     }
-    TSubModel::iInstance = reinterpret_cast<std::uintptr_t>( this ); //żeby nie robić cudzych animacji
-    TSubModel::pasText = &asText; // przekazanie tekstu do wyświetlacza (!!!! do przemyślenia)
+	TSubModel::iInstance = reinterpret_cast<std::uintptr_t>( this ); //żeby nie robić cudzych animacji
 
 	for (auto entry : m_animlist) {
 		entry->PrepareModel();

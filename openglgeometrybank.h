@@ -160,16 +160,11 @@ private:
     struct chunk_record{
         std::size_t offset{ 0 }; // beginning of the chunk data as offset from the beginning of the last established buffer
         std::size_t size{ 0 }; // size of the chunk in the last established buffer
-        bool is_good{ false }; // true if local content of the chunk matches the data on the opengl end
+		volatile bool is_good{ false }; // true if local content of the chunk matches the data on the opengl end
     };
 
     typedef std::vector<chunk_record> chunkrecord_sequence;
     void setup_buffer();
-
-    // vectors for glMultiDrawArrays in class scope
-    // to don't waste time on reallocating
-    std::vector<GLint> m_offsets;
-    std::vector<GLsizei> m_counts;
 
 // methods:
     // create() subclass details
@@ -194,6 +189,7 @@ private:
     std::size_t m_buffercapacity{ 0 }; // total capacity of the last established buffer
     chunkrecord_sequence m_chunkrecords; // helper data for all stored geometry chunks, in matching order
 
+	std::mutex m_mutex;
 };
 
 // geometry bank manager, holds collection of geometry banks

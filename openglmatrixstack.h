@@ -209,7 +209,7 @@ private:
 
 };
 
-extern opengl_matrices OpenGLMatrices;
+extern thread_local opengl_matrices OpenGLMatrices;
 
 // NOTE: standard opengl calls re-definitions
 #define glMatrixMode OpenGLMatrices.mode

@@ -281,8 +281,6 @@ eu07_application::run() {
         if (!GfxRenderer.Render())
             break;
 
-        GfxRenderer.SwapBuffers();
-
         if (m_modestack.empty())
             return 0;
 
