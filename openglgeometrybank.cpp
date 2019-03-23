@@ -306,17 +306,18 @@ opengl_vbogeometrybank::draw_( gfx::geometry_handle const &Geometry)
 	if( chunkrecord.size == 0 )
 		return;
     auto const &chunk = gfx::geometry_bank::chunk( Geometry );
-	if (!chunkrecord.is_good) {
+
+	{
 		std::lock_guard<std::mutex> lock(m_mutex);
-		if (!chunkrecord.is_good) // check again after locking mutex
-		{
+
+		if (!chunkrecord.is_good) {
 			// we may potentially need to upload new buffer data before we can draw it
 			m_buffer->upload(gl::buffer::ARRAY_BUFFER, chunk.vertices.data(),
 			                 chunkrecord.offset * sizeof( gfx::basic_vertex ),
 			                 chunkrecord.size * sizeof( gfx::basic_vertex ));
 			chunkrecord.is_good = true;
 		}
-    }
+	}
 
     // ...render...
     m_vao->bind();
@@ -328,50 +329,51 @@ void opengl_vbogeometrybank::draw_(const std::vector<gfx::geometry_handle>::iter
     if (begin == end)
         return;
 
-    setup_buffer();
-
 	// these could be defined in class scope to don't waste time on reallocating
 	// but it won't be thread safe :/
 	std::vector<GLint> m_offsets;
 	std::vector<GLsizei> m_counts;
 
-    GLenum type = 0;
-    bool coalesce = false;
+	GLenum type = 0;
+	bool coalesce = false;
 
-    for (auto it = begin; it != end; it++)
-    {
-        gfx::geometry_handle Geometry = *it;
-        auto &chunkrecord = m_chunkrecords.at(Geometry.chunk - 1);
-        auto const &chunk = gfx::geometry_bank::chunk( Geometry );
-		if( false == chunkrecord.is_good ) {
+	setup_buffer();
+
+	for (auto it = begin; it != end; it++)
+	{
+		gfx::geometry_handle Geometry = *it;
+		auto &chunkrecord = m_chunkrecords.at(Geometry.chunk - 1);
+		auto const &chunk = gfx::geometry_bank::chunk( Geometry );
+
+		{
 			std::lock_guard<std::mutex> lock(m_mutex);
-			if (!chunkrecord.is_good) // check again after locking mutex
-			{
+
+			if( false == chunkrecord.is_good ) {
 				// we may potentially need to upload new buffer data before we can draw it
 				m_buffer->upload(gl::buffer::ARRAY_BUFFER, chunk.vertices.data(),
 				                 chunkrecord.offset * sizeof( gfx::basic_vertex ),
 				                 chunkrecord.size * sizeof( gfx::basic_vertex ));
 				chunkrecord.is_good = true;
 			}
-        }
+		}
 
-        if (!type)
-        {
-            type = chunk.type;
-            if (type == GL_POINTS || type == GL_LINES || type == GL_TRIANGLES)
-                coalesce = true;
-        }
-        else if (type != chunk.type)
-            throw std::logic_error("inconsistent draw types");
+		if (!type)
+		{
+			type = chunk.type;
+			if (type == GL_POINTS || type == GL_LINES || type == GL_TRIANGLES)
+				coalesce = true;
+		}
+		else if (type != chunk.type)
+			throw std::logic_error("inconsistent draw types");
 
-        if (coalesce && m_offsets.size() && chunkrecord.offset == m_offsets.back() + m_counts.back())
-            m_counts.back() += chunkrecord.size;
-        else
-        {
-            m_offsets.push_back(chunkrecord.offset);
-            m_counts.push_back(chunkrecord.size);
-        }
-    }
+		if (coalesce && m_offsets.size() && chunkrecord.offset == m_offsets.back() + m_counts.back())
+			m_counts.back() += chunkrecord.size;
+		else
+		{
+			m_offsets.push_back(chunkrecord.offset);
+			m_counts.push_back(chunkrecord.size);
+		}
+	}
 
     m_vao->bind();
     if (m_offsets.size() == 1)
@@ -416,7 +418,7 @@ geometrybank_manager::update() {
 gfx::geometrybank_handle
 geometrybank_manager::create_bank() {
 
-    m_geometrybanks.emplace_back( std::make_shared<opengl_vbogeometrybank>(), std::chrono::steady_clock::time_point() );
+	m_geometrybanks.emplace_back( std::make_shared<opengl_vbogeometrybank>(), resource_timestamp(0) );
     // NOTE: handle is effectively (index into chunk array + 1) this leaves value of 0 to serve as error/empty handle indication
     return { static_cast<std::uint32_t>( m_geometrybanks.size() ), 0 };
 }

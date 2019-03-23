@@ -790,5 +790,7 @@ bool eu07_application::init_network() {
 		Global.ready_to_load = true;
 	}
 
+	Global.local_random_engine.seed(std::random_device{}());
+
 	return true;
 }

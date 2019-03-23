@@ -11,9 +11,10 @@ include(cotire)
 set(DEPS_DIR ${DEPS_DIR} "${CMAKE_SOURCE_DIR}/ref")
 project("eu07")
 
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=undefined")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined")
-#set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -fsanitize=address -fsanitize=undefined")
+#set(OPTS "-fsanitize=thread -fsanitize=undefined")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OPTS}")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPTS}")
+#set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} ${OPTS}")
 
 set(CMAKE_CXX_STANDARD 17)
 include_directories("."

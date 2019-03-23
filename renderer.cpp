@@ -323,6 +323,8 @@ bool opengl_renderer::init_viewport(viewport_config &vp)
 		glBindVertexArray(v);
 	}
 
+	vp.random.seed(Global.local_random_engine());
+
 	int samples = 1 << Global.iMultisampling;
 
 	vp.scene_ubo = std::make_unique<gl::ubo>(sizeof(gl::scene_ubs), 0);
@@ -336,10 +338,6 @@ bool opengl_renderer::init_viewport(viewport_config &vp)
 	vp.light_ubo->update(vp.light_ubs);
 	vp.model_ubo->update(vp.model_ubs);
 	vp.scene_ubo->update(vp.scene_ubs);
-
-	vp.model_ubo->bind_uniform();
-	vp.scene_ubo->bind_uniform();
-	vp.light_ubo->bind_uniform();
 
 	if (!Global.gfx_skippipeline)
 	{
@@ -418,6 +416,7 @@ bool opengl_renderer::Render()
 {
 	Timer::subsystem.gfx_total.start();
 
+	/*
 	GLuint gl_time_ready;
 	if (!Global.gfx_usegles)
 	{
@@ -436,21 +435,31 @@ bool opengl_renderer::Render()
 
 		if (gl_time_ready)
 			glBeginQuery(GL_TIME_ELAPSED, m_gltimequery);
-	}
+	}*/
 
 	// generate new frame
 	m_vp = &(*m_viewports.front());
 	m_vp->renderpass.draw_mode = rendermode::none; // force setup anew
-	m_debugstats = debug_stats();
+
+	m_debugstats.dynamics.store(0);
+	m_debugstats.models.store(0);
+	m_debugstats.submodels.store(0);
+	m_debugstats.paths.store(0);
+	m_debugstats.traction.store(0);
+	m_debugstats.shapes.store(0);
+	m_debugstats.lines.store(0);
+	m_debugstats.drawcalls.store(0);
+
+	draw_debug_ui();
 
 	render_main();
 
-	m_drawcount = m_vp->cellqueue.size();
 	m_debugtimestext.clear();
 	m_debugtimestext += "cpu: " + to_string(Timer::subsystem.gfx_total.average(), 2) + " ms (" + std::to_string(m_vp->cellqueue.size()) + " sectors)\n" +=
 	    "uilayer: " + to_string(Timer::subsystem.gfx_gui.average(), 2) + "ms\n" +=
 	    "mainloop total: " + to_string(Timer::subsystem.mainloop_total.average(), 2) + "ms\n";
 
+	/*
 	if (!Global.gfx_usegles)
 	{
 		if (gl_time_ready)
@@ -459,10 +468,11 @@ bool opengl_renderer::Render()
 		if (m_gllasttime)
 			m_debugtimestext += "gpu: " + to_string((double)(m_gllasttime / 1000ULL) / 1000.0, 3) + "ms";
 	}
+	*/
 
-	m_debugstatstext = "drawcalls:  " + to_string(m_debugstats.drawcalls) + "\n" + " vehicles:  " + to_string(m_debugstats.dynamics) + "\n" + " models:    " + to_string(m_debugstats.models) + "\n" +
-	                   " submodels: " + to_string(m_debugstats.submodels) + "\n" + " paths:     " + to_string(m_debugstats.paths) + "\n" + " shapes:    " + to_string(m_debugstats.shapes) + "\n" +
-	                   " traction:  " + to_string(m_debugstats.traction) + "\n" + " lines:     " + to_string(m_debugstats.lines);
+	m_debugstatstext = "drawcalls:  " + to_string(m_debugstats.drawcalls.load()) + "\n" + " vehicles:  " + to_string(m_debugstats.dynamics.load()) + "\n" + " models:    " + to_string(m_debugstats.models.load()) + "\n" +
+	                   " submodels: " + to_string(m_debugstats.submodels.load()) + "\n" + " paths:     " + to_string(m_debugstats.paths.load()) + "\n" + " shapes:    " + to_string(m_debugstats.shapes.load()) + "\n" +
+	                   " traction:  " + to_string(m_debugstats.traction.load()) + "\n" + " lines:     " + to_string(m_debugstats.lines.load());
 
 	if (DebugModeFlag)
 		m_debugtimestext += m_textures.info();
@@ -511,10 +521,8 @@ void opengl_renderer::render_thread(viewport_config &vp)
 				vp.cv.wait(lock);
 		}
 
-		{
-			Render_pass(vp, rendermode::color);
-			glfwSwapBuffers(vp.window);
-		}
+		Render_pass(vp, rendermode::color);
+		glfwSwapBuffers(vp.window);
 
 		{
 			std::lock_guard<std::mutex> lock(vp.mutex);
@@ -605,6 +613,10 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 			break;
 		}
 
+		vp.model_ubo->bind_uniform();
+		vp.scene_ubo->bind_uniform();
+		vp.light_ubo->bind_uniform();
+
 		if (vp.main)
 			m_colorpass = m_vp->renderpass;
 
@@ -669,6 +681,7 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 		vp.scene_ubs.time = Timer::GetTime();
 		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
 		vp.scene_ubo->update(vp.scene_ubs);
+
 		Render(&simulation::Environment);
 
 		// opaque parts...
@@ -692,6 +705,7 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 
 		if (Global.gfx_shadowmap_enabled)
 			setup_shadow_map(m_shadow_tex.get(), m_shadowpass);
+
 
 		Render(simulation::Region);
 
@@ -761,14 +775,10 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 				glDisable(GL_FRAMEBUFFER_SRGB);
 
 			Timer::subsystem.gfx_gui.start();
-			draw_debug_ui();
 			Application.render_ui();
 
 			Timer::subsystem.gfx_gui.stop();
 		}
-
-		// restore binding
-		vp.scene_ubo->bind_uniform();
 
 		glDebug("rendermode::color end");
 		break;
@@ -867,14 +877,13 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 
 		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
 		vp.scene_ubo->update(vp.scene_ubs);
+
 		Render(&simulation::Environment);
 
 		// opaque parts...
 		setup_drawing(false);
 		setup_shadow_map(m_shadow_tex.get(), m_shadowpass);
 
-		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
-		vp.scene_ubo->update(vp.scene_ubs);
 		Render(simulation::Region);
 
 		m_env_fb->unbind();
@@ -902,10 +911,9 @@ void opengl_renderer::Render_pass(viewport_config &vp, rendermode const Mode)
 
 		vp.scene_ubs.projection = OpenGLMatrices.data(GL_PROJECTION);
 		vp.scene_ubo->update(vp.scene_ubs);
-		if (simulation::Train != nullptr) {
-			Render_cab(simulation::Train->Dynamic(), 0.0f);
-			Render(simulation::Train->Dynamic());
-		}
+
+		Render_cab(simulation::Train->Dynamic(), 0.0f);
+		Render(simulation::Train->Dynamic());
 
 		m_pick_fb->unbind();
 
@@ -1037,7 +1045,6 @@ glm::mat4 opengl_renderer::ortho_frustumtest_projection(float l, float r, float 
 void opengl_renderer::setup_pass(viewport_config &Viewport, renderpass_config &Config, rendermode const Mode,
                                  float const Znear, float const Zfar, bool const Ignoredebug)
 {
-
 	Config.draw_mode = Mode;
 
 	if (false == simulation::is_ready)
@@ -1309,13 +1316,9 @@ void opengl_renderer::setup_drawing(bool const Alpha)
 	}
 }
 
-std::mutex mtx;
-
 // configures shadow texture unit for specified shadow map and conersion matrix
 void opengl_renderer::setup_shadow_map(opengl_texture *tex, renderpass_config conf)
 {
-	std::lock_guard<std::mutex> lock(mtx);
-
 	if (tex)
 		tex->bind(gl::MAX_TEXTURES + 0);
 	else
@@ -1398,17 +1401,6 @@ void opengl_renderer::setup_environment_light(TEnvironmentType const Environment
 
 bool opengl_renderer::Render(world_environment *Environment)
 {
-
-	// calculate shadow tone, based on positions of celestial bodies
-	m_shadowcolor = interpolate(glm::vec4{colors::shadow}, glm::vec4{colors::white}, clamp(-Environment->m_sun.getAngle(), 0.f, 6.f) / 6.f);
-	if ((Environment->m_sun.getAngle() < -18.f) && (Environment->m_moon.getAngle() > 0.f))
-	{
-		// turn on moon shadows after nautical twilight, if the moon is actually up
-		m_shadowcolor = colors::shadow;
-	}
-	// soften shadows depending on sky overcast factor
-	m_shadowcolor = glm::min(colors::white, m_shadowcolor + ((colors::white - colors::shadow) * Global.Overcast));
-
 	if (Global.bWireFrame)
 	{
 		// bez nieba w trybie rysowania linii
@@ -1419,18 +1411,20 @@ bool opengl_renderer::Render(world_environment *Environment)
 	::glDisable(GL_DEPTH_TEST);
 	::glPushMatrix();
 
-	m_vp->model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
-	m_vp->model_ubo->update(m_vp->model_ubs);
-
 	// skydome
 	// drawn with 500m radius to blend in if the fog range is low
 	glPushMatrix();
 	glScalef(500.0f, 500.0f, 500.0f);
+
+	m_vp->model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
+	m_vp->model_ubo->update(m_vp->model_ubs);
+
 	Environment->m_skydome.Render();
 	glPopMatrix();
 
 	// skydome uses a custom vbo which could potentially confuse the main geometry system. hardly elegant but, eh
 	gfx::opengl_vbogeometrybank::reset();
+	gl::buffer::unbind();
 
 	// stars
 	if (Environment->m_stars.m_stars != nullptr)
@@ -1454,6 +1448,8 @@ bool opengl_renderer::Render(world_environment *Environment)
 	// clouds
 	if (Environment->m_clouds.mdCloud)
 	{
+		std::lock_guard<std::mutex> lock(Environment->m_clouds.mdCloud->m_mutex);
+
 		// setup
 		glm::vec3 color = interpolate(Environment->m_skydome.GetAverageColor(), suncolor, duskfactor * 0.25f) * interpolate(1.f, 0.35f, Global.Overcast / 2.f) // overcast darkens the clouds
 		                  * 0.5f;
@@ -1761,7 +1757,6 @@ void opengl_renderer::Update_AnimModel(TAnimModel *model)
 
 void opengl_renderer::Render(scene::basic_region *Region)
 {
-
 	m_vp->sectionqueue.clear();
 	m_vp->cellqueue.clear();
 	// build a list of region sections to render
@@ -1845,7 +1840,7 @@ void opengl_renderer::Render(scene::basic_region *Region)
 void opengl_renderer::Render(section_sequence::iterator First, section_sequence::iterator Last)
 {
 	// shuffle in hope of reducing multithread lock contention
-	std::shuffle(First, Last, Global.local_random_engine);
+	std::shuffle(First, Last, m_vp->random);
 
 	switch (m_vp->renderpass.draw_mode)
 	{
@@ -1944,7 +1939,7 @@ void opengl_renderer::Render(section_sequence::iterator First, section_sequence:
 void opengl_renderer::Render(cell_sequence::iterator First, cell_sequence::iterator Last)
 {
 	// shuffle in hope of reducing multithread lock contention
-	std::shuffle(First, Last, Global.local_random_engine);
+	std::shuffle(First, Last, m_vp->random);
 
 	// cache initial iterator for the second sweep
 	auto first{First};
@@ -2161,6 +2156,7 @@ void opengl_renderer::Render(scene::shape_node const &Shape, bool const Ignorera
 
 void opengl_renderer::Render(TAnimModel *Instance)
 {
+
 	if (false == Instance->m_visible || !Instance->pModel)
 	{
 		return;
@@ -2200,10 +2196,9 @@ void opengl_renderer::Render(TAnimModel *Instance)
 	}
 	}
 
-	Instance->RaAnimate(m_framestamp); // jednorazowe przeliczenie animacji
-
 	std::lock_guard<std::mutex> lock(Instance->pModel->m_mutex);
 
+	Instance->RaAnimate(m_framestamp); // jednorazowe przeliczenie animacji
 	Instance->RaPrepare();
 
 	// renderowanie rekurencyjne submodeli
@@ -2214,11 +2209,9 @@ bool opengl_renderer::Render(TDynamicObject *Dynamic)
 {
 	glDebug("Render TDynamicObject");
 
-	Dynamic->renderme = m_vp->renderpass.pass_camera.visible(Dynamic);
-	if (false == Dynamic->renderme)
-	{
+	if (!m_vp->renderpass.pass_camera.visible(Dynamic))
 		return false;
-	}
+
 	// debug data
 	++m_debugstats.dynamics;
 
@@ -3013,12 +3006,12 @@ void opengl_renderer::Render_precipitation()
 	{
 		if (Global.Weather == "rain:")
 			// oddly enough random streaks produce more natural looking rain than ones the eye can follow
-			m_precipitationrotation = LocalRandom() * 360;
+			m_vp->precipitationrotation = (double)m_vp->random() / m_vp->random.max() * 360.0;
 		else
-			m_precipitationrotation = 0.0;
+			m_vp->precipitationrotation = 0.0;
 	}
 
-	::glRotated(m_precipitationrotation, 0.0, 1.0, 0.0);
+	::glRotated(m_vp->precipitationrotation, 0.0, 1.0, 0.0);
 
 	m_vp->model_ubs.set_modelview(OpenGLMatrices.data(GL_MODELVIEW));
 	m_vp->model_ubs.param[0] = interpolate(0.5f * (Global.DayLight.diffuse + Global.DayLight.ambient), colors::white, 0.5f * clamp<float>(Global.fLuminance, 0.f, 1.f));
@@ -3046,7 +3039,7 @@ void opengl_renderer::Render_Alpha(scene::basic_region *Region)
 void opengl_renderer::Render_Alpha(cell_sequence::reverse_iterator First, cell_sequence::reverse_iterator Last)
 {
 	// shuffle in hope of reducing multithread lock contention
-	std::shuffle(First, Last, Global.local_random_engine);
+	std::shuffle(First, Last, m_vp->random);
 
 	// NOTE: this method is launched only during color pass therefore we don't bother with mode test here
 	// first pass draws elements which we know are located in section banks, to reduce vbo switching
@@ -3158,10 +3151,9 @@ void opengl_renderer::Render_Alpha(TAnimModel *Instance)
 		return;
 	}
 
-	Instance->RaAnimate(m_framestamp); // jednorazowe przeliczenie animacji
-
 	std::lock_guard<std::mutex> lock(Instance->pModel->m_mutex);
 
+	Instance->RaAnimate(m_framestamp); // jednorazowe przeliczenie animacji
 	Instance->RaPrepare();
 
 	// renderowanie rekurencyjne submodeli
@@ -3242,10 +3234,8 @@ void opengl_renderer::Render_Alpha(scene::lines_node const &Lines)
 
 bool opengl_renderer::Render_Alpha(TDynamicObject *Dynamic)
 {
-	if (false == Dynamic->renderme)
-	{
+	if (!m_vp->renderpass.pass_camera.visible(Dynamic))
 		return false;
-	}
 
 	// setup
 	TSubModel::iInstance = (size_t)Dynamic; //żeby nie robić cudzych animacji

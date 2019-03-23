@@ -160,7 +160,7 @@ private:
     struct chunk_record{
         std::size_t offset{ 0 }; // beginning of the chunk data as offset from the beginning of the last established buffer
         std::size_t size{ 0 }; // size of the chunk in the last established buffer
-		volatile bool is_good{ false }; // true if local content of the chunk matches the data on the opengl end
+		bool is_good{ false }; // true if local content of the chunk matches the data on the opengl end
     };
 
     typedef std::vector<chunk_record> chunkrecord_sequence;

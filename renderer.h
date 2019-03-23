@@ -195,7 +195,6 @@ class opengl_renderer
 
 	// members
     GLenum static const sunlight{0};
-	std::size_t m_drawcount{0};
 
 	bool debug_ui_active = false;
 
@@ -214,14 +213,14 @@ class opengl_renderer
 
 	struct debug_stats
 	{
-		int dynamics{0};
-		int models{0};
-		int submodels{0};
-		int paths{0};
-		int traction{0};
-		int shapes{0};
-		int lines{0};
-		int drawcalls{0};
+		std::atomic_int dynamics{0};
+		std::atomic_int models{0};
+		std::atomic_int submodels{0};
+		std::atomic_int paths{0};
+		std::atomic_int traction{0};
+		std::atomic_int shapes{0};
+		std::atomic_int lines{0};
+		std::atomic_int drawcalls{0};
 	};
 
 	using section_sequence = std::vector<scene::basic_section *>;
@@ -275,10 +274,13 @@ class opengl_renderer
 		opengl_light sunlight;
 		opengllight_array lights;
 		bool blendingenabled;
+		double precipitationrotation;
 
 		renderpass_config renderpass; // parameters for current render pass
 		section_sequence sectionqueue; // list of sections in current render pass
 		cell_sequence cellqueue;
+
+		std::mt19937 random;
 	};
 
 	thread_local static viewport_config *m_vp; // current viewport in thread
@@ -349,8 +351,6 @@ class opengl_renderer
 
 	// main shadowmap resources
 	int m_shadowbuffersize{2048};
-	glm::mat4 m_shadowtexturematrix; // conversion from camera-centric world space to light-centric clip space
-	glm::mat4 m_cabshadowtexturematrix; // conversion from cab-centric world space to light-centric clip space
 
 	int m_environmentcubetextureface{0}; // helper, currently processed cube map face
 	int m_environmentupdatetime{0}; // time of the most recent environment map update
@@ -365,14 +365,13 @@ class opengl_renderer
 	std::string m_debugstatstext;
 
 	glm::vec4 m_baseambient{0.0f, 0.0f, 0.0f, 1.0f};
-	glm::vec4 m_shadowcolor{colors::shadow};
 	//    TEnvironmentType m_environment { e_flat };
 	float m_specularopaquescalefactor{1.f};
     float m_speculartranslucentscalefactor{1.f};
 
 	float m_fogrange = 2000.0f;
 
-    renderpass_config m_colorpass; // parametrs of most recent color pass
+	renderpass_config m_colorpass; // parametrs of most recent main window color pass
 	renderpass_config m_shadowpass; // parametrs of most recent shadowmap pass
 	renderpass_config m_cabshadowpass; // parameters of most recent cab shadowmap pass
 	std::vector<TSubModel const *> m_pickcontrolsitems;
@@ -385,8 +384,6 @@ class opengl_renderer
 #endif
 	GLuint m_gltimequery = 0;
 	GLuint64 m_gllasttime = 0;
-
-    double m_precipitationrotation;
 
     glm::mat4 perspective_projection(float fov, float aspect, float z_near, float z_far);
     glm::mat4 perpsective_frustumtest_projection(float fov, float aspect, float z_near, float z_far);

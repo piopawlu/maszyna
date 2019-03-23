@@ -68,4 +68,6 @@ private:
 	std::optional<gl::buffer> m_coloursbuffer;
 	std::optional<gl::program> m_shader;
 	std::optional<gl::vao> m_vao;
+
+	std::mutex m_mutex;
 };

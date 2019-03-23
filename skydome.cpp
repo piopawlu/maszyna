@@ -117,36 +117,40 @@ void CSkyDome::Update( glm::vec3 const &Sun ) {
 // render skydome to screen
 void CSkyDome::Render() {
 
-    if (!m_shader)
-    {
-        gl::shader vert("vbocolor.vert");
-        gl::shader frag("color.frag");
-		m_shader.emplace(std::vector<std::reference_wrapper<const gl::shader>>({vert, frag}));
-    }
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
 
-	if (!m_vertexbuffer) {
-		m_vao.emplace();
-		m_vao->bind();
+		if (!m_shader)
+		{
+			gl::shader vert("vbocolor.vert");
+			gl::shader frag("color.frag");
+			m_shader.emplace(std::vector<std::reference_wrapper<const gl::shader>>({vert, frag}));
+		}
 
-		m_vertexbuffer.emplace();
-		m_vertexbuffer->allocate(gl::buffer::ARRAY_BUFFER, m_vertices.size() * sizeof( glm::vec3 ), GL_STATIC_DRAW);
-		m_vertexbuffer->upload(gl::buffer::ARRAY_BUFFER, m_vertices.data(), 0, m_vertices.size() * sizeof( glm::vec3 ));
+		if (!m_vertexbuffer) {
+			m_vao.emplace();
+			m_vao->bind();
 
-		m_vao->setup_attrib(*m_vertexbuffer, 0, 3, GL_FLOAT, sizeof(glm::vec3), 0);
+			m_vertexbuffer.emplace();
+			m_vertexbuffer->allocate(gl::buffer::ARRAY_BUFFER, m_vertices.size() * sizeof( glm::vec3 ), GL_STATIC_DRAW);
+			m_vertexbuffer->upload(gl::buffer::ARRAY_BUFFER, m_vertices.data(), 0, m_vertices.size() * sizeof( glm::vec3 ));
 
-		m_coloursbuffer.emplace();
-		m_coloursbuffer->allocate(gl::buffer::ARRAY_BUFFER, m_colours.size() * sizeof( glm::vec3 ), GL_STATIC_DRAW);
-		m_coloursbuffer->upload(gl::buffer::ARRAY_BUFFER, m_colours.data(), 0, m_colours.size() * sizeof( glm::vec3 ));
+			m_vao->setup_attrib(*m_vertexbuffer, 0, 3, GL_FLOAT, sizeof(glm::vec3), 0);
 
-		m_vao->setup_attrib(*m_coloursbuffer, 1, 3, GL_FLOAT, sizeof(glm::vec3), 0);
+			m_coloursbuffer.emplace();
+			m_coloursbuffer->allocate(gl::buffer::ARRAY_BUFFER, m_colours.size() * sizeof( glm::vec3 ), GL_STATIC_DRAW);
+			m_coloursbuffer->upload(gl::buffer::ARRAY_BUFFER, m_colours.data(), 0, m_colours.size() * sizeof( glm::vec3 ));
 
-		m_indexbuffer.emplace();
-		m_indexbuffer->allocate(gl::buffer::ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof( unsigned short ), GL_STATIC_DRAW);
-		m_indexbuffer->upload(gl::buffer::ELEMENT_ARRAY_BUFFER, m_indices.data(), 0, m_indices.size() * sizeof( unsigned short ));
-		m_vao->setup_ebo(*m_indexbuffer);
+			m_vao->setup_attrib(*m_coloursbuffer, 1, 3, GL_FLOAT, sizeof(glm::vec3), 0);
 
-		m_vao->unbind();
-    }
+			m_indexbuffer.emplace();
+			m_indexbuffer->allocate(gl::buffer::ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof( unsigned short ), GL_STATIC_DRAW);
+			m_indexbuffer->upload(gl::buffer::ELEMENT_ARRAY_BUFFER, m_indices.data(), 0, m_indices.size() * sizeof( unsigned short ));
+			m_vao->setup_ebo(*m_indexbuffer);
+
+			m_vao->unbind();
+		}
+	}
 
     m_shader->bind();
     m_vao->bind();

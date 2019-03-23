@@ -30,7 +30,7 @@ http://mozilla.org/MPL/2.0/.
 texture_manager::texture_manager() {
 
     // since index 0 is used to indicate no texture, we put a blank entry in the first texture slot
-    m_textures.emplace_back( new opengl_texture(), std::chrono::steady_clock::time_point() );
+	m_textures.emplace_back( new opengl_texture(), resource_timestamp(0) );
 }
 
 // convert image to format suitable for given internalformat
@@ -871,11 +871,9 @@ opengl_texture::create() {
 
     // TODO: consider creating and storing low-res version of the texture if it's ever unloaded from the gfx card,
     // as a placeholder until it can be loaded again
-    if( id == -1 ) {
 
-		std::lock_guard<std::mutex> lock(m_mutex);
-		if (id != -1) // check again after locking mutex
-			return true;
+	std::lock_guard<std::mutex> lock(m_mutex);
+    if( id == -1 ) {
 
 		::glGenTextures( 1, const_cast<GLuint*>(&id) );
 		::glBindTexture( target, id );
@@ -1217,7 +1215,7 @@ texture_manager::create(std::string Filename, bool const Loadnow , GLint fh) {
     texture->traits = traits;
     texture->components_hint = fh;
     auto const textureindex = (texture_handle)m_textures.size();
-    m_textures.emplace_back( texture, std::chrono::steady_clock::time_point() );
+	m_textures.emplace_back( texture, resource_timestamp(0) );
     m_texturemappings.emplace( locator.first, textureindex );
 
     WriteLog( "Created texture object for \"" + locator.first + "\"", logtype::texture );
@@ -1247,7 +1245,7 @@ texture_manager::bind( std::size_t const Unit, texture_handle const Texture ) {
 opengl_texture &texture_manager::mark_as_used(const texture_handle Texture)
 {
     auto &pair = m_textures[ Texture ];
-    pair.second = m_garbagecollector.timestamp();
+	pair.second = m_garbagecollector.timestamp();
     return *pair.first;
 }
 
