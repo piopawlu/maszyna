@@ -204,10 +204,10 @@ find_package(PythonLibs 2 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 
-find_package(PNG REQUIRED)
+find_package(PNG REQUIRED 1.6)
 include_directories(${PNG_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
+add_definitions(${PNG_DEFINITIONS})
 target_link_libraries(${PROJECT_NAME} ${PNG_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${PNG_LIBRARY})
 
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
