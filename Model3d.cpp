@@ -343,10 +343,11 @@ int TSubModel::Load( cParser &parser, TModel3d *Model, /*int Pos,*/ bool dynamic
             >> discard >> fWireSize
             >> discard >> Opacity;
         // wymagane jest 0 dla szyb, 100 idzie w nieprzezroczyste
+WriteLog("opx: " + std::to_string(Opacity));
         if( Opacity > 1.f ) {
             Opacity = std::min( 1.f, Opacity * 0.01f );
         }
-
+WriteLog("opx: " + std::to_string(Opacity));
         if (!parser.expectToken("map:"))
             Error("Model map parse failure!");
         std::string material = parser.getToken<std::string>();
@@ -422,7 +423,7 @@ int TSubModel::Load( cParser &parser, TModel3d *Model, /*int Pos,*/ bool dynamic
         if (!std::isnan(mat.selfillum))
             fLight = mat.selfillum;
     }
-
+WriteLog("flx: " + std::to_string(iFlags & 0x30));
     // visibility range
 	std::string discard;
 	parser.getTokens(5, false);
