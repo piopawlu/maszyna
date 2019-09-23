@@ -122,8 +122,8 @@ void ui::cameraview_panel::workthread_func()
 	while (!exit_thread) {
 		size_t read = 0;
 		read = proc.read(read_buffer + bufpos, frame_size - bufpos);
-
-		if (!read)
+WriteLog(std::to_string(bufpos));
+        if (!read)
 			break;
 		bufpos += read;
 
