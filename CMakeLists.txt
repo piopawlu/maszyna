@@ -12,7 +12,7 @@ set(DEPS_DIR ${DEPS_DIR} "${CMAKE_SOURCE_DIR}/ref")
 project("eu07")
 
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=undefined")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined -Wformat")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined")
 #set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -fsanitize=address -fsanitize=undefined")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -31,7 +31,8 @@ file(GLOB HEADERS "*.h"
 "network/backend/*.h"
 "widgets/*.h"
 "launcher/*.h"
-"extras/*.h")
+"extras/*.h"
+"vfs/*.h")
 
 if (APPLE)
 	set (CMAKE_FIND_FRAMEWORK LAST)
@@ -187,6 +188,9 @@ set(SOURCES
 "launcher/scenery_scanner.cpp"
 
 "vr/vr_interface.cpp"
+
+"vfs/eu07vfs.c"
+"vfs/hashmap.c"
 )
 
 if (USE_IMGUI_GL3)
@@ -266,6 +270,9 @@ set (PREFIX "")
 set(OPENVR_LIBRARY "openvr_api")
 set(OPENVR_INCLUDE_DIR "")
 
+set(LZ4_LIBRARY "lz4")
+set(LZ4_INCLUDE_DIR "")
+
 if (WIN32)
 	add_definitions(-DHAVE_ROUND) # to make pymath to not redefine round
 	add_definitions(-DGLFW_DLL)
@@ -280,6 +287,7 @@ if (WIN32)
 	set(PYTHON_INCLUDE_DIR ${PYTHON_INCLUDE_DIR} "${DEPS_DIR}/python/include")
 	set(libserialport_INCLUDE_DIR ${LIBSERIALPORT_INCLUDE_DIR} "${DEPS_DIR}/libserialport/include")
 	set(OPENVR_INCLUDE_DIR "${DEPS_DIR}/openvr/include")
+	set(LZ4_INCLUDE_DIR "${DEPS_DIR}/lz4/include")
 	
 	if(${CMAKE_EXE_LINKER_FLAGS} STREQUAL "/machine:x64")
 		set (ARCH "x64")
@@ -298,6 +306,7 @@ if (WIN32)
 	set(libserialport_LIBRARY ${LIBSERIALPORT_LIBRARY} "${DEPS_DIR}/libserialport/lib/${ARCH}/libserialport-0.lib")
 	set(cppzmq_LIBRARY ${cppzmq_LIBRARY} "${DEPS_DIR}/cppzmq/lib/${ARCH}/libzmq.lib")
 	set(OPENVR_LIBRARY "${DEPS_DIR}/openvr/lib/${ARCH}/openvr_api.lib")
+	set(LZ4_LIBRARY "${DEPS_DIR}/lz4/lib/${ARCH}/liblz4.lib")
 endif()
 
 set(cppzmq_INCLUDE_DIR ${cppzmq_INCLUDE_DIR} "${DEPS_DIR}/cppzmq/include")
@@ -332,6 +341,9 @@ if (WITH_OPENVR)
 	    include_directories(${OPENVR_INCLUDE_DIR})
 		target_link_libraries(${PROJECT_NAME} ${OPENVR_LIBRARY})
 endif()
+
+include_directories(${LZ4_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} ${LZ4_LIBRARY})
 
 find_package(GLFW3 REQUIRED)
 include_directories(${GLFW3_INCLUDE_DIR})

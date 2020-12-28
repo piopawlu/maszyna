@@ -226,9 +226,9 @@ bool ui_layer::init(GLFWwindow *Window)
         0,
     };
 
-	if (FileExists("fonts/dejavusans.ttf"))
+    if (FileExistsDirect("fonts/dejavusans.ttf"))
         font_default = m_imguiio->Fonts->AddFontFromFileTTF("fonts/dejavusans.ttf", Global.ui_fontsize, nullptr, &ranges[0]);
-	if (FileExists("fonts/dejavusansmono.ttf"))
+    if (FileExistsDirect("fonts/dejavusansmono.ttf"))
         font_mono = m_imguiio->Fonts->AddFontFromFileTTF("fonts/dejavusansmono.ttf", Global.ui_fontsize, nullptr, &ranges[0]);
 
 	if (!font_default && !font_mono)

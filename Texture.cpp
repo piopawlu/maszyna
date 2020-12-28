@@ -26,6 +26,7 @@ http://mozilla.org/MPL/2.0/.
 #include "flip-s3tc.h"
 #include "stb/stb_image.h"
 #include <png.h>
+#include "vfs/vfsstream.h"
 
 #define EU07_DEFERRED_TEXTURE_UPLOAD
 
@@ -289,11 +290,19 @@ fail:
 
 void opengl_texture::load_PNG()
 {
+    ivfsstream file( name + type, std::ios::binary | std::ios::ate );
+    std::size_t filesize = static_cast<size_t>(file.tellg());   // ios::ate already positioned us at the end of the file
+    file.seekg( 0, std::ios::beg ); // rewind the caret afterwards
+
+    std::vector<char> buffer;
+    buffer.resize(filesize);
+    file.read(buffer.data(), filesize);
+
 	png_image png;
 	memset(&png, 0, sizeof(png_image));
 	png.version = PNG_IMAGE_VERSION;
 
-	png_image_begin_read_from_file(&png, (name + type).c_str());
+    png_image_begin_read_from_memory(&png, buffer.data(), buffer.size());
 	if (png.warning_or_error)
 	{
 		data_state = resource_state::failed;
@@ -334,11 +343,35 @@ void opengl_texture::load_PNG()
     data_state = resource_state::good;
 }
 
+static int stbi_read(void *user, char *data, int size) // fill 'data' with 'size' bytes.  return number of bytes actually read
+{
+    std::istream *stream = (std::istream*)user;
+    stream->read(data, size);
+    return stream->gcount();
+}
+
+static void stbi_skip(void *user, int n) // skip the next 'n' bytes, or 'unget' the last -n bytes if negative
+{
+    std::istream *stream = (std::istream*)user;
+    stream->seekg(n, std::ios_base::cur);
+}
+
+static int stbi_eof(void *user) // returns nonzero if we are at end of file/data
+{
+    std::istream *stream = (std::istream*)user;
+    return stream->eof();
+}
+
 void opengl_texture::load_STBI()
 {
+    ivfsstream stream(name + type);
+    std::istream *stream_ptr = &stream;
+
+    stbi_io_callbacks callbacks { stbi_read, stbi_skip, stbi_eof };
+
 	int x, y, n;
 	stbi_set_flip_vertically_on_load(1);
-	uint8_t *image = stbi_load((name + type).c_str(), &x, &y, &n, 4);
+    uint8_t *image = stbi_load_from_callbacks(&callbacks, stream_ptr, &x, &y, &n, 4);
 
 	if (!image) {
 		data_state = resource_state::failed;
@@ -469,9 +502,9 @@ DDSURFACEDESC2 opengl_texture::deserialize_ddsd(std::istream &s)
 }
 
 void
-opengl_texture::load_DDS() {
-
-    std::ifstream file( name + type, std::ios::binary | std::ios::ate ); file.unsetf( std::ios::skipws );
+opengl_texture::load_DDS()
+{
+    ivfsstream file( name + type, std::ios::binary | std::ios::ate ); file.unsetf( std::ios::skipws );
     std::size_t filesize = static_cast<size_t>(file.tellg());   // ios::ate already positioned us at the end of the file
     file.seekg( 0, std::ios::beg ); // rewind the caret afterwards
 
@@ -595,7 +628,7 @@ opengl_texture::load_DDS() {
 void
 opengl_texture::load_TEX() {
 
-    std::ifstream file( name + type, std::ios::binary ); file.unsetf( std::ios::skipws );
+    ivfsstream file( name + type, std::ios::binary ); file.unsetf( std::ios::skipws );
 
     char head[ 5 ];
     file.read( head, 4 );
@@ -642,7 +675,7 @@ opengl_texture::load_TEX() {
 void
 opengl_texture::load_TGA() {
 
-    std::ifstream file( name + type, std::ios::binary ); file.unsetf( std::ios::skipws );
+    ivfsstream file( name + type, std::ios::binary ); file.unsetf( std::ios::skipws );
 
     // Read the header of the TGA, compare it with the known headers for compressed and uncompressed TGAs
     unsigned char tgaheader[ 18 ];

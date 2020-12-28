@@ -394,6 +394,8 @@ eu07_application::exit() {
     m_taskqueue.exit();
     glfwTerminate();
 
+    eu07vfs_destroy(Global.vfs);
+
 	if (!Global.exec_on_exit.empty())
 		system(Global.exec_on_exit.c_str());
 }
@@ -651,6 +653,7 @@ eu07_application::init_files() {
 	unlink("errors.txt");
 	mkdir("logs", 0755);
 #endif
+    Global.vfs = eu07vfs_init("pak.eu07vfs");
 }
 
 int

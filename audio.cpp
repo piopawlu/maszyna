@@ -19,6 +19,49 @@ http://mozilla.org/MPL/2.0/.
 
 namespace audio {
 
+static sf_count_t sf_vioimp_get_filelen(void *user_data)
+{
+    std::istream *stream = (std::istream*)user_data;
+    size_t cur = stream->tellg();
+    stream->seekg(0, std::ios_base::end);
+    size_t end = stream->tellg();
+    stream->seekg(cur, std::ios_base::beg);
+    return end;
+}
+
+static sf_count_t sf_vioimp_seek(sf_count_t offset, int whence, void *user_data)
+{
+    std::istream *stream = (std::istream*)user_data;
+    if (whence == SF_SEEK_SET)
+        stream->seekg(offset, std::ios_base::beg);
+    else if (whence == SF_SEEK_CUR)
+        stream->seekg(offset, std::ios_base::cur);
+    else if (whence == SF_SEEK_END)
+        stream->seekg(offset, std::ios_base::end);
+    stream->clear();
+    return stream->tellg();
+}
+
+static sf_count_t sf_vioimp_read(void *ptr, sf_count_t count, void *user_data)
+{
+    std::istream *stream = (std::istream*)user_data;
+    stream->read((char*)ptr, count);
+    size_t gcount = stream->gcount();
+    stream->clear();
+    return gcount;
+}
+
+static sf_count_t sf_vioimp_write(const void *, sf_count_t, void *)
+{
+    return 0;
+}
+
+static sf_count_t sf_vioimp_tell(void *user_data)
+{
+    std::istream *stream = (std::istream*)user_data;
+    return stream->tellg();
+}
+
 openal_buffer::openal_buffer( std::string const &Filename ) :
     name( Filename ) {
 
@@ -29,7 +72,11 @@ openal_buffer::openal_buffer( std::string const &Filename ) :
 
 	WriteLog("sound: loading file: " + file);
 
-	SNDFILE *sf = sf_open(file.c_str(), SFM_READ, &si);
+    ivfsstream stream(file, std::ios::binary);
+    std::istream *stream_ptr = &stream;
+    SF_VIRTUAL_IO vio { sf_vioimp_get_filelen, sf_vioimp_seek, sf_vioimp_read, sf_vioimp_write, sf_vioimp_tell };
+
+    SNDFILE *sf = sf_open_virtual(&vio, SFM_READ, &si, stream_ptr);
 
 	if (sf == nullptr)
 		throw std::runtime_error("sound: sf_open failed");
@@ -87,7 +134,7 @@ openal_buffer::fetch_caption() {
     captionfilename += "-" + Global.asLang + ".txt"; // już może być w różnych językach
     if( true == FileExists( captionfilename ) ) {
         // wczytanie
-        std::ifstream inputfile( captionfilename );
+        ivfsstream inputfile( captionfilename );
         caption.assign( std::istreambuf_iterator<char>( inputfile ), std::istreambuf_iterator<char>() );
     }
 }

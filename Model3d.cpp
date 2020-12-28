@@ -2160,7 +2160,7 @@ void TModel3d::LoadFromBinFile(std::string const &FileName, bool dynamic)
 { // wczytanie modelu z pliku binarnego
     WriteLog( "Loading binary format 3d model data from \"" + FileName + "\"...", logtype::model );
 	
-	std::ifstream file(FileName, std::ios::binary);
+    ivfsstream file(FileName, std::ios::binary);
 
 	uint32_t type = sn_utils::ld_uint32(file);
 	uint32_t size = sn_utils::ld_uint32(file) - 8;
@@ -2168,8 +2168,7 @@ void TModel3d::LoadFromBinFile(std::string const &FileName, bool dynamic)
 	if (type != MAKE_ID4('E', '3', 'D', '0'))
 		throw std::runtime_error("e3d: unknown main chunk");
 
-	deserialize(file, size, dynamic);
-	file.close();
+    deserialize(file, size, dynamic);
 
     WriteLog( "Finished loading 3d model data from \"" + FileName + "\"", logtype::model );
 };

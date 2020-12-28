@@ -198,12 +198,9 @@ template <>
 bool
 extract_value( bool &Variable, std::string const &Key, std::string const &Input, std::string const &Default );
 
+bool FileExistsDirect( std::string const &Filename );
 bool FileExists( std::string const &Filename );
-
 std::pair<std::string, std::string> FileExists( std::vector<std::string> const &Names, std::vector<std::string> const &Extensions );
-
-// returns time of last modification for specified file
-std::time_t last_modified( std::string const &Filename );
 
 // potentially erases file extension from provided file name. returns: true if extension was removed, false otherwise
 bool

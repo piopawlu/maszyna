@@ -35,7 +35,13 @@ cParser::cParser( std::string const &Stream, buffertype const Type, std::string 
     switch (Type) {
         case buffer_FILE: {
             Path.append( Stream );
-			mStream = std::make_shared<std::ifstream>( Path, std::ios_base::binary );
+
+            if( ( Stream.size() >= 4 )
+             && ( ToLower( Stream.substr( Stream.size() - 4 ) ) == ".ini" ) ) // config files are read directly
+                mStream = std::make_shared<std::ifstream>( Path, std::ios_base::binary );
+            else
+                mStream = std::make_shared<ivfsstream>( Path, std::ios_base::binary );
+
             // content of *.inc files is potentially grouped together
             if( ( Stream.size() >= 4 )
              && ( ToLower( Stream.substr( Stream.size() - 4 ) ) == ".inc" ) ) {

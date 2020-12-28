@@ -1087,7 +1087,7 @@ basic_region::is_scene( std::string const &Scenariofile ) const {
     filename = Global.asCurrentSceneryPath + filename;
     filename += EU07_FILEEXTENSION_REGION;
 
-    if( false == FileExists( filename ) ) {
+    if( false == FileExistsDirect( filename ) ) {
         return false;
     }
     // file type and version check
@@ -1157,7 +1157,7 @@ basic_region::deserialize( std::string const &Scenariofile ) {
     filename = Global.asCurrentSceneryPath + filename;
     filename += EU07_FILEEXTENSION_REGION;
 
-    if( false == FileExists( filename ) ) {
+    if( false == FileExistsDirect( filename ) ) {
         return false;
     }
     // region file version 1

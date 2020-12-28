@@ -401,9 +401,14 @@ extract_value( bool &Variable, std::string const &Key, std::string const &Input,
     }
 }
 
-bool FileExists( std::string const &Filename ) {
+bool FileExistsDirect( std::string const &Filename ) {
 	std::ifstream file( Filename );
     return( true == file.is_open() );
+}
+
+bool FileExists(std::string const &Filename) {
+    eu07vfs_file_handle handle = eu07vfs_lookup_file(Global.vfs, Filename.data(), Filename.size());
+    return handle != EU07VFS_NULL_HANDLE;
 }
 
 std::pair<std::string, std::string>
@@ -418,17 +423,6 @@ FileExists( std::vector<std::string> const &Names, std::vector<std::string> cons
     }
     // nothing found
     return { {}, {} };
-}
-
-// returns time of last modification for specified file
-std::time_t
-last_modified( std::string const &Filename ) {
-    std::string fn = Filename;
-    struct stat filestat;
-    if( ::stat( fn.c_str(), &filestat ) == 0 )
-		return filestat.st_mtime;
-    else
-		return 0;
 }
 
 // potentially erases file extension from provided file name. returns: true if extension was removed, false otherwise

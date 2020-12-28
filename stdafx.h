@@ -113,6 +113,8 @@ int const null_handle = 0;
 #define ImVec2S(a, b) ImVec2(a * Global.ui_scale, b * Global.ui_scale)
 #include "openglcolor.h"
 
+#include "vfs/vfsstream.h"
+
 #endif
 
 #pragma warning( disable : 5033 ) // "register is no longer a supported storage class" but it's all over python headers

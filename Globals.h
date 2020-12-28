@@ -16,6 +16,8 @@ http://mozilla.org/MPL/2.0/.
 #include "light.h"
 #include "utilities.h"
 #include "motiontelemetry.h"
+#include "vfs/eu07vfs.h"
+
 #ifdef WITH_UART
 #include "uart.h"
 #endif
@@ -305,6 +307,8 @@ struct global_settings {
 	float desync = 0.0f;
 
 	std::unordered_map<int, std::string> trainset_overrides;
+
+    eu07vfs_instance vfs;
 
 // methods
     void LoadIniFile( std::string asFileName );

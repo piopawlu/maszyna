@@ -285,7 +285,7 @@ auto python_taskqueue::run_file( std::string const &File, std::string const &Pat
     auto const lookup { FileExists( { Path + File, "python/local/" + File }, { ".py" } ) };
     if( lookup.first.empty() ) { return false; }
 
-    std::ifstream inputfile { lookup.first + lookup.second };
+    ivfsstream inputfile { lookup.first + lookup.second };
     std::string input;
     input.assign( std::istreambuf_iterator<char>( inputfile ), std::istreambuf_iterator<char>() );
 

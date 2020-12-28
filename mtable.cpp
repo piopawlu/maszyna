@@ -249,7 +249,6 @@ bool TTrainParameters::LoadTTfile(std::string scnpath, int iPlus, double vmax)
 {
     std::string lines;
     std::string s;
-    std::ifstream fin;
     bool EndTable;
     double vActual;
 
@@ -267,10 +266,9 @@ bool TTrainParameters::LoadTTfile(std::string scnpath, int iPlus, double vmax)
 		replace_slashes(s);
         // Ra 2014-09: ustalić zasady wyznaczenia pierwotnego pliku przy przesuniętych rozkładach
         // (kolejny pociąg dostaje numer +2)
-        fin.open(s.c_str()); // otwieranie pliku
 		replace_slashes(s);
 
-        if (!fin.is_open())
+        if (!FileExists(s))
         { // jeśli nie ma pliku
             vmax = atoi(TrainName.c_str()); // nie ma pliku ale jest liczba
             if ((vmax > 10) && (vmax < 200))
@@ -284,6 +282,7 @@ bool TTrainParameters::LoadTTfile(std::string scnpath, int iPlus, double vmax)
         }
         else
         { /*analiza rozkładu jazdy*/
+            ivfsstream fin(s);
             ConversionError = 0;
             while (fin.good() && !((ConversionError != 0) || EndTable))
             {
@@ -303,7 +302,6 @@ bool TTrainParameters::LoadTTfile(std::string scnpath, int iPlus, double vmax)
                 }
                 else if (lines == "")
                 {
-                    fin.close();
                     break;
                 }
                 fin >> s; /*nazwa pociągu*/
@@ -544,7 +542,6 @@ bool TTrainParameters::LoadTTfile(std::string scnpath, int iPlus, double vmax)
                     }
                 }
             } /*while eof*/
-            fin.close();
         }
     }
     if (ConversionError == 0)
